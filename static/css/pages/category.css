@@ -1,0 +1,74 @@
+.dictionary {
+    padding: 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.subcategories {
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: var(--bg-secondary);
+    border-radius: 12px;
+    border: 1px solid var(--border);
+}
+
+.words-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+.word-card-large {
+    background: var(--bg-secondary);
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    overflow: hidden;
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.3s;
+    display: flex;
+    flex-direction: column;
+}
+
+.word-card-large:hover {
+    border-color: var(--accent);
+    transform: translateY(-3px);
+}
+
+.word-card-large .word-card-header {
+    padding: 1.25rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+}
+
+.word-card-large .word-card-content {
+    padding: 1.25rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.empty-state a:hover { text-decoration: underline; }
+
+/* Добавлены недостающие стили из components */
+.preview-tag {
+    padding: 0.25rem 0.75rem;
+    background: var(--bg-tertiary);
+    border-radius: 20px;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+.empty-state {
+    color: var(--text-muted);
+    text-align: center;
+    padding: 3rem;
+}
+
+@media (max-width: 768px) {
+    .dictionary { padding: 1rem; }
+    .words-grid { grid-template-columns: 1fr; }
+}

@@ -1,0 +1,43 @@
+{% extends 'dictionary/base.html' %}
+{% load static %}
+
+{% block page_css %}<link rel="stylesheet" href="{% static 'css/pages/invariants.css' %}">{% endblock %}
+{% block title %}Оценка инвариантов{% endblock %}
+
+{% block content %}
+<div class="dictionary">
+    <div class="section-header">
+        <h1 class="section-title">Оценка инвариантов</h1>
+        <p>Помогите определить допустимость замены слов в контексте</p>
+    </div>
+
+    <div class="invariant-quiz">
+        <div class="quiz-question">
+            Можно ли заменить выделенное слово в этой фразе?
+        </div>
+        <div class="quiz-phrase" id="quiz-phrase">
+            Я <span class="highlight">люблю</span> кофе
+        </div>
+        <div class="replacement">
+            Замена: <span>обожаю</span>
+        </div>
+        <div class="quiz-options">
+            <button class="quiz-option" onclick="submitAnswer('yes')">
+                <div class="option-icon">✓</div>
+                <div>Да</div>
+            </button>
+            <button class="quiz-option" onclick="submitAnswer('context')">
+                <div class="option-icon">🤔</div>
+                <div>Зависит от ситуации</div>
+            </button>
+            <button class="quiz-option" onclick="submitAnswer('no')">
+                <div class="option-icon">✗</div>
+                <div>Нет</div>
+            </button>
+        </div>
+        <div class="quiz-progress">
+            Прогресс: <span id="progress">{{ progress }}</span>/20
+        </div>
+    </div>
+</div>
+{% endblock %}

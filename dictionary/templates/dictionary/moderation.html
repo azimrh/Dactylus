@@ -1,0 +1,47 @@
+{% extends 'dictionary/base.html' %}
+{% load static %}
+
+{% block page_css %}<link rel="stylesheet" href="{% static 'css/pages/moderation.css' %}">{% endblock %}
+{% block title %}Модерация{% endblock %}
+
+{% block content %}
+<div class="moderation">
+    <div class="section-header">
+        <h1 class="section-title">Панель модерации</h1>
+        <p>Проверка и управление качеством данных</p>
+    </div>
+
+    <div class="queue-tabs">
+        <button class="tab active" onclick="showQueue('gestures')">
+            Жесты ({{ gestures.count }})
+        </button>
+        <button class="tab" onclick="showQueue('words')">
+            Слова ({{ words.count }})
+        </button>
+    </div>
+
+    <div id="queue-gestures" class="queue-list">
+        {% for gesture in gestures %}
+        <div class="queue-item">
+            <div class="queue-preview">🎥</div>
+            <div class="queue-info">
+                <div class="queue-title">Жест: "{{ gesture.word.text }}"</div>
+                <div class="queue-meta">
+                    Автор: {{ gesture.author.username }} • 
+                    {{ gesture.created_at|timesince }} назад
+                </div>
+                <div class="queue-tags">
+                    <span class="badge badge-verified">{{ gesture.get_gesture_type_display }}</span>
+                </div>
+            </div>
+            <div class="queue-actions">
+                <button class="btn btn-approve btn-small" onclick="moderate({{ gesture.id }}, 'approve')">✓</button>
+                <button class="btn btn-reject btn-small" onclick="moderate({{ gesture.id }}, 'reject')">✗</button>
+            </div>
+        </div>
+        {% empty %}
+        <p class="empty-state">Нет жестов на проверке</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

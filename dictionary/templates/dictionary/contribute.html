@@ -1,0 +1,32 @@
+{% extends 'dictionary/base.html' %}
+{% load static %}
+
+{% block page_css %}<link rel="stylesheet" href="{% static 'css/pages/contribute.css' %}">{% endblock %}
+{% block title %}Вклад в проект{% endblock %}
+
+{% block content %}
+<div class="contribute">
+    <div class="section-header">
+        <h1 class="section-title">Вклад в проект</h1>
+        <p>Помогите улучшить Dactylus и обучить ИИ</p>
+    </div>
+
+    <div class="features-grid">
+        <a href="{% url 'invariants' %}" class="feature-card">
+            <div class="feature-icon">🎯</div>
+            <h3>Оценка инвариантов</h3>
+            <p>Помогите определить, в каких контекстах можно заменять слова</p>
+        </a>
+        <a href="{% url 'annotation' %}" class="feature-card">
+            <div class="feature-icon">📍</div>
+            <h3>Разметка видео</h3>
+            <p>Размечайте ключевые точки на видео жестов для обучения моделей</p>
+        </a>
+        <a href="{% url 'dictionary' %}" class="feature-card">
+            <div class="feature-icon">📹</div>
+            <h3>Добавить жест</h3>
+            <p>Загрузите видео новых жестов как носитель РЖЯ</p>
+        </a>
+    </div>
+</div>
+{% endblock %}

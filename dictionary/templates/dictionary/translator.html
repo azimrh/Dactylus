@@ -1,0 +1,41 @@
+{% extends 'dictionary/base.html' %}
+{% load static %}
+
+{% block page_css %}<link rel="stylesheet" href="{% static 'css/pages/translator.css' %}">{% endblock %}
+{% block title %}Переводчик{% endblock %}
+
+{% block content %}
+<div class="translator">
+    <div class="translator-header">
+        <h1 class="section-title">Переводчик РЖЯ</h1>
+        <p>Преобразуйте текст в последовательность жестов</p>
+    </div>
+
+    <div class="translator-workspace">
+        <div class="input-panel">
+            <div class="panel-header">
+                <span>📝 Текст</span>
+                <button class="action-btn" onclick="clearTranslator()">Очистить</button>
+            </div>
+            <div class="panel-content">
+                <textarea class="text-input" placeholder="Введите текст для перевода..." id="translate-input"></textarea>
+            </div>
+            <div class="panel-actions">
+                <button class="action-btn" onclick="translateText()">🔄 Перевести</button>
+            </div>
+        </div>
+
+        <div class="output-panel">
+            <div class="panel-header">
+                <span>🤟 Жесты</span>
+                <button class="action-btn" onclick="playAll()">▶ Воспроизвести все</button>
+            </div>
+            <div class="panel-content">
+                <div class="gesture-sequence" id="gesture-output">
+                    <p class="empty-state">Введите текст и нажмите "Перевести"</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

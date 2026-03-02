@@ -1,0 +1,60 @@
+{% extends 'dictionary/base.html' %}
+{% load static %}
+
+{% block page_css %}<link rel="stylesheet" href="{% static 'css/pages/auth.css' %}">{% endblock %}
+{% block title %}Вход{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <h1>Вход в систему</h1>
+
+        {% if form.errors %}
+        <div class="alert alert-error">
+            Неверное имя пользователя или пароль.
+        </div>
+        {% endif %}
+
+        <form method="post" action="{% url 'login' %}">
+            {% csrf_token %}
+
+            <div class="form-group">
+                <label for="id_username">Имя пользователя</label>
+                <input type="text" name="username" id="id_username" class="form-input" required autofocus>
+            </div>
+
+            <div class="form-group">
+                <label for="id_password">Пароль</label>
+                <input type="password" name="password" id="id_password" class="form-input" required>
+            </div>
+
+            <input type="hidden" name="next" value="{{ next|default:'/' }}">
+
+            <div class="auth-actions">
+                <button type="submit" class="btn btn-primary">Войти</button>
+                <a href="{% url 'register' %}" class="btn btn-secondary">Создать аккаунт</a>
+            </div>
+        </form>
+
+        <!--
+        <div class="demo-section">
+            <p>Демо-доступ:</p>
+            <div class="demo-accounts">
+                <button onclick="fillLogin('test_user', 'test_user')" class="btn btn-small btn-ghost">Пользователь</button>
+                <button onclick="fillLogin('test_native', 'test_native')" class="btn btn-small btn-ghost">Носитель РЖЯ</button>
+                <button onclick="fillLogin('test_moder', 'test_moder')" class="btn btn-small btn-ghost">Модератор</button>
+            </div>
+        </div>
+        -->
+    </div>
+</div>
+
+<!--
+<script>
+function fillLogin(username, password) {
+    document.getElementById('id_username').value = username;
+    document.getElementById('id_password').value = password;
+}
+</script>
+-->
+{% endblock %}
