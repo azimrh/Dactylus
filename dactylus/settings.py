@@ -1,40 +1,95 @@
 from pathlib import Path
 import os
+import environ
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = 'django-insecure-your-secret-key-here-change-in-production'
+env = environ.Env(
+    DEBUG=(bool, False)
+)
 
-DEBUG = True
+# какой .env загружать
+ENV_FILE = os.environ.get(
+    "DJANGO_ENV_FILE",
+    os.path.join(BASE_DIR, ".env.dev")
+)
+environ.Env.read_env(ENV_FILE)
 
-ALLOWED_HOSTS = [
-    'localhost',
-    '127.0.0.1',
-    'dactylus.ru',
-    'www.dactylus.ru'
-]
+# --------------------------------------------------
+# Базовые параметры
+# --------------------------------------------------
+
+SECRET_KEY = env("SECRET_KEY")
+DEBUG = env("DEBUG")
+
+ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=[])
+
+# --------------------------------------------------
+# Приложения
+# --------------------------------------------------
 
 INSTALLED_APPS = [
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-    'dictionary',
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
+    "dictionary",
 ]
 
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "django.middleware.security.SecurityMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-ROOT_URLCONF = 'dactylus.urls'
+ROOT_URLCONF = "dactylus.urls"
+WSGI_APPLICATION = "dactylus.wsgi.application"
+
+# --------------------------------------------------
+# База данных
+# --------------------------------------------------
+
+DATABASES = {
+    "default": env.db()
+}
+
+# --------------------------------------------------
+# Локализация
+# --------------------------------------------------
+
+LANGUAGE_CODE = env("LANGUAGE_CODE", default="ru-ru")
+TIME_ZONE = env("TIME_ZONE", default="Europe/Moscow")
+
+USE_I18N = True
+USE_TZ = True
+
+# --------------------------------------------------
+# Static / Media
+# --------------------------------------------------
+
+STATIC_URL = "/static/"
+MEDIA_URL = "/media/"
+
+# DEV: Django сам обслуживает
+if DEBUG:
+    STATICFILES_DIRS = [os.path.join(BASE_DIR, "static")]
+    STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
+    MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+
+# PROD: nginx обслуживает
+else:
+    STATIC_ROOT = env("STATIC_ROOT")
+    MEDIA_ROOT = env("MEDIA_ROOT")
+
+# --------------------------------------------------
+# ВАЖНОЕ
+# --------------------------------------------------
 
 TEMPLATES = [
     {
@@ -52,48 +107,16 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'dactylus.wsgi.application'
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
-
 AUTH_PASSWORD_VALIDATORS = [
-    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',},
-    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',},
-    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',},
+    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
-LANGUAGE_CODE = 'ru-ru'
-TIME_ZONE = 'Europe/Moscow'
-USE_I18N = True
-USE_TZ = True
-
-# Static files (CSS, JavaScript, Images)
-STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
-
-# Media files
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
-# Security settings for HTTPS
-SECURE_SSL_REDIRECT = True
-SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SECURE = True
-SECURE_BROWSER_XSS_FILTER = True
-SECURE_CONTENT_TYPE_NOSNIFF = True
-X_FRAME_OPTIONS = 'DENY'
-SECURE_HSTS_SECONDS = 31536000  # 1 year
-SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-SECURE_HSTS_PRELOAD = True
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-
+# --------------------------------------------------
 # Logging
+# --------------------------------------------------
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -113,17 +136,29 @@ LOGGING = {
     },
 }
 
-# ...
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+# --------------------------------------------------
+# HTTPS (только прод)
+# --------------------------------------------------
 
-# Custom user model
-AUTH_USER_MODEL = 'dictionary.User'
+SECURE_SSL_REDIRECT = env.bool("SECURE_SSL_REDIRECT", default=False)
+SESSION_COOKIE_SECURE = env.bool("SESSION_COOKIE_SECURE", default=False)
+CSRF_COOKIE_SECURE = env.bool("CSRF_COOKIE_SECURE", default=False)
 
-# Auth settings
-LOGIN_REDIRECT_URL = '/'
-LOGOUT_REDIRECT_URL = '/'
-LOGIN_URL = '/login/'
+SECURE_HSTS_SECONDS = env.int("SECURE_HSTS_SECONDS", default=0)
+SECURE_HSTS_INCLUDE_SUBDOMAINS = env.bool("SECURE_HSTS_INCLUDE_SUBDOMAINS", default=False)
+SECURE_HSTS_PRELOAD = env.bool("SECURE_HSTS_PRELOAD", default=False)
 
-#
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-USE_X_FORWARDED_HOST = True
+USE_X_FORWARDED_HOST = env.bool("USE_X_FORWARDED_HOST", default=False)
+
+# --------------------------------------------------
+# Auth
+# --------------------------------------------------
+
+AUTH_USER_MODEL = "dictionary.User"
+
+LOGIN_REDIRECT_URL = "/"
+LOGOUT_REDIRECT_URL = "/"
+LOGIN_URL = "/login/"
+
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
