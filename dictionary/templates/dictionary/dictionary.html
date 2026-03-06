@@ -7,23 +7,21 @@
 {% block content %}
 <div class="dictionary">
     <div class="section-header">
-        <h1 class="section-title">Словарь РЖЯ</h1>
-        <p>Иерархическая система жестов с вариантами от разных исполнителей</p>
+        <h1 class="section-title">Словарь</h1>
+        <!--<p>Иерархическая система жестов с вариантами от разных исполнителей</p>-->
     </div>
 
     <form class="search-bar" method="get" action="{% url 'dictionary' %}">
         <input type="text" name="q" class="search-input" placeholder="Поиск по слову..." value="{{ search_query }}">
         <button type="submit" class="btn btn-primary">🔍 Найти</button>
-        {% if user.is_authenticated and user.role == 'native' %}
-        <button type="button" class="btn btn-secondary" onclick="showUploadModal()">📤 Загрузить видео</button>
-        {% endif %}
     </form>
 
-    {% if words %}
+    {% if search_words %}
+
     <div class="search-results">
         <h3>Результаты поиска:</h3>
         <div class="words-list">
-            {% for word in words %}
+            {% for word in search_words %}
             <a href="{{ word.get_absolute_url }}" class="word-item">
                 <span class="word-text">{{ word.text }}</span>
                 <span class="word-category">{{ word.categories.first.name }}</span>
@@ -31,7 +29,9 @@
             {% endfor %}
         </div>
     </div>
+
     {% else %}
+
     <div class="filter-tabs">
         <a href="{% url 'dictionary' %}" class="tab active">Все категории</a>
         {% for cat in categories %}
@@ -44,16 +44,17 @@
         <a href="{{ category.get_absolute_url }}" class="category-card">
             <div class="category-header">
                 <div class="category-title">{{ category.name }}</div>
-                <div class="category-count">{{ category.words.count }} жестов</div>
+                <div class="category-count">{{ category.text_lemmas.count }} слов</div>
             </div>
             <div class="category-preview">
-                {% for word in category.words.all|slice:":4" %}
-                <span class="preview-tag">{{ word.text }}</span>
+                {% for text_lemma in category.text_lemmas.all|slice:":4" %}
+                <span class="preview-tag">{{ text_lemma.text }}</span>
                 {% endfor %}
             </div>
         </a>
         {% endfor %}
     </div>
+
     {% endif %}
 </div>
 {% endblock %}

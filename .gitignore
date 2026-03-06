@@ -1,8 +1,10 @@
 .venv/
 .idea/
 
+media/
 logs/
 
 *.sqlite3
+*.json
 *.sh
 .env.*

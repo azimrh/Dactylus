@@ -7,13 +7,11 @@
     <nav class="mobile-nav">
         <a href="{% url 'home' %}" class="mobile-nav-link" onclick="toggleMobileMenu()"><span>🏠</span> Главная</a>
         <a href="{% url 'dictionary' %}" class="mobile-nav-link" onclick="toggleMobileMenu()"><span>📚</span> Словарь</a>
-        <!--<a href="{% url 'translator' %}" class="mobile-nav-link" onclick="toggleMobileMenu()"><span>🔄</span> Переводчик</a>-->
 
         {% if user.is_authenticated %}
             <a href="{% url 'personal_dict' %}" class="mobile-nav-link" onclick="toggleMobileMenu()"><span>📝</span> Мой словарь</a>
 
             {% if user.role == 'native' or user.role == 'moderator' or user.role == 'admin' or user.is_superuser %}
-                <!-- <a href="{% url 'contribute' %}" class="mobile-nav-link" onclick="toggleMobileMenu()"><span>🌟</span> Вклад</a> -->
             {% endif %}
 
             {% if user.role == 'moderator' or user.role == 'admin' or user.is_superuser %}

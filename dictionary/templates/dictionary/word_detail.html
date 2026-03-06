@@ -2,22 +2,22 @@
 {% load static %}
 
 {% block page_css %}<link rel="stylesheet" href="{% static 'css/pages/word-detail.css' %}">{% endblock %}
-{% block title %}{{ word.text }}{% endblock %}
+{% block title %}{{ lemma.text }}{% endblock %}
 
 {% block content %}
 <div class="word-detail">
     <div class="word-header">
         <div>
-            <h1 class="word-title">{{ word.text }}</h1>
+            <h1 class="word-title">{{ lemma.text }}</h1>
             <div class="word-meta">
-                {% if gestures.first.region %}
-                <span class="dialect-badge">Диалект: {{ gestures.first.region }}</span>
+                {% if lemma.region %}
+                <span class="dialect-badge">Диалект: {{ lemma.region }}</span>
                 {% endif %}
                 <span class="badge badge-verified">✓ Проверено</span>
             </div>
         </div>
         {% if user.is_authenticated %}
-        <button class="btn btn-secondary" onclick="addToPersonal({{ word.id }})" id="add-btn">
+        <button class="btn btn-secondary" onclick="addToPersonal('{% if is_gesture %}gesture{% else %}text{% endif %}', {{ lemma.id }})" id="add-btn">
             {% if in_personal %}✓ В словаре{% else %}➕ В мой словарь{% endif %}
         </button>
         {% endif %}
@@ -26,49 +26,61 @@
     <div class="word-content">
         <div>
             <div class="gesture-display">
-                {% for gesture in gestures|slice:":1" %}
+                {% with gesture=lemma.meanings.first.gesture_lemmas.first.realizations.first %}
+                {% if gesture %}
                 <div class="gesture-video">
-                    <video controls poster="{{ gesture.thumbnail.url }}">
+                    <video controls {% if gesture.image %}poster="{{ gesture.image.url }}"{% endif %}>
                         <source src="{{ gesture.video.url }}" type="video/mp4">
                     </video>
                 </div>
-                {% empty %}
+                {% else %}
                 <div class="gesture-video">
                     <div class="video-placeholder">
-                        <div class="play-button">▶</div>
-                        <p>Видео загружается</p>
+                        <!--<div class="play-button">▶</div>-->
+                        <p>Видео отсутствует</p>
                     </div>
                 </div>
-                {% endfor %}
-                
+                {% endif %}
+                {% endwith %}
+
                 <div class="gesture-controls">
                     <span>Скорость:</span>
                     <input type="range" min="0.5" max="2" step="0.1" value="1" onchange="changeSpeed(this.value)">
                     <span id="speed-value">1.0x</span>
                 </div>
             </div>
-
-            {% if user.is_authenticated and user.role == 'native' %}
-            <div class="upload-section">
-                <h3>Загрузить свой вариант</h3>
-                <p>Вы носитель РЖЯ? Помогите расширить словарь.</p>
-                <button class="btn btn-primary" onclick="showUploadModal()">📤 Загрузить видео</button>
-            </div>
-            {% endif %}
         </div>
 
         <div class="word-info">
             <div class="invariant-section">
-                <h3>📖 Значение</h3>
-                <p>{{ word.description|default:"Описание появится позже" }}</p>
+                <h3>📖 Значения</h3>
+                {% for mapping in meaning_mappings %}
+                <div class="meaning-item">
+                    <p><strong>{{ mapping.meaning.description }}</strong></p>
+                    {% if mapping.is_primary %}<span class="badge">Основное</span>{% endif %}
+                </div>
+                {% empty %}
+                <p>Описание появится позже</p>
+                {% endfor %}
             </div>
 
-            {% if word.synonyms.exists %}
+            {% if synonyms.exists %}
             <div class="invariant-section">
                 <h3>🔗 Синонимы</h3>
                 <div class="relations-list">
-                    {% for syn in word.synonyms.all %}
+                    {% for syn in synonyms %}
                     <a href="{{ syn.get_absolute_url }}" class="relation-tag">{{ syn.text }}</a>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            {% if antonyms.exists %}
+            <div class="invariant-section">
+                <h3>⚡ Антонимы</h3>
+                <div class="relations-list">
+                    {% for ant in antonyms %}
+                    <a href="{{ ant.get_absolute_url }}" class="relation-tag">{{ ant.text }}</a>
                     {% endfor %}
                 </div>
             </div>

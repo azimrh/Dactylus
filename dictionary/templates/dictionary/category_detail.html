@@ -28,23 +28,20 @@
     {% endif %}
 
     <div class="words-grid" id="words-container">
-        {% for word in words %}
-        <a href="{{ word.get_absolute_url }}" class="word-card-large">
+        {% for text_lemma in text_lemmas %}
+        <a href="{{ text_lemma.get_absolute_url }}" class="word-card-large">
             <div class="word-card-header">
-                <span style="font-size: 1.25rem; font-weight: 600;">{{ word.text }}</span>
-                {% if word.gestures.exists %}
-                <span class="badge badge-verified">✓ Есть видео</span>
-                {% endif %}
+                <span style="font-size: 1.25rem; font-weight: 600;">{{ text_lemma.text }}</span>
             </div>
             <div class="word-card-content">
-                <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1rem;">
-                    {{ word.description|truncatewords:15|default:"Описание отсутствует" }}
-                </p>
+                {% if text_lemma.synonyms.all %}
+                <p>Синонимы:</p>
                 <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-                    {% for syn in word.synonyms.all|slice:":3" %}
+                    {% for syn in text_lemma.synonyms.all|slice:":3" %}
                     <span class="preview-tag">{{ syn.text }}</span>
                     {% endfor %}
                 </div>
+                {% endif %}
             </div>
         </a>
         {% empty %}

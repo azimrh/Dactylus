@@ -1,10 +1,8 @@
-from django.contrib.auth.models import AbstractUser
 from django.db import models
-from django.urls import reverse
 
 
 class Meaning(models.Model):
-    description = models.TextField(verbose_name='Описание смысла')
+    description = models.TextField(verbose_name='Описание смысла', null=True)
     hypernym = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='hyponyms', verbose_name='Верхнее понятие')
 
     created_at = models.DateTimeField(auto_now_add=True)

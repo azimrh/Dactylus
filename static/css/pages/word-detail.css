@@ -40,7 +40,7 @@
 }
 
 .gesture-video {
-    aspect-ratio: 16/9;
+    aspect-ratio: auto;
     background: var(--bg-tertiary);
     display: flex;
     align-items: center;

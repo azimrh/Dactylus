@@ -6,13 +6,11 @@
         <div class="nav-links" id="nav-links">
             <a href="{% url 'home' %}" class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}">Главная</a>
             <a href="{% url 'dictionary' %}" class="nav-link {% if request.resolver_match.url_name == 'dictionary' %}active{% endif %}">Словарь</a>
-            <!-- <a href="{% url 'translator' %}" class="nav-link {% if request.resolver_match.url_name == 'translator' %}active{% endif %}">Переводчик</a> -->
 
             {% if user.is_authenticated %}
                 <a href="{% url 'personal_dict' %}" class="nav-link {% if request.resolver_match.url_name == 'personal_dict' %}active{% endif %}">Мой словарь</a>
 
                 {% if user.role == 'native' or user.role == 'moderator' or user.role == 'admin' or user.is_superuser %}
-                    <!-- <a href="{% url 'contribute' %}" class="nav-link {% if request.resolver_match.url_name == 'contribute' %}active{% endif %}">Вклад</a> -->
                 {% endif %}
 
                 {% if user.role == 'moderator' or user.role == 'admin' or user.is_superuser %}
