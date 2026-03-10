@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function animateCounters() {
         document.querySelectorAll('.stat__value').forEach(stat => {
             const target = parseInt(stat.dataset.value);
-            const duration = 2000;
+            const duration = 1000;
             const start = performance.now();
 
             const update = (now) => {

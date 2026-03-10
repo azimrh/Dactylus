@@ -17,8 +17,8 @@
             <div class="col-lg-6">
               <h1 class="hero__title">Словарь русского жестового языка</h1>
               <p class="hero__subtitle">
-                Dactylus — это открытый и пополняемый словарь жестового языка.
-                Мы создаем доступное пространство для изучения и сохранения языка глухого сообщества России.
+                Dactylus — это открытый и пополняемый словарь жестового языка.<br>
+                Мы создаем доступное пространство для изучения русского жестового языка.
               </p>
               <div class="d-flex flex-wrap gap-3">
                 <a href="{% url 'dictionary' %}" class="btn btn-primary btn-lg">
@@ -52,45 +52,30 @@
               <div class="feature-card__icon"><i class="bi bi-book"></i></div>
               <div>
                 <h3 class="feature-card__title">Словарь</h3>
-                <p class="feature-card__desc">Более 5000 жестов с видео-пояснениями и подробными описаниями</p>
-              </div>
-            </a>
-            <a href="{% url 'translator' %}" class="feature-card">
-              <div class="feature-card__icon"><i class="bi bi-translate"></i></div>
-              <div>
-                <h3 class="feature-card__title">Переводчик</h3>
-                <p class="feature-card__desc">Мгновенный перевод текста в жестовый язык и обратно</p>
+                <p class="feature-card__desc">Около {{ stats.gestures }} жестов с видео-пояснениями и подробными описаниями</p>
               </div>
             </a>
             <a href="{% url 'my-dictionary' %}" class="feature-card">
               <div class="feature-card__icon"><i class="bi bi-journal-bookmark"></i></div>
               <div>
-                <h3 class="feature-card__title">Мой словарь</h3>
+                <h3 class="feature-card__title">Личный словарь</h3>
                 <p class="feature-card__desc">Сохраняйте изучаемые слова и отслеживайте прогресс</p>
               </div>
             </a>
-            <div class="feature-card feature-card--disabled">
-              <div class="feature-card__icon feature-card__icon--muted"><i class="bi bi-people"></i></div>
-              <div>
-                <h3 class="feature-card__title">Сообщество</h3>
-                <p class="feature-card__desc">Общайтесь с другими изучающими жестовый язык</p>
-                <span class="feature-card__badge">Скоро</span>
-              </div>
-            </div>
-            <div class="feature-card feature-card--disabled">
-              <div class="feature-card__icon feature-card__icon--muted"><i class="bi bi-mortarboard"></i></div>
-              <div>
-                <h3 class="feature-card__title">Уроки</h3>
-                <p class="feature-card__desc">Структурированные курсы для начинающих и продвинутых</p>
-                <span class="feature-card__badge">Скоро</span>
-              </div>
-            </div>
             <div class="feature-card feature-card--disabled">
               <div class="feature-card__icon feature-card__icon--muted"><i class="bi bi-phone"></i></div>
               <div>
                 <h3 class="feature-card__title">Мобильное приложение</h3>
                 <p class="feature-card__desc">Изучайте жестовый язык anywhere, anytime</p>
                 <span class="feature-card__badge">Скоро</span>
+              </div>
+            </div>
+            <div class="feature-card feature-card--disabled">
+              <div class="feature-card__icon feature-card__icon--muted"><i class="bi bi-translate"></i></div>
+              <div>
+                <h3 class="feature-card__title">Переводчик</h3>
+                <p class="feature-card__desc">Мгновенный перевод текста в жестовый язык и обратно</p>
+                <span class="feature-card__badge">Не скоро</span>
               </div>
             </div>
           </div>
@@ -102,20 +87,20 @@
         <div class="d-container">
           <div class="stats-grid">
             <div class="stat">
-              <div class="stat__value" data-value="5240">0</div>
-              <div class="stat__label">Жестов в словаре</div>
+              <div class="stat__value" data-value="{{ stats.gestures }}">0</div>
+              <div class="stat__label">Жестов</div>
             </div>
             <div class="stat">
-              <div class="stat__value" data-value="128">0</div>
-              <div class="stat__label">Категорий</div>
+              <div class="stat__value" data-value="{{ stats.words }}">0</div>
+              <div class="stat__label">Слов</div>
             </div>
             <div class="stat">
-              <div class="stat__value" data-value="3456">0</div>
+              <div class="stat__value" data-value="{{ stats.users }}">0</div>
               <div class="stat__label">Пользователей</div>
             </div>
             <div class="stat">
-              <div class="stat__value" data-value="892">0</div>
-              <div class="stat__label">Видео-записей</div>
+              <div class="stat__value" data-value="{{ stats.videos }}">0</div>
+              <div class="stat__label">Видео жестов</div>
             </div>
           </div>
         </div>

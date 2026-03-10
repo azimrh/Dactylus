@@ -6,9 +6,9 @@ from django.views.decorators.http import require_POST
 
 from .forms import CustomUserCreationForm
 from .models import (
-    Category, Meaning, TextLemma, GestureLemma,
-    PersonalDictionary,
-    News, User
+    News, User,
+    Category, TextLemma, GestureLemma, GestureRealization,
+    PersonalDictionary
 )
 
 
@@ -32,12 +32,21 @@ def register(request):
 def index(request):
     categories = Category.objects.filter(parent=None)[:6]
     news = News.objects.filter(is_published=True)[:3]
+
+    # Статистика
+    stats = {
+        'gestures': GestureLemma.objects.filter(is_published=True).count(),
+        'words': TextLemma.objects.filter(is_published=True).count(),
+        'users': User.objects.count(),
+        'videos': GestureRealization.objects.filter(moderation_status='approved').count(),
+    }
+
     context = {
         'categories': categories,
         'news': news,
+        'stats': stats,
     }
     return render(request, 'dictionary/index.html', context)
-
 
 def dictionary(request):
     categories = Category.objects.filter(parent=None).prefetch_related('children')
