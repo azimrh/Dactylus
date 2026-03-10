@@ -21,50 +21,13 @@
               </div>
           </div>
 
-          {% if selected_category %}
-
-          <!-- Навигация -->
-          <nav class="d-breadcrumb d-none" id="categoryBreadcrumb">
-              {% for nav in navigation %}
-              <a href="dictionary.html">Словарь</a>
-              <i class="bi bi-chevron-right"></i>
-              {% endfor %}
-              <span class="d-breadcrumb__current">{{ selected_category.name }}</span>
-          </nav>
-
-          <div class="category-header d-none" id="categoryHeader">
-              <div class="category-header__icon">
-                <i class="bi bi-cup-hot"></i>
-              </div>
-              <div class="category-header__info">
-                <h1 class="category-header__title">{{ selected_category.name }}</h1>
-                <p class="category-header__meta">{{ selected_category.words_count }} слов • {{ selected_category.children_count }} подкатегорий</p>
-              </div>
-          </div>
-
-          {% else %}
-
           <div class="mini-categories" id="miniCategories">
               {% for cat in categories %}
               <a href="{{ cat.get_absolute_url }}" class="mini-category">
-                  <i class="bi bi-cup-hot"></i> {{ cat.name }}
+                  {% if bi %}<i class="{{ bi.class }}"></i>{% endif %} <!-- bi bi-cup-hot -->
+                  {{ cat.name }}
               </a>
               {% endfor %}
-          </div>
-
-          {% endif %}
-
-          <!-- Filter Chips -->
-          <div class="category-filter d-none">
-              <button class="filter-chip filter-chip--active" data-category="all">
-                  <i class="bi bi-grid me-1"></i> Все
-              </button>
-              <button class="filter-chip" data-category="food"><i class="bi bi-cup-hot me-1"></i> Еда</button>
-              <button class="filter-chip" data-category="family"><i class="bi bi-people me-1"></i> Семья</button>
-              <button class="filter-chip" data-category="nature"><i class="bi bi-tree me-1"></i> Природа</button>
-              <button class="filter-chip" data-category="emotions"><i class="bi bi-emoji-smile me-1"></i> Эмоции</button>
-              <button class="filter-chip" data-category="work"><i class="bi bi-briefcase me-1"></i> Работа</button>
-              <button class="filter-chip" data-category="transport"><i class="bi bi-car-front me-1"></i> Транспорт</button>
           </div>
 
           <!-- Action Bar -->
@@ -81,7 +44,7 @@
           <h2 class="h4 mb-4" id="categoriesTitle">Категории</h2>
           <div class="category-grid" id="categoriesGrid">
               {% for cat in categories %}
-              <a href="dictionary.html?cat=food" class="category-card">
+              <a href="{{ cat.get_absolute_url }}" class="category-card">
                   <div class="category-card__header">
                       <div class="category-card__icon"><i class="bi bi-cup-hot"></i></div>
                       <div>
@@ -96,24 +59,6 @@
                   </div>
               </a>
           {% endfor %}
-          </div>
-
-          <!-- Words Grid (показывается если выбрана категория) -->
-          <div class="word-grid d-none" id="wordsGrid">
-              <a href="word.html?id=1" class="word-card">
-                  <div class="word-card__image word-card__image--round">
-                      <div class="word-card__placeholder">
-                          <i class="bi bi-hand-index"></i>
-                      </div>
-                  </div>
-                  <div class="word-card__body">
-                      <h3 class="word-card__title">Хлеб</h3>
-                      <div class="word-card__meta">
-                          <span class="word-card__tag">Существительное</span>
-                      </div>
-                  </div>
-              </a>
-          <!-- ... -->
           </div>
 
           <!-- Pagination -->

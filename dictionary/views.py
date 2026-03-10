@@ -2,6 +2,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login
 from django.http import JsonResponse
+from django.urls import reverse
 from django.views.decorators.http import require_POST
 
 from .forms import CustomUserCreationForm
@@ -50,30 +51,25 @@ def index(request):
 
 def dictionary(request):
     categories = Category.objects.filter(parent=None).prefetch_related('children')
-    search_query = request.GET.get('q', '')
-
-    '''
-    search_words = None
-    if search_query:
-        search_words = TextLemma.objects.filter(
-            Q(name__icontains=search_query) |
-            Q(situation__icontains=search_query) |
-            Q(emotional_coloring__icontains=search_query),
-            is_published=True
-        ).prefetch_related('meanings', 'categories')
-    '''
 
     context = {
-        'categories': categories,
-        # 'search_words': search_words,
-        'search_query': search_query,
+        'categories': categories
     }
     return render(request, 'dictionary/dictionary.html', context)
 
 
 def category_detail(request, slug):
-    # Категория
     category = get_object_or_404(Category, slug=slug)
+
+    # Построение хлебных крошек
+    navigation = []
+    current = category
+    while current.parent:
+        navigation.insert(0, {
+            'name': current.parent.name,
+            'href': reverse('category_detail', kwargs={'slug': current.parent.slug})
+        })
+        current = current.parent
 
     # Слова с привязанными жестами
     text_lemmas = TextLemma.objects.filter(
@@ -88,6 +84,7 @@ def category_detail(request, slug):
         'category': category,
         'text_lemmas': text_lemmas,
         'subcategories': subcategories,
+        'navigation': navigation,  # для хлебных крошек
     }
     return render(request, 'dictionary/category_detail.html', context)
 

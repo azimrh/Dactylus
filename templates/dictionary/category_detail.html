@@ -1,74 +1,92 @@
 {% extends 'dictionary/base.html' %}
 {% load static %}
 
-{% block page_css %}<link rel="stylesheet" href="{% static 'css/pages/category.css' %}">{% endblock %}
-{% block title %}{{ category.name }}{% endblock %}
+{% block page_css %}
+    <link rel="stylesheet" href="{% static 'css/components/cards.css' %}">
+    <link rel="stylesheet" href="{% static 'css/components/search.css' %}">
+    <link rel="stylesheet" href="{% static 'css/components/pagination.css' %}">
+    <link rel="stylesheet" href="{% static 'css/pages/dictionary.css' %}">
+{% endblock %}
+
+{% block title %}Словарь | Dactylus{% endblock %}
 
 {% block content %}
-<div class="dictionary">
-    <div class="section-header">
-        <h1 class="section-title">{{ category.name }}</h1>
-        <p>Категория словаря РЖЯ • {{ words.count }} жестов</p>
-    </div>
+      <div class="d-container">
+          <!-- Навигация -->
+          <nav class="d-breadcrumb" id="categoryBreadcrumb">
+              <i class="bi bi-chevron-right"></i>
+              <a href="{% url 'dictionary' %}">Категории</a>
+              <i class="bi bi-chevron-right"></i>
+              {% for nav in navigation %}
+              <a href="{{ nav.href }}">{{ nav.name }}</a>
+              <i class="bi bi-chevron-right"></i>
+              {% endfor %}
+              <span class="d-breadcrumb__current">{{ category.name }}</span>
+          </nav>
 
-    <div class="search-bar">
-        <input type="text" class="search-input" placeholder="Поиск в категории..." id="category-search" onkeyup="filterWords(this.value)">
-        <a href="{% url 'dictionary' %}" class="btn btn-secondary">← Все категории</a>
-    </div>
+          <div class="category-header" id="categoryHeader">
+              <div class="category-header__icon">
+                <i class="bi bi-cup-hot"></i>
+              </div>
+              <div class="category-header__info">
+                <h1 class="category-header__title">{{ category.name }}</h1>
+                <p class="category-header__meta">{{ text_lemmas.count }} слов • {{ subcategories.count }} подкатегорий</p>
+              </div>
+          </div>
 
-    {% if category.children.exists %}
-    <div class="subcategories">
-        <h3 style="color: var(--text-secondary); margin-bottom: 1rem; font-size: 1rem;">Подкатегории:</h3>
-        <div class="filter-tabs">
-            {% for child in category.children.all %}
-            <a href="{{ child.get_absolute_url }}" class="tab">{{ child.name }}</a>
-            {% endfor %}
-        </div>
-    </div>
-    {% endif %}
+          <!-- Action Bar -->
+          <div class="action-bar">
+              <a href="add-category.html" class="btn btn-outline-primary">
+                  <i class="bi bi-folder-plus me-2"></i>Создать категорию
+              </a>
+              <a href="add-word.html" class="btn btn-primary">
+                  <i class="bi bi-plus-lg me-2"></i>Добавить слово
+              </a>
+          </div>
 
-    <div class="words-grid" id="words-container">
-        {% for text_lemma in text_lemmas %}
-        <a href="{{ text_lemma.get_absolute_url }}" class="word-card-large">
-            <div class="word-card-header">
-                <span style="font-size: 1.25rem; font-weight: 600;">{{ text_lemma.text }}</span>
-            </div>
-            <div class="word-card-content">
-                {% if text_lemma.synonyms.all %}
-                <p>Синонимы:</p>
-                <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-                    {% for syn in text_lemma.synonyms.all|slice:":3" %}
-                    <span class="preview-tag">{{ syn.text }}</span>
-                    {% endfor %}
-                </div>
-                {% endif %}
-            </div>
-        </a>
-        {% empty %}
-        <div class="empty-state" style="grid-column: 1 / -1; text-align: center; padding: 4rem;">
-            <div style="font-size: 4rem; margin-bottom: 1rem;">📭</div>
-            <h3>В этой категории пока нет слов</h3>
-            <p style="color: var(--text-secondary); margin-top: 0.5rem;">
-                {% if user.is_authenticated and user.role == 'native' %}
-                <a href="{% url 'dictionary' %}" style="color: var(--accent);">Добавьте первое слово</a>
-                {% else %}
-                Слова появятся позже
-                {% endif %}
-            </p>
-        </div>
-        {% endfor %}
-    </div>
-</div>
+          <!-- Words Grid (показывается если выбрана категория) -->
+          <div class="word-grid" id="wordsGrid">
+              {% for lemma in text_lemmas %}
+              <a href="{% url 'text_lemma_detail' lemma.slug %}" class="word-card">
+                  <div class="word-card__image word-card__image--round">
+                      <div class="word-card__placeholder">
+                          <i class="bi bi-hand-index"></i>
+                      </div>
+                  </div>
+                  <div class="word-card__body">
+                      <h3 class="word-card__title">{{ lemma.text }}</h3>
+                      <div class="word-card__meta">
+                          {% if lemma.meanings.all %}
+                          <span class="word-card__tag">{{ lemma.meanings.first.part_of_speech }}</span>
+                          {% endif %}
+                      </div>
+                  </div>
+              </a>
+              {% empty %}
+              <p>В этой категории пока нет слов</p>
+              {% endfor %}
+          <!-- ... -->
+          </div>
 
-<script>
-function filterWords(query) {
-    const cards = document.querySelectorAll('.word-card-large');
-    const lowerQuery = query.toLowerCase();
-    
-    cards.forEach(card => {
-        const text = card.textContent.toLowerCase();
-        card.style.display = text.includes(lowerQuery) ? 'flex' : 'none';
-    });
-}
-</script>
+          <!-- Pagination -->
+          <nav class="mt-5" aria-label="Page navigation">
+              <ul class="pagination justify-content-center">
+                  <li class="page-item disabled">
+                      <a class="page-link" href="#"><i class="bi bi-chevron-left"></i></a>
+                  </li>
+                  <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                  <li class="page-item"><a class="page-link" href="#">2</a></li>
+                  <li class="page-item"><a class="page-link" href="#">3</a></li>
+                  <li class="page-item disabled"><span class="page-link">...</span></li>
+                  <li class="page-item"><a class="page-link" href="#">12</a></li>
+                  <li class="page-item">
+                      <a class="page-link" href="#"><i class="bi bi-chevron-right"></i></a>
+                  </li>
+              </ul>
+          </nav>
+      </div>
+{% endblock %}
+
+{% block page_js %}
+    <script src="{% static 'js/pages/dictionary.js' %}"></script>
 {% endblock %}
