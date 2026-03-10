@@ -1,0 +1,248 @@
+/* ============================================
+ *  FORM COMPONENTS
+ *  ============================================ */
+
+/* Upload Area */
+.upload-area {
+    position: relative;
+    border: 2px dashed var(--d-border);
+    border-radius: var(--d-radius-lg);
+    overflow: hidden;
+    transition: all var(--d-transition);
+}
+
+.upload-area:hover { border-color: var(--d-primary); }
+
+.upload-area input {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+    z-index: 2;
+}
+
+.upload-area__placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem;
+    text-align: center;
+    color: var(--d-text-secondary);
+}
+
+.upload-area__placeholder i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    color: var(--d-text-muted);
+}
+
+.upload-preview {
+    position: relative;
+    aspect-ratio: 16/9;
+}
+
+.upload-preview img,
+.upload-preview video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.upload-preview__remove {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    width: 2.5rem;
+    height: 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.5);
+    border: none;
+    border-radius: 50%;
+    color: white;
+    cursor: pointer;
+    transition: all var(--d-transition);
+    z-index: 3;
+}
+
+.upload-preview__remove:hover {
+    background: rgba(220, 53, 69, 0.8);
+}
+
+/* Search Select (AJAX) */
+.search-select { position: relative; }
+
+.search-select__dropdown {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    margin-top: 0.5rem;
+    background: var(--d-bg-card);
+    border: 1px solid var(--d-border);
+    border-radius: var(--d-radius);
+    box-shadow: var(--d-shadow-lg);
+    max-height: 300px;
+    overflow-y: auto;
+    z-index: 1000;
+}
+
+.search-select__dropdown--visible { display: block; }
+
+.search-select__item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    transition: background var(--d-transition);
+}
+
+.search-select__item:hover { background: var(--d-bg-elevated); }
+
+.search-select__item strong {
+    color: var(--d-text-primary);
+    font-weight: 500;
+}
+
+.search-select__item small {
+    color: var(--d-text-muted);
+    font-size: 0.875rem;
+}
+
+/* Hearing Type Grid (Registration) */
+.hearing-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.75rem;
+}
+
+.hearing-option { position: relative; }
+
+.hearing-option input {
+    position: absolute;
+    opacity: 0;
+}
+
+.hearing-option label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem;
+    background: var(--d-bg-card);
+    border: 2px solid var(--d-border);
+    border-radius: var(--d-radius);
+    cursor: pointer;
+    transition: all var(--d-transition);
+    text-align: center;
+    height: 100%;
+}
+
+.hearing-option input:checked + label {
+    border-color: var(--d-primary);
+    background: var(--d-primary-soft);
+}
+
+.hearing-option__icon {
+    font-size: 1.5rem;
+    color: var(--d-primary);
+}
+
+.hearing-option__text {
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+/* Password Toggle */
+.password-toggle {
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 0 1rem;
+    color: var(--d-text-muted);
+}
+
+/* Form Validation States */
+.form-control.is-invalid {
+    border-color: var(--d-danger);
+    background-image: none;
+}
+
+.form-control.is-invalid:focus {
+    box-shadow: 0 0 0 3px rgba(248, 113, 113, 0.15);
+}
+
+.invalid-feedback {
+    display: none;
+    color: var(--d-danger);
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+}
+
+.was-validated .form-control:invalid ~ .invalid-feedback,
+.form-control.is-invalid ~ .invalid-feedback {
+    display: block;
+}
+
+/* Auth Card */
+.auth-card {
+    width: 100%;
+    max-width: 480px;
+    background: var(--d-bg-card);
+    border-radius: var(--d-radius-xl);
+    box-shadow: var(--d-shadow-lg);
+    padding: 2rem;
+}
+
+.auth-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.auth-logo {
+    width: 4rem;
+    height: 4rem;
+    margin: 0 auto 1rem;
+    background: linear-gradient(135deg, var(--d-primary), var(--d-primary-light));
+    border-radius: var(--d-radius);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.auth-header h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.auth-header p {
+    color: var(--d-text-secondary);
+    margin: 0;
+}
+
+.auth-footer {
+    text-align: center;
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--d-border);
+    color: var(--d-text-secondary);
+}
+
+/* Responsive */
+@media (max-width: 767px) {
+    .hearing-grid { grid-template-columns: 1fr; }
+    .hearing-option label {
+        flex-direction: row;
+        justify-content: flex-start;
+        text-align: left;
+    }
+    .auth-card { padding: 1.5rem; }
+}

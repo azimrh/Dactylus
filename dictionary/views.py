@@ -29,14 +29,14 @@ def register(request):
     return render(request, 'dictionary/register.html', {'form': form})
 
 
-def home(request):
+def index(request):
     categories = Category.objects.filter(parent=None)[:6]
     news = News.objects.filter(is_published=True)[:3]
     context = {
         'categories': categories,
         'news': news,
     }
-    return render(request, 'dictionary/home.html', context)
+    return render(request, 'dictionary/index.html', context)
 
 
 def dictionary(request):

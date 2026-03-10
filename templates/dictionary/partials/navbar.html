@@ -1,0 +1,24 @@
+{% load static %}
+        <header class="d-header">
+            <div class="d-container d-header__inner">
+                <a href="{% url 'index' %}" class="d-logo">
+                    <span class="d-logo__icon">🤟</span>
+                    <span>Dactylus</span>
+                </a>
+                <nav class="d-nav">
+                    <a href="{% url 'dictionary' %}" class="d-nav__link">Словарь</a>
+                    <a href="{% url 'translator' %}" class="d-nav__link">Переводчик</a>
+                    <a href="{% url 'my-dictionary' %}" class="d-nav__link">Мой словарь</a>
+                </nav>
+                <div class="d-header__actions">
+                    <button class="d-theme-toggle" id="themeToggle" aria-label="Переключить тему">
+                        <i class="bi bi-moon moon"></i>
+                        <i class="bi bi-sun sun"></i>
+                    </button>
+                    <a href="{% url 'search' %}" class="btn btn-ghost btn-icon" aria-label="Поиск">
+                        <i class="bi bi-search"></i>
+                    </a>
+                    <a href="{% url 'login' %}" class="btn btn-outline-primary btn-sm">Войти</a>
+                </div>
+            </div>
+        </header>

@@ -1,0 +1,80 @@
+/* ============================================
+ *  WORD/GESTURE DETAIL PAGE
+ *  ============================================ */
+
+.word-layout {
+    display: grid;
+    grid-template-columns: 380px 1fr;
+    gap: 2rem;
+    align-items: start;
+}
+
+.word-sidebar {
+    position: sticky;
+    top: calc(var(--d-header-height) + 2rem);
+}
+
+.word-main { min-width: 0; }
+
+.word-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.word-header__title-group {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.word-header__title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+/* Video Sidebar */
+.video-sidebar {
+    background: var(--d-bg-card);
+    border-radius: var(--d-radius-lg);
+    padding: 1rem;
+    box-shadow: var(--d-shadow);
+}
+
+/* Meaning Tags */
+.meaning-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--d-border);
+}
+
+.meaning-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: var(--d-primary-soft);
+    color: var(--d-primary);
+    border-radius: var(--d-radius-full);
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+@media (max-width: 991px) {
+    .word-layout {
+        grid-template-columns: 1fr;
+    }
+    .word-sidebar {
+        position: static;
+        order: -1;
+    }
+    .word-header__title { font-size: 1.75rem; }
+}

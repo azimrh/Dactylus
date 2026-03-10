@@ -1,0 +1,37 @@
+    <footer class="d-footer">
+      <div class="d-container">
+        <div class="d-footer__grid">
+          <div>
+            <h4 class="d-footer__title">Dactylus</h4>
+            <p style="color: var(--d-text-muted); font-size: 0.875rem;">
+              Словарь русского жестового языка, создаваемый сообществом.
+            </p>
+          </div>
+          <div>
+            <h4 class="d-footer__title">Разделы</h4>
+            <ul class="d-footer__links">
+              <li><a href="{% url 'dictionary' %}">Словарь</a></li>
+              <li><a href="{% url 'translator' %}">Переводчик</a></li>
+              <li><a href="{% url 'my-dictionary' %}">Мой словарь</a></li>
+            </ul>
+          </div>
+          <div>
+            <h4 class="d-footer__title">Участие</h4>
+            <ul class="d-footer__links">
+              <li><a href="{% url 'add-word' %}">Добавить слово</a></li>
+              <li><a href="{% url 'add-category' %}">Добавить категорию</a></li>
+              <li><a href="{% url 'moderation' %}">Модерация</a></li>
+            </ul>
+          </div>
+          <div>
+            <h4 class="d-footer__title">Контакты</h4>
+            <ul class="d-footer__links">
+              <li><a href="mailto:hello@dactylus.ru">hello@dactylus.ru</a></li>
+              <li><a href="https://t.me/dactylus" target="_blank">Telegram</a></li>
+              <li><a href="https://vk.com/dactylus" target="_blank">VK</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="d-footer__bottom">&copy; 2024 Dactylus</div>
+      </div>
+    </footer>

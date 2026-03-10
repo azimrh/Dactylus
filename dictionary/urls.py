@@ -2,7 +2,7 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path('', views.home, name='home'),
+    path('', views.index, name='index'),
     path('register/', views.register, name='register'),
 
     path('dictionary/', views.dictionary, name='dictionary'),
@@ -10,11 +10,13 @@ urlpatterns = [
     path('dictionary/text/<slug:slug>/', views.text_lemma_detail, name='text_lemma_detail'),
     path('dictionary/gesture/<int:pk>/', views.gesture_lemma_detail, name='gesture_lemma_detail'),
 
-    path('personal/', views.personal_dict, name='personal_dict'),
-    path('personal/add/<str:lemma_type>/<int:lemma_id>/', views.add_to_personal, name='add_to_personal'),
+    path('translator/', views.index, name='translator'),
+    path('search/', views.index, name='search'),
+    path('add-word/', views.index, name='add-word'),
+    path('add-category/', views.index, name='add-category'),
 
-    path('contribute/', views.contribute, name='contribute'),
-    path('contribute/annotation/', views.annotation, name='annotation'),
+    path('my-dictionary/', views.personal_dict, name='my-dictionary'),
+    path('my-dictionary/add/<str:lemma_type>/<int:lemma_id>/', views.add_to_personal, name='add_to_personal'),
 
     path('moderation/', views.moderation, name='moderation'),
 ]

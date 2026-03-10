@@ -1,0 +1,70 @@
+/* ============================================
+ *  TABS COMPONENT
+ *  ============================================ */
+
+.d-tabs {
+    display: flex;
+    gap: 0.25rem;
+    border-bottom: 2px solid var(--d-border);
+    margin-bottom: 1.5rem;
+}
+
+.d-tab {
+    padding: 0.75rem 1.25rem;
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--d-text-muted);
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    cursor: pointer;
+    transition: all var(--d-transition);
+}
+
+.d-tab:hover { color: var(--d-primary); }
+
+.d-tab--active {
+    color: var(--d-primary);
+    border-bottom-color: var(--d-primary);
+}
+
+/* Tab Panels */
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* Content Tabs (for Word/Gesture page) */
+.content-tabs {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.content-tabs__nav {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.content-tabs__btn {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--d-text-secondary);
+    background: var(--d-bg-elevated);
+    border: 1px solid var(--d-border);
+    border-radius: var(--d-radius);
+    cursor: pointer;
+    transition: all var(--d-transition);
+}
+
+.content-tabs__btn:hover {
+    background: var(--d-bg-card);
+    color: var(--d-text-primary);
+}
+
+.content-tabs__btn--active {
+    background: var(--d-primary);
+    border-color: var(--d-primary);
+    color: white;
+}
