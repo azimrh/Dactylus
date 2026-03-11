@@ -24,7 +24,6 @@
           <div class="mini-categories" id="miniCategories">
               {% for cat in categories %}
               <a href="{{ cat.get_absolute_url }}" class="mini-category">
-                  {% if bi %}<i class="{{ bi.class }}"></i>{% endif %} <!-- bi bi-cup-hot -->
                   {{ cat.name }}
               </a>
               {% endfor %}

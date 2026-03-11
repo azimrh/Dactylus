@@ -6,9 +6,9 @@ urlpatterns = [
     path('register/', views.register, name='register'),
 
     path('dictionary/', views.dictionary, name='dictionary'),
-    path('dictionary/category/<slug:slug>/', views.category_detail, name='category_detail'),
-    path('dictionary/text/<slug:slug>/', views.text_lemma_detail, name='text_lemma_detail'),
-    path('dictionary/gesture/<int:pk>/', views.gesture_lemma_detail, name='gesture_lemma_detail'),
+    path('dictionary/category/<slug:slug>/', views.category, name='category'),
+    path('dictionary/text/<slug:slug>/', views.text_lemma, name='text_lemma'),
+    path('dictionary/gesture/<int:pk>/', views.gesture_lemma, name='gesture_lemma'),
 
     path('translator/', views.index, name='translator'),
     path('search/', views.index, name='search'),

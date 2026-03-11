@@ -8,6 +8,7 @@ class Category(models.Model):
     name = models.CharField(max_length=100, verbose_name='Название')
     slug = models.SlugField(unique=True)
     description = models.TextField(blank=True, verbose_name='Описание')
+
     parent = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='children', verbose_name='Родительская категория')
     order = models.IntegerField(default=0, verbose_name='Порядок')
 
@@ -20,7 +21,7 @@ class Category(models.Model):
         return self.name
 
     def get_absolute_url(self):
-        return reverse('category_detail', kwargs={'slug': self.slug})
+        return reverse('category', kwargs={'slug': self.slug})
 
 class TextLemma(models.Model):
     text = models.CharField(max_length=50, unique=True, verbose_name='Текстовая лемма')
@@ -42,11 +43,6 @@ class TextLemma(models.Model):
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='created_text_lemmas')
     created_at = models.DateTimeField(auto_now_add=True)
 
-    # Relations
-    related_lemmas = models.ManyToManyField('self', blank=True, symmetrical=True, verbose_name='Похожие слова')
-    synonyms = models.ManyToManyField('self', blank=True, symmetrical=True, verbose_name='Синонимы')
-    antonyms = models.ManyToManyField('self', blank=True, symmetrical=False, verbose_name='Антонимы')
-
     meanings = models.ManyToManyField(
         'Meaning',
         through='TextMeaningMapping',
@@ -63,10 +59,11 @@ class TextLemma(models.Model):
         return self.text
 
     def get_absolute_url(self):
-        return reverse('text_lemma_detail', kwargs={'slug': self.slug})
+        return reverse('text_lemma', kwargs={'slug': self.slug})
 
 class GestureLemma(models.Model):
     text = models.CharField(max_length=50, unique=True, verbose_name='Жестовая лемма')
+    categories = models.ManyToManyField(Category, related_name='gesture_lemmas', verbose_name='Категории')
 
     meanings = models.ManyToManyField(
         'Meaning',
@@ -89,12 +86,6 @@ class GestureLemma(models.Model):
     is_published = models.BooleanField(default=False, verbose_name='Опубликовано')
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='created_gesture_lemmas')
     created_at = models.DateTimeField(auto_now_add=True)
-
-    # Relations
-    related_lemmas = models.ManyToManyField('self', blank=True, symmetrical=True, verbose_name='Похожие слова')
-    synonyms = models.ManyToManyField('self', blank=True, symmetrical=True, verbose_name='Синонимы')
-    antonyms = models.ManyToManyField('self', blank=True, symmetrical=False, verbose_name='Антонимы')
-
 
     class Meta:
         verbose_name = 'Жестовая лемма'

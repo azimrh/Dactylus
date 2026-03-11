@@ -50,7 +50,7 @@ class TextLemmaAdmin(admin.ModelAdmin):
     list_filter = ['is_published', 'is_dialectal', 'categories', 'created_at']
     search_fields = ['text', 'description']
     prepopulated_fields = {'slug': ('text',)}
-    filter_horizontal = ['categories', 'related_lemmas', 'synonyms', 'antonyms']
+    filter_horizontal = ['categories']
     inlines = [TextMeaningMappingInline]
 
 @admin.register(GestureLemma)
@@ -58,7 +58,7 @@ class GestureLemmaAdmin(admin.ModelAdmin):
     list_display = ['text', 'is_published', 'is_dialectal', 'region']
     list_filter = ['is_published', 'is_dialectal', 'created_at']
     search_fields = ['name', 'technical_description']
-    filter_horizontal = ['related_lemmas', 'synonyms', 'antonyms']
+    filter_horizontal = []
     inlines = [GestureMeaningMappingInline]
 
 

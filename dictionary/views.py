@@ -58,7 +58,7 @@ def dictionary(request):
     return render(request, 'dictionary/dictionary.html', context)
 
 
-def category_detail(request, slug):
+def category(request, slug):
     category = get_object_or_404(Category, slug=slug)
 
     # Построение хлебных крошек
@@ -67,7 +67,7 @@ def category_detail(request, slug):
     while current.parent:
         navigation.insert(0, {
             'name': current.parent.name,
-            'href': reverse('category_detail', kwargs={'slug': current.parent.slug})
+            'href': reverse('category', kwargs={'slug': current.parent.slug})
         })
         current = current.parent
 
@@ -86,19 +86,38 @@ def category_detail(request, slug):
         'subcategories': subcategories,
         'navigation': navigation,  # для хлебных крошек
     }
-    return render(request, 'dictionary/category_detail.html', context)
+    return render(request, 'dictionary/category.html', context)
 
 
-def text_lemma_detail(request, slug):
+def text_lemma(request, slug):
     lemma = get_object_or_404(TextLemma, slug=slug, is_published=True)
 
-    # Получаем связанные смыслы с приоритетом
     meaning_mappings = lemma.textmeaningmapping_set.select_related('meaning').order_by('-is_primary')
 
-    # Синонимы и антонимы
-    synonyms = lemma.synonyms.filter(is_published=True)
-    antonyms = lemma.antonyms.filter(is_published=True)
-    related = lemma.related_lemmas.filter(is_published=True)
+    meanings = [m.meaning for m in meaning_mappings]
+
+    synonyms = TextLemma.objects.filter(
+        meanings__in=meanings,
+        is_published=True
+    ).exclude(id=lemma.id).distinct().prefetch_related('meanings')[:10]
+
+    # Группируем синонимы по смыслу
+    synonyms_by_meaning = {}
+    for meaning in meanings:
+        words = TextLemma.objects.filter(
+            meanings=meaning,
+            is_published=True
+        ).exclude(id=lemma.id).distinct()[:5]
+        if words.exists():
+            synonyms_by_meaning[meaning] = words
+
+    gesture_realizations = GestureRealization.objects.filter(
+        gesture_lemma__meanings__in=meanings,
+        moderation_status='approved'
+    ).select_related('gesture_lemma', 'author').distinct()
+
+    main_gesture = gesture_realizations.filter(is_primary=True).first()
+    other_gestures = gesture_realizations.exclude(id=main_gesture.id if main_gesture else None)
 
     # Проверка в личном словаре
     in_personal = False
@@ -108,18 +127,43 @@ def text_lemma_detail(request, slug):
             text_lemma=lemma
         ).exists()
 
+    # Получаем все категории леммы для отображения
+    categories = lemma.categories.all()
+
+    # Хлебные крошки (берем первую категорию для навигации)
+    navigation = []
+    if categories.exists():
+        current = categories.first()
+        # Собираем путь от корня до текущей категории
+        path = []
+        while current:
+            path.insert(0, current)
+            current = current.parent
+
+        # Преобразуем в формат для шаблона
+        for cat in path[:-1]:  # все кроме последней (текущей)
+            navigation.append({
+                'name': cat.name,
+                'href': reverse('category', kwargs={'slug': cat.slug})
+            })
+
     context = {
         'lemma': lemma,
         'meaning_mappings': meaning_mappings,
+        'meanings': meanings,
         'synonyms': synonyms,
-        'antonyms': antonyms,
-        'related_lemmas': related,
+        'synonyms_by_meaning': synonyms_by_meaning,
+        'main_gesture': main_gesture,
+        'other_gestures': other_gestures,
+        'gesture_realizations': gesture_realizations,
+        'categories': categories,  # Добавляем все категории
+        'navigation': navigation,
         'in_personal': in_personal,
     }
-    return render(request, 'dictionary/word_detail.html', context)
+    return render(request, 'dictionary/text_lemma.html', context)
 
 
-def gesture_lemma_detail(request, pk):
+def gesture_lemma(request, pk):
     lemma = get_object_or_404(GestureLemma, pk=pk, is_published=True)
 
     # Получаем связанные смыслы
@@ -147,7 +191,7 @@ def gesture_lemma_detail(request, pk):
         'related_lemmas': related,
         'in_personal': in_personal,
     }
-    return render(request, 'dictionary/word_detail.html', context)
+    return render(request, 'dictionary/text_lemma.html', context)
 
 
 @login_required
@@ -193,18 +237,6 @@ def add_to_personal(request, lemma_type, lemma_id):
         return JsonResponse({'status': 'error', 'message': 'Invalid lemma type'}, status=400)
 
     return JsonResponse({'status': 'added' if created else 'exists'})
-
-
-@login_required
-def contribute(request):
-    return redirect('home')
-    return render(request, 'dictionary/contribute.html')
-
-
-@login_required
-def annotation(request):
-    return redirect('home')
-    return render(request, 'dictionary/annotation.html')
 
 
 @login_required
