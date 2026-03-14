@@ -11,6 +11,7 @@ from .models import (
     Category, TextLemma, GestureLemma, GestureRealization,
     PersonalDictionary
 )
+from .services.lexeme_pair_service import create_pair
 
 
 def register(request):
@@ -89,11 +90,38 @@ def category(request, slug):
     return render(request, 'dictionary/category.html', context)
 
 
+@login_required
+def upload_word_gesture(request):
+    if request.method != 'POST':
+        return
+
+    text = request.POST.get("text")
+    video = request.FILES.get("video")
+
+    if not text or not video:
+        return JsonResponse({"error": "Missing data"}, status=400)
+
+    pair = create_pair(text, request.user)
+
+    realization = GestureRealization.objects.create(
+        gesture_lemma=pair.gesture_lemma,
+        video=video,
+        author=request.user,
+        is_primary=True
+    )
+
+    return JsonResponse({
+        "status": "ok",
+        "text_lemma": pair.text_lemma.id,
+        "gesture_lemma": pair.gesture_lemma.id,
+        "meaning": pair.meaning.id
+    })
+
+
 def text_lemma(request, slug):
     lemma = get_object_or_404(TextLemma, slug=slug, is_published=True)
 
     meaning_mappings = lemma.textmeaningmapping_set.select_related('meaning').order_by('-is_primary')
-
     meanings = [m.meaning for m in meaning_mappings]
 
     synonyms = TextLemma.objects.filter(
@@ -101,25 +129,34 @@ def text_lemma(request, slug):
         is_published=True
     ).exclude(id=lemma.id).distinct().prefetch_related('meanings')[:10]
 
-    # Группируем синонимы по смыслу
     synonyms_by_meaning = {}
     for meaning in meanings:
         words = TextLemma.objects.filter(
             meanings=meaning,
             is_published=True
         ).exclude(id=lemma.id).distinct()[:5]
+
         if words.exists():
             synonyms_by_meaning[meaning] = words
 
+    # --- ЖЕСТЫ ЧЕРЕЗ LexemePair ---
+
+    gesture_lemmas = GestureLemma.objects.filter(
+        text_pairs__text_lemma=lemma
+    ).distinct()
+
     gesture_realizations = GestureRealization.objects.filter(
-        gesture_lemma__meanings__in=meanings,
+        gesture_lemma__in=gesture_lemmas,
         moderation_status='approved'
-    ).select_related('gesture_lemma', 'author').distinct()
+    ).select_related('gesture_lemma', 'author')
 
     main_gesture = gesture_realizations.filter(is_primary=True).first()
-    other_gestures = gesture_realizations.exclude(id=main_gesture.id if main_gesture else None)
 
-    # Проверка в личном словаре
+    other_gestures = gesture_realizations.exclude(
+        id=main_gesture.id if main_gesture else None
+    )
+
+    # --- Проверка в личном словаре ---
     in_personal = False
     if request.user.is_authenticated:
         in_personal = PersonalDictionary.objects.filter(
@@ -127,21 +164,18 @@ def text_lemma(request, slug):
             text_lemma=lemma
         ).exists()
 
-    # Получаем все категории леммы для отображения
     categories = lemma.categories.all()
 
-    # Хлебные крошки (берем первую категорию для навигации)
     navigation = []
     if categories.exists():
         current = categories.first()
-        # Собираем путь от корня до текущей категории
+
         path = []
         while current:
             path.insert(0, current)
             current = current.parent
 
-        # Преобразуем в формат для шаблона
-        for cat in path[:-1]:  # все кроме последней (текущей)
+        for cat in path[:-1]:
             navigation.append({
                 'name': cat.name,
                 'href': reverse('category', kwargs={'slug': cat.slug})
@@ -156,10 +190,11 @@ def text_lemma(request, slug):
         'main_gesture': main_gesture,
         'other_gestures': other_gestures,
         'gesture_realizations': gesture_realizations,
-        'categories': categories,  # Добавляем все категории
+        'categories': categories,
         'navigation': navigation,
         'in_personal': in_personal,
     }
+
     return render(request, 'dictionary/text_lemma.html', context)
 
 

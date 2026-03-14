@@ -12,6 +12,7 @@ class User(AbstractUser):
     ROLE_CHOICES = [
         ('user', 'Пользователь'),
         ('native', 'Носитель РЖЯ'),
+        ('linguist', 'Лингвист'),
         ('moderator', 'Модератор'),
         ('admin', 'Администратор'),
     ]

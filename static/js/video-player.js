@@ -1,5 +1,7 @@
 /**
  * Video Player Component - Self-contained
+ * Works with: .d-video-player (standard) and .video-circle (circular variant)
+ * Does NOT handle: tabs, gesture switching, speed control (page-specific logic)
  */
 class DactylusPlayer {
     constructor(element) {
@@ -8,8 +10,10 @@ class DactylusPlayer {
         this.playBtn = element.querySelector('.d-video-player__play');
         this.progressBar = element.querySelector('.video-progress__bar');
         this.timeDisplay = element.querySelector('.video-time');
-        this.speedSlider = document.querySelector('.speed-slider');
-        this.speedValue = document.querySelector('.speed-control__value');
+        this.isCircular = element.classList.contains('video-circle');
+
+        // Store instance reference on element
+        element._dactylusPlayer = this;
 
         this.init();
     }
@@ -17,7 +21,7 @@ class DactylusPlayer {
     init() {
         if (!this.video) return;
 
-        // Play/Pause
+        // Play/Pause button
         if (this.playBtn) {
             this.playBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
@@ -25,11 +29,16 @@ class DactylusPlayer {
             });
         }
 
-        this.container.addEventListener('click', (e) => {
-            if (e.target === this.container || e.target.closest('.d-video-player__overlay')) {
-                this.togglePlay();
-            }
-        });
+        // Click on container (only for standard player)
+        if (!this.isCircular) {
+            this.container.addEventListener('click', (e) => {
+                const isControl = e.target.closest('.d-video-controls') ||
+                                  e.target.closest('.d-video-player__play');
+                if (!isControl) {
+                    this.togglePlay();
+                }
+            });
+        }
 
         // Video events
         this.video.addEventListener('timeupdate', () => this.updateProgress());
@@ -42,33 +51,32 @@ class DactylusPlayer {
         const progressContainer = this.container.querySelector('.video-progress');
         if (progressContainer) {
             progressContainer.addEventListener('click', (e) => {
+                e.stopPropagation();
                 const rect = progressContainer.getBoundingClientRect();
                 const pos = (e.clientX - rect.left) / rect.width;
                 this.video.currentTime = pos * this.video.duration;
             });
         }
 
-        // Speed control
-        if (this.speedSlider && this.speedValue) {
-            this.speedSlider.addEventListener('input', () => {
-                const speed = this.speedSlider.value;
-                this.video.playbackRate = parseFloat(speed);
-                this.speedValue.textContent = speed + 'x';
-            });
-        }
-
         // Keyboard controls
-        this.video.addEventListener('keydown', (e) => {
+        this.container.addEventListener('keydown', (e) => {
             if (e.code === 'Space') {
                 e.preventDefault();
                 this.togglePlay();
             }
         });
+
+        // Make container focusable
+        if (!this.container.hasAttribute('tabindex')) {
+            this.container.setAttribute('tabindex', '0');
+        }
     }
 
     togglePlay() {
         if (this.video.paused) {
-            this.video.play();
+            this.video.play().catch(() => {
+                // Autoplay blocked or other error
+            });
         } else {
             this.video.pause();
         }
@@ -76,16 +84,19 @@ class DactylusPlayer {
 
     onPlay() {
         this.container.classList.remove('paused');
+        this.container.classList.add('playing');
         if (this.playBtn) this.playBtn.innerHTML = '<i class="bi bi-pause-fill"></i>';
     }
 
     onPause() {
         this.container.classList.add('paused');
+        this.container.classList.remove('playing');
         if (this.playBtn) this.playBtn.innerHTML = '<i class="bi bi-play-fill"></i>';
     }
 
     onEnded() {
         this.container.classList.add('paused');
+        this.container.classList.remove('playing');
         if (this.playBtn) this.playBtn.innerHTML = '<i class="bi bi-play-fill"></i>';
         this.video.currentTime = 0;
     }
@@ -97,7 +108,8 @@ class DactylusPlayer {
         if (this.progressBar) this.progressBar.style.width = `${percent}%`;
 
         if (this.timeDisplay) {
-            this.timeDisplay.textContent = `${this.formatTime(this.video.currentTime)} / ${this.formatTime(this.video.duration)}`;
+            this.timeDisplay.textContent =
+                `${this.formatTime(this.video.currentTime)} / ${this.formatTime(this.video.duration)}`;
         }
     }
 
@@ -108,18 +120,39 @@ class DactylusPlayer {
         return `${mins}:${secs.toString().padStart(2, '0')}`;
     }
 
+    /**
+     * Change video source
+     */
     setVideo(src, poster) {
+        if (!this.video) return;
+
+        this.video.pause();
+        this.video.src = src;
+        if (poster) this.video.poster = poster;
+        this.video.load();
+
+        // Auto-play new video
+        this.video.play().catch(() => {
+            // Autoplay blocked
+        });
+    }
+
+    /**
+     * Set playback speed
+     */
+    setSpeed(speed) {
         if (this.video) {
-            this.video.src = src;
-            if (poster) this.video.poster = poster;
-            this.video.load();
-            this.video.play();
+            this.video.playbackRate = parseFloat(speed);
         }
     }
 
     // Auto-init all players on page
     static initAll() {
-        document.querySelectorAll('.d-video-player').forEach(el => new DactylusPlayer(el));
+        document.querySelectorAll('.d-video-player').forEach(el => {
+            if (!el._dactylusPlayer) {
+                new DactylusPlayer(el);
+            }
+        });
     }
 }
 

@@ -27,9 +27,10 @@ class MeaningAdmin(admin.ModelAdmin):
     list_display = ['description_short', 'hypernym', 'created_at']
     search_fields = ['description']
     autocomplete_fields = ['hypernym']
+    list_select_related = ['hypernym']
 
     def description_short(self, obj):
-        return obj.description[:50]
+        return (obj.description or "")[:50]
     description_short.short_description = 'Описание'
 
 
@@ -46,20 +47,64 @@ class GestureMeaningMappingInline(admin.TabularInline):
 
 @admin.register(TextLemma)
 class TextLemmaAdmin(admin.ModelAdmin):
-    list_display = ['text', 'is_published', 'is_dialectal', 'region']
+    list_display = ['text', 'is_published', 'is_dialectal', 'region', 'created_at']
     list_filter = ['is_published', 'is_dialectal', 'categories', 'created_at']
-    search_fields = ['text', 'description']
+    search_fields = ['text']
     prepopulated_fields = {'slug': ('text',)}
     filter_horizontal = ['categories']
+    autocomplete_fields = ['author']
     inlines = [TextMeaningMappingInline]
+
+class TextComposeItemInline(admin.TabularInline):
+    model = TextComposeItem
+    extra = 1
+    autocomplete_fields = ['lemma']
+    ordering = ['position']
+
+@admin.register(TextLemmaCompose)
+class TextLemmaComposeAdmin(admin.ModelAdmin):
+
+    list_display = [
+        'text',
+        'is_published',
+        'author',
+        'created_at'
+    ]
+
+    search_fields = ['text']
+
+    autocomplete_fields = ['author']
+
+    inlines = [TextComposeItemInline]
+
 
 @admin.register(GestureLemma)
 class GestureLemmaAdmin(admin.ModelAdmin):
-    list_display = ['text', 'is_published', 'is_dialectal', 'region']
+    list_display = ['text', 'is_published', 'is_dialectal', 'region', 'created_at']
     list_filter = ['is_published', 'is_dialectal', 'created_at']
-    search_fields = ['name', 'technical_description']
-    filter_horizontal = []
+    search_fields = ['text']
+    autocomplete_fields = ['author']
     inlines = [GestureMeaningMappingInline]
+
+class GestureComposeItemInline(admin.TabularInline):
+    model = GestureComposeItem
+    extra = 1
+    autocomplete_fields = ['lemma']
+    ordering = ['position']
+
+@admin.register(GestureLemmaCompose)
+class GestureLemmaComposeAdmin(admin.ModelAdmin):
+
+    list_display = [
+        'id',
+        'is_published',
+        'author',
+        'created_at'
+    ]
+
+    autocomplete_fields = ['author']
+
+    inlines = [GestureComposeItemInline]
 
 
 @admin.register(TextMeaningMapping)
@@ -77,12 +122,74 @@ class GestureMeaningMappingAdmin(admin.ModelAdmin):
     autocomplete_fields = ['gesture_lemma', 'meaning']
 
 
+@admin.register(LexemePair)
+class LexemePairAdmin(admin.ModelAdmin):
+
+    list_display = [
+        'text_lemma',
+        'gesture_lemma',
+        'meaning',
+        'is_auto_meaning',
+        'created_by',
+        'created_at'
+    ]
+
+    list_filter = [
+        'is_auto_meaning',
+        'created_at'
+    ]
+
+    search_fields = [
+        'text_lemma__text',
+        'gesture_lemma__text',
+        'meaning__description'
+    ]
+
+    autocomplete_fields = [
+        'text_lemma',
+        'gesture_lemma',
+        'meaning',
+        'created_by'
+    ]
+
+    readonly_fields = [
+        'created_at'
+    ]
+
+    list_select_related = [
+        'text_lemma',
+        'gesture_lemma',
+        'meaning',
+        'created_by'
+    ]
+
 @admin.register(GestureRealization)
 class GestureRealizationAdmin(admin.ModelAdmin):
-    list_display = ['gesture_lemma', 'author', 'is_primary', 'moderation_status', 'created_at']
-    list_filter = ['is_primary', 'moderation_status', 'created_at']
-    search_fields = ['gesture_lemma__name', 'author__username']
-    autocomplete_fields = ['gesture_lemma', 'author', 'moderated_by']
+    list_display = [
+        'gesture_lemma',
+        'author',
+        'is_primary',
+        'moderation_status',
+        'created_at'
+    ]
+
+    list_filter = [
+        'is_primary',
+        'moderation_status',
+        'created_at'
+    ]
+
+    search_fields = [
+        'gesture_lemma__text',
+        'author__username'
+    ]
+
+    autocomplete_fields = [
+        'gesture_lemma',
+        'author',
+        'moderated_by'
+    ]
+
     readonly_fields = ['created_at']
 
 

@@ -165,7 +165,10 @@
     color: white;
 }
 
-/* Circular Video (Hero) */
+/* ============================================
+ *  CIRCULAR VIDEO VARIANT (Hero)
+ *  ============================================ */
+
 .video-circle {
     position: relative;
     width: 320px;
@@ -183,7 +186,12 @@
     object-fit: cover;
 }
 
-.video-circle__play {
+/* Video-circle использует те же классы overlay/play что и d-video-player */
+.video-circle .d-video-player__overlay {
+    opacity: 1; /* Всегда показываем overlay для круглого видео */
+}
+
+.video-circle .d-video-player__play {
     position: absolute;
     bottom: 20px;
     right: 20px;
@@ -202,9 +210,18 @@
     box-shadow: var(--d-shadow-lg);
 }
 
-.video-circle__play:hover {
+.video-circle .d-video-player__play:hover {
     background: var(--d-primary-dark);
     transform: scale(1.05);
+}
+
+/* Когда видео играет, скрываем overlay */
+.video-circle.playing .d-video-player__overlay {
+    opacity: 0;
+}
+
+.video-circle:hover .d-video-player__overlay {
+    opacity: 1;
 }
 
 @media (max-width: 767px) {
