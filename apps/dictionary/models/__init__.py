@@ -1,3 +1,3 @@
-from .base import *
+from .news import *
 from .lexical import *
 from .semantic import *

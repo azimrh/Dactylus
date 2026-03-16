@@ -2,7 +2,7 @@ from django.db import models
 from django.urls import reverse
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
-from .base import User
+from .news import User
 
 
 class Category(models.Model):

@@ -1,47 +1,13 @@
 from django.contrib import admin
-from django.contrib.auth.admin import UserAdmin
 
 from .models import (
-    User, Category,
+    Category,
     TextLexeme, TextLexemeCompose, TextComposeItem,
     GestureLexeme, GestureLexemeCompose, GestureComposeItem,
     LexemePair,
     GestureRealization,
     Meaning, LexemeMeaningMapping
 )
-
-
-@admin.register(User)
-class CustomUserAdmin(UserAdmin):
-    list_display = [
-        'username',
-        'email',
-        'hearing_status',
-        'role',
-        'is_verified',
-        'rating',
-        'date_joined'
-    ]
-    list_filter = [
-        'hearing_status',
-        'role',
-        'is_verified',
-        'is_staff',
-        'date_joined'
-    ]
-    fieldsets = UserAdmin.fieldsets + (
-        ('Дополнительная информация', {
-            'fields': (
-                'hearing_status',
-                'role',
-                'is_verified',
-                'region',
-                'bio',
-                'avatar',
-                'rating'
-            )
-        }),
-    )
 
 
 @admin.register(Category)

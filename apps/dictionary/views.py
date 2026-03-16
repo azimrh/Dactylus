@@ -30,7 +30,7 @@ def register(request):
     return render(request, 'dictionary/register.html', {'form': form})
 
 
-def index(request):
+def home(request):
     categories = Category.objects.filter(parent=None)[:6]
     news = News.objects.filter(is_published=True)[:3]
 
@@ -46,7 +46,7 @@ def index(request):
         'news': news,
         'stats': stats,
     }
-    return render(request, 'dictionary/index.html', context)
+    return render(request, 'dictionary/home.html', context)
 
 
 def dictionary(request):
@@ -80,6 +80,8 @@ def category(request, slug):
     }
     return render(request, 'dictionary/category.html', context)
 
+def add_category(request):
+    return render(request, 'dictionary/add-category.html',)
 
 def text_lexeme(request, slug):
     lemma = get_object_or_404(TextLexeme, slug=slug, is_published=True)

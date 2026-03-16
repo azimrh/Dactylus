@@ -35,8 +35,20 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "dictionary",
+
+    'rest_framework',
+    'django_filters',
+
+    "apps.users",
+    "apps.dictionary",
+    "apps.api",
 ]
+
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 20,
+    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
+}
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -155,7 +167,7 @@ USE_X_FORWARDED_HOST = env.bool("USE_X_FORWARDED_HOST", default=False)
 # Auth
 # --------------------------------------------------
 
-AUTH_USER_MODEL = "dictionary.User"
+AUTH_USER_MODEL = "users.User"
 
 LOGIN_REDIRECT_URL = "/"
 LOGOUT_REDIRECT_URL = "/"

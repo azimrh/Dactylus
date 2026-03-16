@@ -8,7 +8,9 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('login/', auth_views.LoginView.as_view(template_name='dictionary/login.html'), name='login'),
     path('logout/', auth_views.LogoutView.as_view(next_page='home'), name='logout'),
-    path('', include('dictionary.urls')),
+
+    path('api/v1/', include('apps.api.urls')),
+    path('', include('apps.dictionary.urls')),
 ]
 
 if settings.DEBUG:
