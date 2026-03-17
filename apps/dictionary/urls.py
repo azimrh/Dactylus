@@ -14,8 +14,8 @@ urlpatterns = [
     path('dictionary/text/<slug:slug>/', views.text_lexeme, name='text_lemma'),
 
     path('dictionary/add_category/', views.add_category, name='add-category'),
+    path('dictionary/add_word/', views.add_word, name='add-word'),
 
     path('translator/', views.home, name='translator'),
     path('search/', views.home, name='search'),
-    path('add-word/', views.home, name='add-word'),
 ]

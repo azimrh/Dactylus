@@ -62,15 +62,10 @@ function initSearchSelects() {
                 return;
             }
 
-            // TODO: Replace with actual Django endpoint
-            // const response = await fetch(`/api/search/?q=${encodeURIComponent(query)}&type=${select.dataset.type}`);
-            // const results = await response.json();
-
-            // Mock results for now
-            const results = [
-                { id: 1, title: 'Привет', description: 'Приветствие' },
-                { id: 2, title: 'Приветствие', description: 'Общение' }
-            ].filter(r => r.title.toLowerCase().includes(query.toLowerCase()));
+            const response = await fetch(`/api/v1/categories/?search=${encodeURIComponent(query)}`);
+            const data = await response.json();
+            const results = Array.isArray(data) ? data : data.results || [];
+            renderDropdown(dropdown, results, input);
 
             renderDropdown(dropdown, results, input);
         }, 300);
@@ -98,7 +93,7 @@ function renderDropdown(dropdown, results, input) {
     } else {
         dropdown.innerHTML = results.map(r => `
         <div class="search-select__item" data-id="${r.id}">
-        <strong>${r.title}</strong>
+        <strong>${r.name}</strong>
         <small>${r.description}</small>
         </div>
         `).join('');

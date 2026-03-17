@@ -27,6 +27,8 @@ class Category(models.Model):
 
 class BaseLexeme(models.Model):
     text = models.CharField(max_length=200, verbose_name='Текст / Жест')
+    slug = models.SlugField(unique=True)
+
     categories = models.ManyToManyField(Category, verbose_name='Категории')
     
     author = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Автор')
@@ -44,8 +46,6 @@ class BaseLexeme(models.Model):
 
 
 class TextLexeme(BaseLexeme):
-    slug = models.SlugField(unique=True)
-
     is_letter = models.BooleanField(default=False, verbose_name='Буква / Жест буквы')
     letter_char = models.CharField(max_length=1, blank=True, verbose_name='Символ буквы')
 
@@ -87,9 +87,6 @@ class TextComposeItem(models.Model):
 
 
 class GestureLexeme(BaseLexeme):
-    video = models.FileField(upload_to='videos/gestures/', blank=True, null=True)
-    image = models.ImageField(upload_to='thumbnails/', blank=True, null=True)
-
     is_letter = models.BooleanField(default=False, verbose_name='Буква / Жест буквы')
     letter_char = models.CharField(max_length=1, blank=True, verbose_name='Символ буквы')
 

@@ -83,6 +83,9 @@ def category(request, slug):
 def add_category(request):
     return render(request, 'dictionary/add-category.html',)
 
+def add_word(request):
+    return render(request, 'dictionary/add-word.html',)
+
 def text_lexeme(request, slug):
     lemma = get_object_or_404(TextLexeme, slug=slug, is_published=True)
 

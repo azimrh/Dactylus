@@ -1,0 +1,100 @@
+{% extends 'dictionary/base.html' %}
+{% load static %}
+
+{% block page_css %}
+    <link rel="stylesheet" href="{% static 'css/components/forms.css' %}">
+    <link rel="stylesheet" href="{% static 'css/pages/auth.css' %}">
+{% endblock %}
+{% block title %}Добавить категорию | Dactylus{% endblock %}
+
+{% block content %}
+<div class="d-container" style="max-width: 800px;">
+    <div class="page-header">
+        <h1 class="page-header__title">Добавить категорию</h1>
+    </div>
+
+    <form method="post" action="{% url 'add-category' %}" class="auth-card" data-validate>
+        {% csrf_token %}
+
+        <div class="mb-4">
+            <label class="form-label">
+                Название категории
+                <span class="text-danger">*</span>
+            </label>
+            <div class="input-group">
+                <span class="input-group-text"><i class="bi bi-folder"></i></span>
+                <input type="text" class="form-control" name="name" placeholder="Например: Еда и напитки" required>
+            </div>
+            <div class="invalid-feedback">Введите название категории</div>
+        </div>
+
+        <!-- Parent Category -->
+        <div class="mb-4">
+            <label class="form-label">
+                Родительская категория
+            </label>
+            <div class="search-select" data-type="category">
+                <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-diagram-3"></i></span>
+                    <input type="text" class="form-control" placeholder="Поиск категории...">
+                </div>
+                <div class="search-select__dropdown">
+                    <div class="search-select__item" data-id="0">
+                        <strong>Корневая категория</strong>
+                        <small>Без родителя</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Order -->
+        <div class="mb-4">
+            <label class="form-label">
+                Порядок отображения
+            </label>
+            <div class="input-group">
+                <span class="input-group-text"><i class="bi bi-list-ol"></i></span>
+                <select class="form-select" name="order">
+                    <option value="">После...</option>
+                    <option value="first">В начале</option>
+                    <option value="last">В конце</option>
+                    <option value="after:1">После: Еда и напитки</option>
+                    <option value="after:2">После: Семья</option>
+                    <option value="after:3">После: Природа</option>
+                </select>
+            </div>
+            <div class="form-text">Выберите после какой категории разместить новую</div>
+        </div>
+
+        <div class="mb-4">
+            <label class="form-label">
+                Изображение категории
+            </label>
+            <div class="upload-area">
+                <input type="file" name="image" accept="image/*">
+                <div class="upload-area__placeholder">
+                    <i class="bi bi-cloud-upload"></i>
+                    <strong>Нажмите или перетащите изображение</strong>
+                    <small>PNG, JPG до 5 МБ</small>
+                </div>
+            </div>
+            <div class="invalid-feedback">Загрузите изображение категории</div>
+        </div>
+
+        <div class="alert alert-danger d-none" id="formErrors">
+            <ul class="mb-0"></ul>
+        </div>
+
+        <div class="d-grid gap-2">
+            <button type="submit" class="btn btn-primary btn-lg">
+            <i class="bi bi-plus-lg me-2"></i>Создать категорию
+            </button>
+            <a href="{% url 'dictionary' %}" class="btn btn-ghost">Отмена</a>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block page_js %}
+    <script src="{% static 'js/pages/add-word.js' %}"></script>
+{% endblock %}

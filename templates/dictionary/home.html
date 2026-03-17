@@ -1,0 +1,145 @@
+{% extends 'dictionary/base.html' %}
+{% load static %}
+
+{% block page_css %}
+    <link rel="stylesheet" href="{% static 'css/components/cards.css' %}">
+    <link rel="stylesheet" href="{% static 'css/components/pagination.css' %}">
+    <link rel="stylesheet" href="{% static 'css/components/video-player.css' %}">
+    <link rel="stylesheet" href="{% static 'css/pages/index.css' %}">
+{% endblock %}
+
+{% block title %}Dactylus — Словарь русского жестового языка{% endblock %}
+
+{% block content %}
+            <section class="hero">
+                <div class="d-container">
+                    <div class="row align-items-center g-5">
+                        <div class="col-lg-6">
+                            <h1 class="hero__title">Словарь русского жестового языка</h1>
+                            <p class="hero__subtitle">
+                                Dactylus — это открытый и пополняемый словарь жестового языка.<br>
+                                Мы создаем доступное пространство для изучения русского жестового языка.
+                            </p>
+                            <div class="d-flex flex-wrap gap-3">
+                                <a href="{% url 'dictionary' %}" class="btn btn-primary btn-lg">
+                                    <i class="bi bi-book me-2"></i>Перейти к словарю
+                                </a>
+                                <a href="{% url 'add-word' %}" class="btn btn-outline-primary btn-lg">
+                                    <i class="bi bi-plus-lg me-2"></i>Добавить слово
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="video-circle d-video-player" id="heroPlayer">
+                                <video loop muted playsinline poster="{% static 'assets/video-poster.jpg' %}">
+                                    <source src="{% static 'media/videos/intro2.mp4' %}" type="video/mp4">
+                                </video>
+                                <div class="d-video-player__overlay">
+                                    <button class="d-video-player__play" aria-label="Воспроизвести">
+                                        <i class="bi bi-play-fill"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Features -->
+            <section class="d-section">
+                <div class="d-container">
+                    <h2 class="text-center mb-5 h2">Возможности платформы</h2>
+                    <div class="features-grid">
+                        <a href="{% url 'dictionary' %}" class="feature-card">
+                            <div class="feature-card__icon"><i class="bi bi-book"></i></div>
+                            <div>
+                                <h3 class="feature-card__title">Словарь</h3>
+                                <p class="feature-card__desc">Около {{ stats.gestures }} жестов с видео-пояснениями и подробными описаниями</p>
+                            </div>
+                        </a>
+                        <a href="" class="feature-card">
+                            <div class="feature-card__icon"><i class="bi bi-journal-bookmark"></i></div>
+                            <div>
+                                <h3 class="feature-card__title">Личный словарь</h3>
+                                <p class="feature-card__desc">Сохраняйте изучаемые слова и отслеживайте прогресс</p>
+                            </div>
+                        </a>
+                        <div class="feature-card feature-card--disabled">
+                            <div class="feature-card__icon feature-card__icon--muted"><i class="bi bi-phone"></i></div>
+                            <div>
+                                <h3 class="feature-card__title">Мобильное приложение</h3>
+                                <p class="feature-card__desc">Изучайте жестовый язык anywhere, anytime</p>
+                                <span class="feature-card__badge">Скоро</span>
+                            </div>
+                        </div>
+                        <div class="feature-card feature-card--disabled">
+                            <div class="feature-card__icon feature-card__icon--muted"><i class="bi bi-translate"></i></div>
+                            <div>
+                                <h3 class="feature-card__title">Переводчик</h3>
+                                <p class="feature-card__desc">Мгновенный перевод текста в жестовый язык и обратно</p>
+                                <span class="feature-card__badge">Не скоро</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Stats -->
+            {% if stats %}
+            <section class="stats-section">
+                <div class="d-container">
+                    <div class="stats-grid">
+                        <div class="stat">
+                            <div class="stat__value" data-value="{{ stats.gestures }}">0</div>
+                            <div class="stat__label">Жестов</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat__value" data-value="{{ stats.words }}">0</div>
+                            <div class="stat__label">Слов</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat__value" data-value="{{ stats.users }}">0</div>
+                            <div class="stat__label">Пользователей</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat__value" data-value="{{ stats.videos }}">0</div>
+                            <div class="stat__label">Видео жестов</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            {% endif %}
+
+            <!-- News -->
+            <section class="d-section d-section--alt">
+                <div class="d-container">
+                    <div class="d-flex justify-content-between align-items-center mb-5">
+                        <h2 class="h2 mb-0">Новости проекта</h2>
+                        <a href="#" class="btn btn-ghost">
+                            Все новости <i class="bi bi-arrow-right ms-2"></i>
+                        </a>
+                    </div>
+                    <div class="news-grid">
+                        {% for item in news %}
+                        <article class="news-card">
+                            {% if item.image %}
+                            <div class="news-card__placeholder"><i class="bi bi-image"><img src="{{ item.image }}"/></i></div>
+                            {% endif %}
+                            <div class="news-card__body">
+                                <div class="news-card__date">{{ item.published_at|date:"d.m.Y" }}</div>
+                                <h3 class="news-card__title">{{ item.title }}</h3>
+                                <p class="news-card__excerpt">{{ item.content|truncatewords:40 }}</p>
+                            </div>
+                        </article>
+                        {% empty %}
+                        <p>Новостей пока нет</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </section>
+{% endblock %}
+
+{% block page_js %}
+    <script src="{% static 'js/video-player.js' %}"></script>
+    <script src="{% static 'js/pages/home.js' %}"></script>
+{% endblock %}
