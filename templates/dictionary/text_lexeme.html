@@ -126,20 +126,14 @@
                                     <h2 class="info-card__title">Значения слова</h2>
                                 </div>
                                 <div class="meanings-list">
-                                    {% for mapping in meaning_mappings %}
+                                    {% for mapping in meanings %}
                                     <div class="meaning-item">
                                         <div class="meaning-item__number">{{ forloop.counter }}</div>
                                         <div class="meaning-item__content">
-                                            <div class="meaning-item__header">
-                                                <h3 class="meaning-item__term">{{ mapping.meaning.name }}</h3>
-                                                <span class="meaning-item__pos">{{ mapping.meaning.part_of_speech|default:"—" }}</span>
-                                            </div>
-                                            <p class="meaning-item__desc">{{ mapping.meaning.description|default:"Описание отсутствует" }}</p>
-                                            {% if mapping.meaning.usage_notes %}
-                                            <div class="meaning-item__notes">
-                                                <i class="bi bi-info-circle"></i>
-                                                <span>{{ mapping.meaning.usage_notes }}</span>
-                                            </div>
+                                            {% if mapping.description %}
+                                            <p class="meaning-item__desc">{{ mapping.description }}</p>
+                                            {% else %}
+                                            <p class="meaning-item__desc">Описание отсутствует</p>
                                             {% endif %}
                                         </div>
                                     </div>
@@ -215,6 +209,6 @@
 {% endblock %}
 
 {% block page_js %}
-<script src="{% static 'js/video-player.js' %}"></script>
-<script src="{% static 'js/pages/word.js' %}"></script>
+    <script src="{% static 'js/components/video-player.js' %}"></script>
+    <script src="{% static 'js/pages/word.js' %}"></script>
 {% endblock %}

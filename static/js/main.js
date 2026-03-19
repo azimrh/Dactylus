@@ -37,17 +37,6 @@ const Dactylus = {
         }
     },
 
-    // Navigation highlighting
-    initNavigation() {
-        const currentPath = window.location.pathname;
-        document.querySelectorAll('.d-nav__link').forEach(link => {
-            const href = link.getAttribute('href');
-            if (href && currentPath.includes(href.replace('.html', ''))) {
-                link.classList.add('d-nav__link--active');
-            }
-        });
-    },
-
     // Utility: Debounce for AJAX inputs
     debounce(fn, delay = 300) {
         let timeout;

@@ -1,13 +1,6 @@
 from rest_framework import serializers
-from django.contrib.contenttypes.models import ContentType
-from apps.dictionary.models import (
-    Category, TextLexeme, TextLexemeCompose, TextComposeItem,
-    GestureLexeme, GestureLexemeCompose, GestureComposeItem,
-    LexemePair, GestureRealization, Meaning
-)
+from apps.dictionary.models import Category
 
-
-# ==================== CATEGORY ====================
 
 class CategoryChildSerializer(serializers.ModelSerializer):
     """Вложенные дочерние категории (рекурсивно)"""
@@ -40,13 +33,3 @@ class CategoryMinimalSerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
         fields = ['id', 'name', 'slug']
-
-
-# ==================== MEANING ====================
-
-class MeaningSerializer(serializers.ModelSerializer):
-    """Сериализатор смысла/значения"""
-
-    class Meta:
-        model = Meaning
-        fields = ['id', 'description', 'order']

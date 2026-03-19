@@ -4,13 +4,35 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from .news import User
 
+# Допустимые модели для GenericForeignKey
+ALLOWED_LEXEME_TYPES = {
+    'textlexeme': 'Текстовая лемма',
+    'textlexemecompose': 'Сочетание слов',
+    'gesturelexeme': 'Жестовая лемма',
+    'gesturelexemecompose': 'Сочетание жестов',
+}
+
+
+def get_allowed_content_types():
+    """Возвращает ContentType IDs для разрешённых моделей."""
+    return ContentType.objects.filter(
+        model__in=list(ALLOWED_LEXEME_TYPES.keys())
+    )
+
 
 class Category(models.Model):
     name = models.CharField(max_length=100, verbose_name='Название')
     slug = models.SlugField(unique=True)
     description = models.TextField(blank=True, verbose_name='Описание')
 
-    parent = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='children', verbose_name='Родительская категория')
+    parent = models.ForeignKey(
+        'self',
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name='children',
+        verbose_name='Родительская категория'
+    )
     order = models.IntegerField(default=0, verbose_name='Порядок')
 
     class Meta:
@@ -29,11 +51,14 @@ class BaseLexeme(models.Model):
     text = models.CharField(max_length=200, verbose_name='Текст / Жест')
     slug = models.SlugField(unique=True)
 
-    categories = models.ManyToManyField(Category, verbose_name='Категории')
-    
     author = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Автор')
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата публикации')
     is_published = models.BooleanField(default=False, verbose_name='Опубликовано')
+
+    categories = models.ManyToManyField(
+        Category,
+        verbose_name='Категории'
+    )
 
     meanings = models.ManyToManyField(
         'Meaning',
@@ -60,6 +85,7 @@ class TextLexeme(BaseLexeme):
     def get_absolute_url(self):
         return reverse('text_lexeme', kwargs={'slug': self.slug})
 
+
 class TextLexemeCompose(BaseLexeme):
     items = models.ManyToManyField(
         TextLexeme,
@@ -72,8 +98,13 @@ class TextLexemeCompose(BaseLexeme):
         verbose_name_plural = "Сочетания слов"
         ordering = ['text']
 
+
 class TextComposeItem(models.Model):
-    compose = models.ForeignKey(TextLexemeCompose, on_delete=models.CASCADE, related_name='compose_items')
+    compose = models.ForeignKey(
+        TextLexemeCompose,
+        on_delete=models.CASCADE,
+        related_name='compose_items'
+    )
     text_lexeme = models.ForeignKey(TextLexeme, on_delete=models.CASCADE)
     position = models.PositiveIntegerField()
 
@@ -98,6 +129,7 @@ class GestureLexeme(BaseLexeme):
     def __str__(self):
         return self.text
 
+
 class GestureLexemeCompose(BaseLexeme):
     items = models.ManyToManyField(
         GestureLexeme,
@@ -110,8 +142,13 @@ class GestureLexemeCompose(BaseLexeme):
         verbose_name_plural = "Сочетания жестов"
         ordering = ['text']
 
+
 class GestureComposeItem(models.Model):
-    compose = models.ForeignKey(GestureLexemeCompose, on_delete=models.CASCADE, related_name='compose_items')
+    compose = models.ForeignKey(
+        GestureLexemeCompose,
+        on_delete=models.CASCADE,
+        related_name='compose_items'
+    )
     gesture_lexeme = models.ForeignKey(GestureLexeme, on_delete=models.CASCADE)
     position = models.PositiveIntegerField()
 
@@ -125,25 +162,34 @@ class GestureComposeItem(models.Model):
 
 
 class LexemePair(models.Model):
+    """Связь текстовой и жестовой леммы с ограничением типов."""
+
+    # Текстовая лемма (только TextLexeme или TextLexemeCompose)
     text_lexeme_type = models.ForeignKey(
         ContentType,
         on_delete=models.CASCADE,
-        related_name='text_pairs'  # Оставляю как есть
+        related_name='text_pairs',
+        limit_choices_to={'model__in': ['textlexeme', 'textlexemecompose']}
     )
     text_lexeme_id = models.PositiveIntegerField()
     text_lexeme = GenericForeignKey('text_lexeme_type', 'text_lexeme_id')
 
+    # Жестовая лемма (только GestureLexeme или GestureLexemeCompose)
     gesture_lexeme_type = models.ForeignKey(
         ContentType,
         on_delete=models.CASCADE,
-        related_name='gesture_pairs'  # Исправляю: было 'text_pairs', должно быть 'gesture_pairs'
+        related_name='gesture_pairs',
+        limit_choices_to={'model__in': ['gesturelexeme', 'gesturelexemecompose']}
     )
     gesture_lexeme_id = models.PositiveIntegerField()
     gesture_lexeme = GenericForeignKey('gesture_lexeme_type', 'gesture_lexeme_id')
 
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
-    is_auto_meaning = models.BooleanField(default=True, help_text="Автоматически созданный смысл")
+    is_auto_meaning = models.BooleanField(
+        default=True,
+        help_text="Автоматически созданный смысл"
+    )
 
     class Meta:
         verbose_name = 'Связь текст<-->жест'
@@ -153,9 +199,35 @@ class LexemePair(models.Model):
             models.Index(fields=['gesture_lexeme_type', 'gesture_lexeme_id']),
         ]
 
+    def clean(self):
+        """Валидация типов лемм."""
+        from django.core.exceptions import ValidationError
+
+        text_model = self.text_lexeme_type.model
+        gesture_model = self.gesture_lexeme_type.model
+
+        allowed_text = ['textlexeme', 'textlexemecompose']
+        allowed_gesture = ['gesturelexeme', 'gesturelexemecompose']
+
+        if text_model not in allowed_text:
+            raise ValidationError(
+                f'Текстовая лемма должна быть одного из типов: {allowed_text}'
+            )
+
+        if gesture_model not in allowed_gesture:
+            raise ValidationError(
+                f'Жестовая лемма должна быть одного из типов: {allowed_gesture}'
+            )
+
 
 class GestureRealization(models.Model):
-    lexeme_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    """Реализация жеста с ограничением типа леммы."""
+
+    lexeme_type = models.ForeignKey(
+        ContentType,
+        on_delete=models.CASCADE,
+        limit_choices_to={'model__in': ['gesturelexeme', 'gesturelexemecompose']}
+    )
     lexeme_id = models.PositiveIntegerField()
     gesture_lexeme = GenericForeignKey('lexeme_type', 'lexeme_id')
 
@@ -166,16 +238,26 @@ class GestureRealization(models.Model):
     moderation_status = models.CharField(
         max_length=20,
         choices=[
-            ('pending','На проверке'),
-            ('approved','Одобрено'),
-            ('rejected','Отклонено')
+            ('pending', 'На проверке'),
+            ('approved', 'Одобрено'),
+            ('rejected', 'Отклонено')
         ],
         default='pending'
     )
-    moderated_by = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL, related_name='moderated_realizations')
+    moderated_by = models.ForeignKey(
+        User,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='moderated_realizations'
+    )
     moderation_comment = models.TextField(blank=True)
 
-    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='created_realizations')
+    author = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='created_realizations'
+    )
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -184,3 +266,13 @@ class GestureRealization(models.Model):
 
     def __str__(self):
         return f"{self.gesture_lexeme.text} - {self.author.username}"
+
+    def clean(self):
+        """Валидация типа леммы."""
+        from django.core.exceptions import ValidationError
+
+        allowed = ['gesturelexeme', 'gesturelexemecompose']
+        if self.lexeme_type.model not in allowed:
+            raise ValidationError(
+                f'Лемма должна быть жестовой: {allowed}'
+            )

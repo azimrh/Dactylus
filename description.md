@@ -113,56 +113,6 @@ Meaning -> Meaning
 • ***ЗНАЧЕНИЯ*** - поиск по значениям, имеющим искомое слово, то что пользователю нужно в первую очередь
 • ***СЛОВА*** - поиск по слову и похожим (морфологическими и стилистическими производными)
 
-## Страница слова
-Для слова "Работа"
-```code
-             Привет
-|   Значения     |    Связи     |
-|----------------_--------------|
-|  1. Труд.      |  Морфолог.   |
-| деятельность   | • рабочий    |
-| • Труд         |  Стилистич.  |
-| •              | • Работка    |
-| •              | • Работёнка  |
-|----------------_---------------
-```
-
-## Страница смысла
-Для смысла "холодный / холод"
-```code
-|     Слова     |     Жесты     |
-|---------------_---------------|
-| Холодный      | |====| |====| |
-| Прохладный    | |====| |====| |
-| Морозный      |               |
-| Холод         | |====| |====| |
-| Мороз         | |====| |====| |
-| Стужа         |               |
-|---------------_---------------|
-
-|             Связи             |
-|-------------------------------|
-|   Антонимические              |
-| • В зн. физ. ощущ. - горячий, |
-| теплый                        |
-| • В зн. эмоций - теплый,      |
-| радушный, сердечный           |
-| • В зн. цвета - теплый        |
-| • В зн. интеллект - горячий   |
-|                               |
-|   Гиперонимические            |
-| Температурный признак ->      |
-| -> Физическое свойство ->     |
-| -> Свойство                   |
-|                               |
-|   Метонимические              |
-| Лёд (следствие, проявление)   |
-| Зима ()
-| Снег (ассоциация)             |
-| Мороз (с)
-|-------------------------------|
-```
-
 # Код проекта
 
 models/lexical.py
@@ -194,18 +144,23 @@ class Category(models.Model):
         return reverse('category', kwargs={'slug': self.slug})
 
 
-# Готов
-class TextLemma(models.Model):
+class BaseLemma(models.Model):
+    categories = models.ManyToManyField(Category, related_name='%(class)s_set', verbose_name='Категории')
+
+    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='%(class)s_created')
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_published = models.BooleanField(default=False, verbose_name='Опубликовано')
+
+    class Meta:
+        abstract = True
+
+
+class TextLemma(BaseLemma):
     text = models.CharField(max_length=50, unique=True, verbose_name='Текстовая лемма')
     slug = models.SlugField(unique=True)
-    categories = models.ManyToManyField(Category, related_name='text_lemmas', verbose_name='Категории')
 
     is_letter = models.BooleanField(default=False, verbose_name='Буква алфавита')
     letter_char = models.CharField(max_length=1, blank=True, verbose_name='Символ буквы')
-
-    is_published = models.BooleanField(default=False, verbose_name='Опубликовано')
-    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='created_text_lemmas')
-    created_at = models.DateTimeField(auto_now_add=True)
 
     meanings = models.ManyToManyField(
         'Meaning',
@@ -225,7 +180,7 @@ class TextLemma(models.Model):
     def get_absolute_url(self):
         return reverse('text_lemma', kwargs={'slug': self.slug})
 
-class TextLemmaCompose(models.Model):
+class TextLemmaCompose(BaseLemma):
     text = models.CharField(max_length=200, verbose_name="Фраза")
 
     meanings = models.ManyToManyField(
@@ -233,13 +188,9 @@ class TextLemmaCompose(models.Model):
         related_name='text_composes'
     )
 
-    author = models.ForeignKey(User, on_delete=models.CASCADE)
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    is_published = models.BooleanField(default=False)
-
     class Meta:
         verbose_name = "Сочетание слов"
+        verbose_name_plural = "Сочетания слов"
 
 class TextComposeItem(models.Model):
     compose = models.ForeignKey(
@@ -247,24 +198,23 @@ class TextComposeItem(models.Model):
         on_delete=models.CASCADE,
         related_name='items'
     )
-
-    lemma = models.ForeignKey(TextLemma, on_delete=models.CASCADE)
-
+    text_lemma = models.ForeignKey(
+        TextLemma,
+        on_delete=models.CASCADE
+    )
     position = models.PositiveIntegerField()
 
     class Meta:
         ordering = ['position']
         unique_together = ['compose', 'position']
-
         indexes = [
             models.Index(fields=['compose', 'position']),
             models.Index(fields=['lemma', 'position']),
         ]
 
 
-class GestureLemma(models.Model):
+class GestureLemma(BaseLemma):
     text = models.CharField(max_length=50, unique=True, verbose_name='Жестовая лемма')
-    categories = models.ManyToManyField(Category, related_name='gesture_lemmas', verbose_name='Категории')
 
     meanings = models.ManyToManyField(
         'Meaning',
@@ -273,20 +223,8 @@ class GestureLemma(models.Model):
         verbose_name='Смыслы'
     )
 
-    situation = models.CharField(max_length=100, blank=True, verbose_name='Ситуация использования')
-    emotional_coloring = models.CharField(max_length=50, blank=True, verbose_name='Эмоциональная окраска')
-
-    region = models.CharField(max_length=100, blank=True, verbose_name='Регион')
-    is_dialectal = models.BooleanField(default=False, verbose_name='Диалектный')
-
-    # Для букв
     is_letter = models.BooleanField(default=False, verbose_name='Жест буквы')
     letter_char = models.CharField(max_length=1, blank=True, verbose_name='Символ буквы')
-
-    # System
-    is_published = models.BooleanField(default=False, verbose_name='Опубликовано')
-    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='created_gesture_lemmas')
-    created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         verbose_name = 'Жестовая лемма'
@@ -296,19 +234,11 @@ class GestureLemma(models.Model):
     def __str__(self):
         return self.text
 
-class GestureLemmaCompose(models.Model):
-
+class GestureLemmaCompose(BaseLemma):
     meanings = models.ManyToManyField(
         'Meaning',
         related_name='gesture_composes'
     )
-
-    situation = models.CharField(max_length=100, blank=True)
-
-    author = models.ForeignKey(User, on_delete=models.CASCADE)
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    is_published = models.BooleanField(default=False)
 
     class Meta:
         verbose_name = "Сочетание жестов"
@@ -319,15 +249,12 @@ class GestureComposeItem(models.Model):
         on_delete=models.CASCADE,
         related_name='items'
     )
-
-    lemma = models.ForeignKey(GestureLemma, on_delete=models.CASCADE)
-
+    gesture_lemma = models.ForeignKey(GestureLemma, on_delete=models.CASCADE)
     position = models.PositiveIntegerField()
 
     class Meta:
         ordering = ['position']
         unique_together = ['compose', 'position']
-
         indexes = [
             models.Index(fields=['compose', 'position']),
             models.Index(fields=['lemma', 'position']),
@@ -414,7 +341,6 @@ from django.db import models
 
 class Meaning(models.Model):
     description = models.TextField(verbose_name='Описание смысла', null=True)
-    hypernym = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='hyponyms', verbose_name='Верхнее понятие')
 
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -446,4 +372,6 @@ class GestureMeaningMapping(models.Model):
         verbose_name_plural = 'Связи жест-смысл'
 ```
 
-Исправь модели, сделав леммы и их композиции равнозначными, чтобы они все имели категории и работали согласно описанной модели формализации.
+Мне нужно привести модели проекта в соотв. с описанной моделью.
+Первый этап - сделать слова и фразы равнозначными, чтобы можно было связать например слово "писатель" и жестовую фразу "{автор} {человек} {книга}", привязав одну видео-реализацию к жестовой фразе.
+Нужно чтобы леммы и композиции лемм имели абсолютно одинаковые возможности.

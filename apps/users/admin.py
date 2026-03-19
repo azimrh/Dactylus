@@ -30,7 +30,7 @@ class UserAdmin(BaseUserAdmin):
 
     fieldsets = BaseUserAdmin.fieldsets + (
         ('РЖЯ Профиль', {
-            'fields': ('hearing_status', 'is_verified', 'region', 'primary_group')
+            'fields': ('hearing_status', 'is_verified')
         }),
     )
 
