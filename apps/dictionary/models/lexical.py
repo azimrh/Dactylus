@@ -48,9 +48,6 @@ class Category(models.Model):
 
 
 class BaseLexeme(models.Model):
-    text = models.CharField(max_length=200, verbose_name='Текст / Жест')
-    slug = models.SlugField(unique=True)
-
     author = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Автор')
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата публикации')
     is_published = models.BooleanField(default=False, verbose_name='Опубликовано')
@@ -71,6 +68,9 @@ class BaseLexeme(models.Model):
 
 
 class TextLexeme(BaseLexeme):
+    text = models.CharField(max_length=200, verbose_name='Текст / Жест')
+    slug = models.SlugField(unique=True)
+
     is_letter = models.BooleanField(default=False, verbose_name='Буква / Жест буквы')
     letter_char = models.CharField(max_length=1, blank=True, verbose_name='Символ буквы')
 
@@ -85,7 +85,7 @@ class TextLexeme(BaseLexeme):
     def get_absolute_url(self):
         return reverse('text_lexeme', kwargs={'slug': self.slug})
 
-
+'''
 class TextLexemeCompose(BaseLexeme):
     items = models.ManyToManyField(
         TextLexeme,
@@ -115,9 +115,12 @@ class TextComposeItem(models.Model):
             models.Index(fields=['compose', 'position']),
             models.Index(fields=['text_lexeme', 'position']),
         ]
-
+'''
 
 class GestureLexeme(BaseLexeme):
+    text = models.CharField(unique=True, max_length=200, verbose_name='Текст / Жест')
+    slug = models.SlugField(unique=True)
+
     is_letter = models.BooleanField(default=False, verbose_name='Буква / Жест буквы')
     letter_char = models.CharField(max_length=1, blank=True, verbose_name='Символ буквы')
 
@@ -129,7 +132,7 @@ class GestureLexeme(BaseLexeme):
     def __str__(self):
         return self.text
 
-
+'''
 class GestureLexemeCompose(BaseLexeme):
     items = models.ManyToManyField(
         GestureLexeme,
@@ -159,7 +162,7 @@ class GestureComposeItem(models.Model):
             models.Index(fields=['compose', 'position']),
             models.Index(fields=['gesture_lexeme', 'position']),
         ]
-
+'''
 
 class LexemePair(models.Model):
     """Связь текстовой и жестовой леммы с ограничением типов."""
@@ -232,6 +235,7 @@ class GestureRealization(models.Model):
     gesture_lexeme = GenericForeignKey('lexeme_type', 'lexeme_id')
 
     video = models.FileField(upload_to='videos/gestures/')
+    gif = models.FileField(upload_to='gif/gestures/')
     image = models.ImageField(upload_to='thumbnails/', blank=True, null=True)
     is_primary = models.BooleanField(default=False)
 

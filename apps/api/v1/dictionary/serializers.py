@@ -1,35 +1,21 @@
 from rest_framework import serializers
-from apps.dictionary.models import Category
+from apps.dictionary.models import Category, TextLexeme
 
 
-class CategoryChildSerializer(serializers.ModelSerializer):
-    """Вложенные дочерние категории (рекурсивно)"""
-    children = serializers.SerializerMethodField()
+# Text Lexemes
 
-    class Meta:
-        model = Category
-        fields = ['id', 'name', 'slug', 'description', 'order', 'children']
-
-    def get_children(self, obj):
-        if hasattr(obj, 'children'):
-            return CategoryChildSerializer(obj.children.all(), many=True).data
-        return []
-
-
-class CategorySerializer(serializers.ModelSerializer):
-    """Основной сериализатор категории с родителем и детьми"""
-    parent = CategoryChildSerializer(read_only=True)
-    children = CategoryChildSerializer(many=True, read_only=True)
-    url = serializers.CharField(source='get_absolute_url', read_only=True)
+class TextLexemeSerializer(serializers.ModelSerializer):
+    """Основной сериализатор текстовых лексем"""
+    categories = serializers.StringRelatedField(many=True, read_only=True)
+    meanings = serializers.StringRelatedField(many=True, read_only=True)
 
     class Meta:
-        model = Category
-        fields = ['id', 'name', 'slug', 'description', 'parent', 'children', 'order', 'url']
+        model = TextLexeme
+        fields = ['id', 'text', 'slug', 'categories', 'meanings']
 
-
-class CategoryMinimalSerializer(serializers.ModelSerializer):
-    """Минимальная версия для вложенного использования"""
+class TextLexemeListSerializer(serializers.ModelSerializer):
+    """Короткий сериализатор текстовых лексем"""
 
     class Meta:
-        model = Category
-        fields = ['id', 'name', 'slug']
+        model = TextLexeme
+        fields = ['id', 'text', 'slug']

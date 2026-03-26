@@ -4,195 +4,91 @@
 {% block page_css %}
     <link rel="stylesheet" href="{% static 'css/components/forms.css' %}">
     <link rel="stylesheet" href="{% static 'css/components/tabs.css' %}">
-    <link rel="stylesheet" href="{% static 'css/components/auth.css' %}">
+    <link rel="stylesheet" href="{% static 'css/pages/auth.css' %}">
 {% endblock %}
 
 {% block title %}Добавить слово | Dactylus {% endblock %}
 
 {% block content %}
-<div class="d-container" style="max-width: 900px;">
-    <div class="page-header">
-        <h1 class="page-header__title">Добавить слово / жест</h1>
-    </div>
-
-    <!-- Type Tabs -->
-    <div class="d-tabs mb-4">
-        <button class="d-tab d-tab--active" data-tab="word">Слово</button>
-        <button class="d-tab" data-tab="gesture">Жест</button>
-    </div>
-
-    <!-- Word Form -->
-    <form class="auth-card tab-panel active" id="word-panel" data-validate>
-        <!-- Word Name -->
-        <div class="mb-4">
-            <label class="form-label">Название слова <span class="text-danger">*</span></label>
-            <div class="input-group">
-                <span class="input-group-text"><i class="bi bi-type"></i></span>
-                <input type="text" class="form-control" name="word" placeholder="Например: Привет" required>
-            </div>
-            <div class="invalid-feedback">Введите название слова</div>
-        </div>
-
-        <!-- Category -->
-        <div class="mb-4">
-            <label class="form-label">Категория <span class="text-danger">*</span></label>
-            <div class="search-select" data-type="category">
-                <div class="input-group">
-                    <span class="input-group-text"><i class="bi bi-folder"></i></span>
-                    <input type="text" class="form-control" placeholder="Поиск категории..." required>
+            <div class="d-container" style="max-width: 900px;">
+                <div class="page-header">
+                    <h1 class="page-header__title">Добавить слово/жест</h1>
                 </div>
-                <div class="search-select__dropdown"></div>
+
+                <form method="post" action="{% url 'add-word' %}" class="auth-card" data-validate>
+                    {% csrf_token %}
+                    <!-- Word Name -->
+                    <div class="mb-4">
+                        <label class="form-label" for="word">Слово <span class="text-danger">*</span></label>
+                        <div class="search-select" data-type="word">
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-type"></i></span>
+                                <input required type="text" class="form-control" name="word" id="word" placeholder="Поиск слова..."/>
+                            </div>
+                            <div class="search-select__dropdown">
+                                <div class="search-select__item" data-id="0">
+                                    <strong>Слово</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Video Upload -->
+                    <div class="mb-4">
+                        <label class="form-label">Видео жеста</label>
+                        <div class="upload-area">
+                            <input type="file" name="video" accept="video/*">
+                            <div class="upload-area__placeholder">
+                                <i class="bi bi-camera-video"></i>
+                                <strong>Загрузите видео жеста</strong>
+                                <small>MP4, MOV до 50 МБ</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if errors %}
+                    <div class="alert alert-danger" id="formErrors">
+                        {% for err in errors %}
+                        <ul class="mb-0">{{ err }}</ul>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                           <i class="bi bi-plus-lg me-2"></i>Добавить слово
+                        </button>
+                        <a href="dictionary.html" class="btn btn-ghost">Отмена</a>
+                    </div>
+                </form>
             </div>
-            <div class="invalid-feedback">Выберите категорию</div>
-        </div>
-
-        <!-- Associated Meaning -->
-        <div class="mb-4">
-            <label class="form-label">Привязанный смысл</label>
-            <div class="search-select" data-type="meaning">
-                <div class="input-group">
-                    <span class="input-group-text"><i class="bi bi-book"></i></span>
-                    <input type="text" class="form-control" placeholder="Поиск смысла...">
-                </div>
-                <div class="search-select__dropdown"></div>
-            </div>
-            <div class="form-text">Выберите смысл, к которому относится слово</div>
-        </div>
-
-        <!-- Morphological Base -->
-        <div class="mb-4">
-            <label class="form-label">Морфологически-базовое слово (наследуется ОТ)</label>
-            <div class="search-select" data-type="word">
-                <div class="input-group">
-                    <span class="input-group-text"><i class="bi bi-bezier2"></i></span>
-                    <input type="text" class="form-control" placeholder="Поиск слова...">
-                </div>
-                <div class="search-select__dropdown"></div>
-            </div>
-            <div class="form-text">Слово, от которого образовано данное слово</div>
-        </div>
-
-        <!-- Stylistic Base -->
-        <div class="mb-4">
-            <label class="form-label">Стилистически-базовое слово (наследуется ОТ)</label>
-            <div class="search-select" data-type="word">
-                <div class="input-group">
-                    <span class="input-group-text"><i class="bi bi-palette"></i></span>
-                    <input type="text" class="form-control" placeholder="Поиск слова...">
-                </div>
-                <div class="search-select__dropdown"></div>
-            </div>
-            <div class="form-text">Слово, от которого образовано стилистически</div>
-        </div>
-
-        <!-- Video Upload -->
-        <div class="mb-4">
-            <label class="form-label">Видео жеста</label>
-            <div class="upload-area">
-                <input type="file" name="video" accept="video/*">
-                <div class="upload-area__placeholder">
-                    <i class="bi bi-camera-video"></i>
-                    <strong>Загрузите видео жеста</strong>
-                    <small>MP4, MOV до 50 МБ</small>
-                </div>
-            </div>
-        </div>
-
-        <!-- Hidden Errors -->
-        <div class="alert alert-danger d-none" id="wordFormErrors">
-            <ul class="mb-0"></ul>
-        </div>
-
-        <div class="d-grid gap-2">
-            <button type="submit" class="btn btn-primary btn-lg">
-               <i class="bi bi-plus-lg me-2"></i>Добавить слово
-            </button>
-            <a href="dictionary.html" class="btn btn-ghost">Отмена</a>
-        </div>
-    </form>
-
-    <!-- Gesture Form -->
-    <form class="auth-card tab-panel" id="gesture-panel" data-validate style="display: none;">
-        <!-- Gesture Name -->
-        <div class="mb-4">
-        <label class="form-label">Название жеста <span class="text-danger">*</span></label>
-        <div class="input-group">
-        <span class="input-group-text"><i class="bi bi-hand-index"></i></span>
-        <input type="text" class="form-control" name="gesture" placeholder="Например: Привет (основной)" required>
-        </div>
-        <div class="invalid-feedback">Введите название жеста</div>
-        </div>
-
-        <!-- Associated Words -->
-        <div class="mb-4">
-        <label class="form-label">Привязанные слова</label>
-        <div class="search-select" data-type="word-multiple">
-        <div class="input-group">
-        <span class="input-group-text"><i class="bi bi-link"></i></span>
-        <input type="text" class="form-control" placeholder="Добавьте слова...">
-        </div>
-        <div class="search-select__dropdown"></div>
-        </div>
-        <div class="form-text">Выберите слова, которые обозначаются этим жестом</div>
-        </div>
-
-        <!-- Technical Details -->
-        <div class="row mb-4">
-            <div class="col-md-6 mb-3">
-                <label class="form-label">Доминирующая рука</label>
-                <select class="form-select" name="hand">
-                    <option value="right">Правая</option>
-                    <option value="left">Левая</option>
-                    <option value="both">Обе</option>
-                </select>
-            </div>
-            <div class="col-md-6 mb-3">
-                <label class="form-label">Место образования</label>
-                <input type="text" class="form-control" name="location" placeholder="Например: У виска">
-            </div>
-            <div class="col-md-6 mb-3">
-                <label class="form-label">Характер движения</label>
-                <select class="form-select" name="movement">
-                    <option value="short">Кратковременное</option>
-                    <option value="long">Длительное</option>
-                    <option value="repeated">Повторяющееся</option>
-                </select>
-            </div>
-            <div class="col-md-6 mb-3">
-                <label class="form-label">Ориентация</label>
-                <input type="text" class="form-control" name="orientation" placeholder="Например: К собеседнику">
-            </div>
-        </div>
-
-        <!-- Video Upload -->
-        <div class="mb-4">
-            <label class="form-label">Видео жеста <span class="text-danger">*</span></label>
-            <div class="upload-area">
-                <input type="file" name="video" accept="video/*" required>
-                <div class="upload-area__placeholder">
-                    <i class="bi bi-camera-video"></i>
-                    <strong>Загрузите видео жеста</strong>
-                    <small>MP4, MOV до 50 МБ</small>
-                </div>
-            </div>
-            <div class="invalid-feedback">Загрузите видео жеста</div>
-        </div>
-
-        <!-- Hidden Errors -->
-        <div class="alert alert-danger d-none" id="gestureFormErrors">
-            <ul class="mb-0"></ul>
-        </div>
-
-        <div class="d-grid gap-2">
-            <button type="submit" class="btn btn-primary btn-lg">
-                <i class="bi bi-plus-lg me-2"></i>Добавить жест
-            </button>
-            <a href="dictionary.html" class="btn btn-ghost">Отмена</a>
-        </div>
-    </form>
-</div>
 {% endblock %}
 
 {% block page_js %}
-    <script src="js/pages/add-word.js"></script>
+    <script src="{% static 'js/components/ajax_search.js' %}"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        new AjaxSearch({
+            root: '[data-type="word"]',
+            input: 'input',
+            dropdown: '.search-select__dropdown',
+            url: '/api/v1/text-lexemes/?search=',
+            mapResults: (data) => data.results,
+
+            renderItem: (item) => `
+                <div class="search-select__item"
+                     data-id="${item.id}"
+                     data-text="${item.text}">
+                    <strong>${item.text}</strong>
+                </div>
+            `,
+
+            onSelect: ({ id, text }) => {
+                const input = document.querySelector('#word');
+                input.value = text;
+                input.dataset.selectedId = id;
+            }
+        });
+    });
+    </script>
 {% endblock %}

@@ -1,53 +1,15 @@
+from django.contrib.auth.decorators import login_required
+from django.contrib.contenttypes.models import ContentType
 from django.db.models import Count, Q
 from django.core.paginator import Paginator
 from django.shortcuts import render, get_object_or_404, redirect
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth import login
 from django.urls import reverse
-from django.contrib.contenttypes.models import ContentType
 
-from .forms import CustomUserCreationForm
-from .models import (
-    News, User,
+from apps.dictionary.models import (
     Category,
-    TextLexeme, TextLexemeCompose,
-    GestureLexeme, GestureLexemeCompose,
-    GestureRealization, LexemePair
+    TextLexeme, LexemePair, GestureRealization
 )
-
-
-def register(request):
-    if request.user.is_authenticated:
-        return redirect('home')
-
-    if request.method == 'POST':
-        form = CustomUserCreationForm(request.POST)
-        if form.is_valid():
-            user = form.save()
-            login(request, user)
-            return redirect('home')
-    else:
-        form = CustomUserCreationForm()
-    return render(request, 'dictionary/register.html', {'form': form})
-
-
-def home(request):
-    categories = Category.objects.filter(parent=None)[:6]
-    news = News.objects.filter(is_published=True)[:3]
-
-    stats = {
-        'gestures': GestureLexeme.objects.filter(is_published=True).count(),
-        'words': TextLexeme.objects.filter(is_published=True).count(),
-        'users': User.objects.count(),
-        'videos': GestureRealization.objects.filter(moderation_status='approved').count(),
-    }
-
-    context = {
-        'categories': categories,
-        'news': news,
-        'stats': stats,
-    }
-    return render(request, 'dictionary/home.html', context)
+from .base import group_required
 
 
 def dictionary(request):
@@ -64,57 +26,6 @@ def dictionary(request):
         'categories': categories,
         'category': None,
     })
-
-
-def category(request, slug):
-    """Страница категории — подкатегории и слова."""
-    category = get_object_or_404(
-        Category.objects.annotate(
-            words_count=Count('textlexeme', filter=Q(textlexeme__is_published=True), distinct=True),
-            gestures_count=Count('gesturelexeme', filter=Q(gesturelexeme__is_published=True), distinct=True),
-        ),
-        slug=slug
-    )
-
-    subcategories = category.children.annotate(
-        words_count=Count('textlexeme', filter=Q(textlexeme__is_published=True), distinct=True),
-        gestures_count=Count('gesturelexeme', filter=Q(gesturelexeme__is_published=True), distinct=True),
-    )
-
-    # Навигация
-    navigation = []
-    current = category
-    while current.parent:
-        navigation.insert(0, {
-            'name': current.parent.name,
-            'href': current.parent.get_absolute_url()
-        })
-        current = current.parent
-
-    # Слова с пагинацией
-    text_lexemes_list = TextLexeme.objects.filter(
-        categories=category,
-        is_published=True
-    ).select_related('author').prefetch_related('meanings').order_by('text')
-
-    paginator = Paginator(text_lexemes_list, 24)
-    page = request.GET.get('page')
-    text_lexemes = paginator.get_page(page)
-
-    return render(request, 'dictionary/dictionary.html', {
-        'category': category,
-        'navigation': navigation,
-        'subcategories': subcategories,
-        'text_lexemes': text_lexemes
-    })
-
-# TODO
-
-def add_category(request):
-    return render(request, 'dictionary/add-category.html',)
-
-def add_word(request):
-    return render(request, 'dictionary/add-word.html',)
 
 def text_lexeme(request, slug):
     lemma = get_object_or_404(
@@ -205,4 +116,3 @@ def text_lexeme(request, slug):
         'navigation': navigation,
     }
     return render(request, 'dictionary/text_lexeme.html', context)
-

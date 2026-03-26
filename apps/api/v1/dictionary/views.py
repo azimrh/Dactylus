@@ -1,15 +1,23 @@
-from rest_framework import viewsets, filters
-from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import viewsets
+from rest_framework.filters import SearchFilter
 
-from apps.dictionary.models import Category
-from .serializers import CategorySerializer
-from .filters import CategoryFilter  # Импорт фильтра
+from apps.dictionary.models import Category, TextLexeme
+from .serializers import (
+    TextLexemeSerializer, TextLexemeListSerializer
+)
 
 
-class CategoryViewSet(viewsets.ModelViewSet):
-    queryset = Category.objects.all()
-    serializer_class = CategorySerializer
-    filterset_class = CategoryFilter  # Явное подключение фильтра
-    filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
-    ordering_fields = ['name', 'order', 'id']
-    ordering = ['order', 'name']
+class TextLexemeViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = TextLexeme.objects.all()
+    serializer_class = TextLexemeSerializer
+    filter_backends = [SearchFilter]
+    search_fields = ['text', 'slug']
+    ordering_fields = ['text', 'id']
+
+    def get_serializer_class(self):
+        """Динамический выбор сериализатора"""
+        if self.action == 'list':
+            return TextLexemeListSerializer
+        if self.action == 'retrieve':
+            return TextLexemeSerializer
+        return TextLexemeSerializer

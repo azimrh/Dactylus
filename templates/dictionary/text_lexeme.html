@@ -55,7 +55,8 @@
                 <div class="video-sidebar">
                     {% if main_gesture %}
                     <div class="d-video-player" id="mainPlayer" data-gesture-id="{{ main_gesture.id }}">
-                        <video loop playsinline {% if main_gesture.image %}poster="{{ main_gesture.image.url }}"{% endif %}>
+                        <video loop playsinline>
+                            <!-- {% if main_gesture.image %}poster="{{ main_gesture.image.url }}"{% endif %} -->
                             <source src="{{ main_gesture.video.url }}" type="video/mp4">
                         </video>
                         <div class="d-video-player__overlay">

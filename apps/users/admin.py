@@ -1,5 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
+from django.contrib.auth.models import Permission
+
 from .models import User, UserProfile, UserStats
 
 
@@ -12,6 +14,18 @@ class StatsInline(admin.StackedInline):
     model = UserStats
     can_delete = False
     readonly_fields = [f.name for f in UserStats._meta.fields]
+
+
+@admin.register(Permission)
+class PermissionAdmin(admin.ModelAdmin):
+    list_display = ['id', 'name', 'codename', 'content_type', 'app_label']
+    list_filter = ['content_type__app_label', 'content_type__model']
+    search_fields = ['name', 'codename']
+    ordering = ['content_type__app_label', 'codename']
+
+    @admin.display(description='App')
+    def app_label(self, obj):
+        return obj.content_type.app_label
 
 
 @admin.register(User)

@@ -1,15 +1,9 @@
-/**
- * DACTYLUS CORE - Minimal JS for Django integration
- * Only essential functionality that cannot be done server-side
- */
-
 const Dactylus = {
     version: '2.0.0',
 
     // Initialize all components
     init() {
         this.initTheme();
-        this.initNavigation();
     },
 
     // Theme Management - Single source of truth for entire site

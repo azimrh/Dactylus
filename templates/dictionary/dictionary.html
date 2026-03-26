@@ -64,13 +64,13 @@
     <!-- Action bar -->
     {% if user.is_authenticated %}
     <div class="action-bar">
-        {% if user.is_moderator or user.is_admin or user.is_superuser%}
-        <a href="{% url 'add-category' %}" class="btn btn-outline-primary">
+        {% if perms.dictionary.add_category %}
+        <a href="{% url 'add-category' %}{% if category %}?parent={{ category.slug }}{% endif %}" class="btn btn-outline-primary">
             <i class="bi bi-folder-plus me-2"></i>Создать категорию
         </a>
         {% endif %}
-        <a href="{% url 'add-word' %}" class="btn btn-primary">
-            <i class="bi bi-plus-lg me-2"></i>Добавить слово
+        <a href="{% url 'add-word' %}{% if category %}?category={{ category.slug }}{% endif %}" class="btn btn-primary">
+            <i class="bi bi-plus-lg me-2"></i>Добавить слово/жест
         </a>
     </div>
     {% endif %}
@@ -143,7 +143,7 @@
         <a href="{% url 'text_lemma' lemma.slug %}" class="word-card">
             <div class="word-card__image word-card__image--round">
                 <div class="word-card__placeholder">
-                    <i class="bi bi-hand-index"></i>
+                    <img src="" style="max-width: 100%;" alt="{{ lemma.text }}"/>
                 </div>
             </div>
             <div class="word-card__body">

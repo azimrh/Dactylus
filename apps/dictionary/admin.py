@@ -2,8 +2,8 @@ from django.contrib import admin
 
 from .models import (
     Category,
-    TextLexeme, TextLexemeCompose, TextComposeItem,
-    GestureLexeme, GestureLexemeCompose, GestureComposeItem,
+    TextLexeme, # TextLexemeCompose, TextComposeItem,
+    GestureLexeme, # GestureLexemeCompose, GestureComposeItem,
     LexemePair,
     GestureRealization,
     Meaning, LexemeMeaningMapping
@@ -38,10 +38,6 @@ class MeaningAdmin(admin.ModelAdmin):
 # -----------------------
 # Текстовые леммы
 # -----------------------
-class TextComposeItemInline(admin.TabularInline):
-    model = TextComposeItem
-    extra = 1
-    fk_name = 'compose'
 
 @admin.register(TextLexeme)
 class TextLexemeAdmin(admin.ModelAdmin):
@@ -49,20 +45,22 @@ class TextLexemeAdmin(admin.ModelAdmin):
     search_fields = ('text',)
     list_filter = ('is_letter', 'is_published', 'categories')
 
+'''
+class TextComposeItemInline(admin.TabularInline):
+    model = TextComposeItem
+    extra = 1
+    fk_name = 'compose'
+
 @admin.register(TextLexemeCompose)
 class TextLexemeComposeAdmin(admin.ModelAdmin):
     list_display = ('text', 'author', 'created_at', 'is_published')
     search_fields = ('text',)
     inlines = [TextComposeItemInline]
-
+'''
 
 # -----------------------
 # Жестовые леммы
 # -----------------------
-class GestureComposeItemInline(admin.TabularInline):
-    model = GestureComposeItem
-    extra = 1
-    fk_name = 'compose'
 
 @admin.register(GestureLexeme)
 class GestureLexemeAdmin(admin.ModelAdmin):
@@ -70,12 +68,18 @@ class GestureLexemeAdmin(admin.ModelAdmin):
     search_fields = ('text',)
     list_filter = ('is_letter', 'is_published', 'categories')
 
+'''
+class GestureComposeItemInline(admin.TabularInline):
+    model = GestureComposeItem
+    extra = 1
+    fk_name = 'compose'
+
 @admin.register(GestureLexemeCompose)
 class GestureLexemeComposeAdmin(admin.ModelAdmin):
     list_display = ('text', 'author', 'created_at', 'is_published')
     search_fields = ('text',)
     inlines = [GestureComposeItemInline]
-
+'''
 
 @admin.register(GestureRealization)
 class GestureRealizationAdmin(admin.ModelAdmin):
