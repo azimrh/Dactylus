@@ -143,7 +143,7 @@
         <a href="{% url 'text_lemma' lemma.slug %}" class="word-card">
             <div class="word-card__image word-card__image--round">
                 <div class="word-card__placeholder">
-                    <img src="" style="max-width: 100%;" alt="{{ lemma.text }}"/>
+                    <img src="{{ lemma.primary_image|default:'' }}" style="max-width: 100%;" alt="{{ lemma.text }}">
                 </div>
             </div>
             <div class="word-card__body">

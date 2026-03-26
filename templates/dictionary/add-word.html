@@ -15,7 +15,7 @@
                     <h1 class="page-header__title">Добавить слово/жест</h1>
                 </div>
 
-                <form method="post" action="{% url 'add-word' %}" class="auth-card" data-validate>
+                <form method="post" action="{% url 'add-word' %}" class="auth-card" enctype="multipart/form-data" data-validate>
                     {% csrf_token %}
                     <!-- Word Name -->
                     <div class="mb-4">
@@ -58,7 +58,7 @@
                         <button type="submit" class="btn btn-primary btn-lg">
                            <i class="bi bi-plus-lg me-2"></i>Добавить слово
                         </button>
-                        <a href="dictionary.html" class="btn btn-ghost">Отмена</a>
+                        <a href="{% url 'dictionary' %}" class="btn btn-ghost">Отмена</a>
                     </div>
                 </form>
             </div>

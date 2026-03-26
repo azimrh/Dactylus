@@ -1,6 +1,6 @@
 from django.db import models
 from django.urls import reverse
-from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
 from .news import User
 
@@ -74,6 +74,13 @@ class TextLexeme(BaseLexeme):
     is_letter = models.BooleanField(default=False, verbose_name='Буква / Жест буквы')
     letter_char = models.CharField(max_length=1, blank=True, verbose_name='Символ буквы')
 
+    pairs = GenericRelation(
+        'LexemePair',
+        content_type_field='text_lexeme_type',
+        object_id_field='text_lexeme_id',
+        related_query_name='text_lexeme'
+    )
+
     class Meta:
         verbose_name = 'Текстовая лемма'
         verbose_name_plural = 'Текстовые леммы'
@@ -123,6 +130,20 @@ class GestureLexeme(BaseLexeme):
 
     is_letter = models.BooleanField(default=False, verbose_name='Буква / Жест буквы')
     letter_char = models.CharField(max_length=1, blank=True, verbose_name='Символ буквы')
+
+    pairs = GenericRelation(
+        'LexemePair',
+        content_type_field='gesture_lexeme_type',
+        object_id_field='gesture_lexeme_id',
+        related_query_name='gesture_pairs'
+    )
+
+    realizations = GenericRelation(
+        'GestureRealization',
+        content_type_field='lexeme_type',
+        object_id_field='lexeme_id',
+        related_query_name='gesture_realizations'
+    )
 
     class Meta:
         verbose_name = 'Жестовая лемма'
@@ -269,7 +290,8 @@ class GestureRealization(models.Model):
         verbose_name_plural = 'Реализации жестов'
 
     def __str__(self):
-        return f"{self.gesture_lexeme.text} - {self.author.username}"
+        gesture = getattr(self, 'gesture_lexeme', None)
+        return f"{getattr(gesture, 'text', 'Unknown gesture')} - {self.author.username}"
 
     def clean(self):
         """Валидация типа леммы."""

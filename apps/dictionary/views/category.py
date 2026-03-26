@@ -35,17 +35,58 @@ def category(request, slug):
         })
         current = current.parent
 
-    text_lexemes_list = TextLexeme.objects.filter(
+    text_lexemes_list = list(TextLexeme.objects.filter(
         categories=category,
         is_published=True
-    ).select_related('author').prefetch_related('meanings').order_by('text')
+    ).select_related('author').prefetch_related('meanings'))
 
-    lexeme_ids = list(text_lexemes_list.values_list('id', flat=True))
-    text_ct = ContentType.objects.get_for_model(TextLexeme)
     pairs = LexemePair.objects.filter(
-        text_lexeme_type=text_ct,
-        text_lexeme_id__in=lexeme_ids
-    ).select_related('gesture_lexeme_type')
+        text_lexeme_type__model='textlexeme',
+        text_lexeme_id__in=[l.id for l in text_lexemes_list]
+    )
+
+    pairs_map = {}
+    gesture_ids_by_type = {}
+
+    for pair in pairs:
+        pairs_map.setdefault(pair.text_lexeme_id, []).append(pair)
+
+        type_id = pair.gesture_lexeme_type_id
+        gesture_ids_by_type.setdefault(type_id, []).append(pair.gesture_lexeme_id)
+
+    gesture_realizations = GestureRealization.objects.filter(
+        lexeme_type__model__in=['gesturelexeme', 'gesturelexemecompose'],
+        lexeme_id__in=[
+            gid for ids in gesture_ids_by_type.values() for gid in ids
+        ],
+        is_primary=True,
+        moderation_status='approved'
+    )
+
+    realizations_map = {}
+
+    for r in gesture_realizations:
+        key = (r.lexeme_type_id, r.lexeme_id)
+        realizations_map.setdefault(key, []).append(r)
+
+    for lexeme in text_lexemes_list:
+        lexeme.primary_image = None
+
+        for pair in pairs_map.get(lexeme.id, []):
+            key = (pair.gesture_lexeme_type_id, pair.gesture_lexeme_id)
+
+            realizations = realizations_map.get(key)
+            if not realizations:
+                continue
+
+            r = realizations[0]
+
+            if r.gif:
+                lexeme.primary_image = r.gif.url
+                break
+            if r.image:
+                lexeme.primary_image = r.image.url
+                break
 
     paginator = Paginator(text_lexemes_list, 24)
     page = request.GET.get('page')

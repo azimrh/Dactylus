@@ -1,3 +1,4 @@
+from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import F, Max
 from django.shortcuts import render, redirect
@@ -6,8 +7,9 @@ from django.contrib import messages
 from slugify import slugify
 
 from .base import group_required
+from ..models import GestureRealization, GestureLexeme
 from ..models.lexical import Category, TextLexeme, LexemePair
-from ..utils.image_processing import process_category_image
+from ..utils.media_processing import process_image, video_to_gif, process_video
 
 
 @login_required
@@ -60,7 +62,8 @@ def add_category(request):
             counter += 1
 
         if errors:
-            return render(request, 'dictionary/add-category.html', {
+            return render(request,
+                'dictionary/add-category.html', {
                 'errors': errors,
                 'parent': parent,
                 'sibling_categories': sibling_categories,
@@ -99,7 +102,7 @@ def add_category(request):
         )
 
         if image:
-            processed_image = process_category_image(image)
+            processed_image = process_image(image)
             if processed_image:
                 category.image = processed_image
 
@@ -107,10 +110,13 @@ def add_category(request):
         messages.success(request, f'Категория "{name}" успешно создана.')
         return redirect('category', slug=category.slug)
 
-    return render(request, 'dictionary/add-category.html', {
-        'parent': parent,
-        'sibling_categories': sibling_categories,
-    })
+    return render(request,
+        'dictionary/add-category.html',
+        {
+            'parent': parent,
+            'sibling_categories': sibling_categories,
+        }
+    )
 
 
 @login_required
@@ -118,30 +124,71 @@ def add_word(request):
     if request.method == 'POST':
         word = request.POST.get('word', '').strip()
         video = request.FILES.get('video')
+        user = request.user
 
         errors = []
         if not word:
             errors.append('Введите слово')
         if len(word) > 50:
             errors.append('Слово не может быть длиннее 50 символов')
-
-        text_lexeme = None
-        try:
-            text_lexeme = TextLexeme.objects.get(text=word)
-            print(f"Слово: {text_lexeme}")
-        except ObjectDoesNotExist:
-            slug = slugify(word)
-            text_lexeme = TextLexeme(
-                text=word,
-                slug=slug
+        if not video:
+            errors.append('Загрузите видео!')
+        if errors:
+            return render(request,
+                'dictionary/add-word.html',
+                {
+                    "errors": errors
+                }
             )
-            print(f"Новое слово: {text_lexeme}")
 
-        '''
-        if video:
-            processed_video = process_gesture_video(video)
-            if processed_video:
-                category.image = processed_image
-        '''
+        # TextLexeme
+        text_lexeme, created = TextLexeme.objects.get_or_create(
+            text=word,
+            defaults={
+                'slug': slugify(word),
+                'author': user,
+                'is_published': True
+            }
+        )
+        print(text_lexeme)
 
-    return render(request, 'dictionary/add-word.html')
+        # GestureLexeme
+        gesture_lexeme, created = GestureLexeme.objects.get_or_create(
+            text=word,
+            defaults={
+                'slug': text_lexeme.slug,
+                'author': user,
+                'is_published': True
+            }
+        )
+        print(gesture_lexeme)
+
+        # GestureRealization
+        processed_video = process_video(video)
+        gif = video_to_gif(processed_video)
+
+        realization = GestureRealization.objects.create(
+            lexeme_type=ContentType.objects.get_for_model(GestureLexeme),
+            lexeme_id=gesture_lexeme.id,
+            video=processed_video,
+            gif=gif,
+            author=user,
+            is_primary=True,
+            moderation_status='approved'
+        )
+        print(realization)
+
+        # Связь через LexemePair
+        LexemePair.objects.get_or_create(
+            text_lexeme_type=ContentType.objects.get_for_model(TextLexeme),
+            text_lexeme_id=text_lexeme.id,
+            gesture_lexeme_type=ContentType.objects.get_for_model(GestureLexeme),
+            gesture_lexeme_id=gesture_lexeme.id,
+            defaults={'created_by': user}
+        )
+
+        messages.success(request, f'Слово "{word}" и жест успешно добавлены.')
+
+    return render(request,
+        'dictionary/add-word.html'
+    )

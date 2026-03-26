@@ -18,7 +18,7 @@
                     {% endif %}
                 </div>
 
-                <form method="post" action="{% url 'add-category' %}" class="auth-card" data-validate>
+                <form method="post" action="{% url 'add-category' %}" class="auth-card" enctype="multipart/form-data" data-validate>
                     {% csrf_token %}
                     <div class="mb-4">
                         <label class="form-label">

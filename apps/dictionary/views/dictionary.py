@@ -60,7 +60,6 @@ def text_lexeme(request, slug):
     # Получаем ID всех жестов для поиска реализаций
     all_gesture_ids = [g.id for g in gesture_lexemes]
 
-    # Реализации через GenericForeignKey — нельзя select_related на gesture_lexeme
     gesture_realizations = GestureRealization.objects.filter(
         lexeme_type__model__in=['gesturelexeme', 'gesturelexemecompose'],
         lexeme_id__in=all_gesture_ids,
