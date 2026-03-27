@@ -16,6 +16,9 @@ urlpatterns = [
     path('dictionary/add_category/', views.add_category, name='add-category'),
     path('dictionary/add_word/', views.add_word, name='add-word'),
 
+    path('moderation/', views.moderation, name='moderation'),
+    path('moderation/pair/<int:pair_id>/', views.moderation_detail, name='moderation-detail'),
+
     path('translator/', views.home, name='translator'),
     path('search/', views.home, name='search'),
 ]

@@ -1,0 +1,272 @@
+{% extends 'dictionary/base.html' %}
+{% load static %}
+
+{% block page_css %}
+    <link rel="stylesheet" href="{% static 'css/components/cards.css' %}">
+    <link rel="stylesheet" href="{% static 'css/components/forms.css' %}">
+{% endblock %}
+
+{% block title %}Редактирование пары | Модерация{% endblock %}
+
+{% block content %}
+    <div class="d-container" style="max-width: 800px;">
+        <div class="mb-3">
+            <a href="{% url 'moderation' %}" class="btn btn-ghost btn-sm">
+                <i class="bi bi-arrow-left me-1"></i>Назад к списку
+            </a>
+        </div>
+
+        <h1 class="page-header__title mb-4">Редактирование пары</h1>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} mb-3">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <div class="auth-card">
+            <!-- Gesture Preview -->
+            <div class="text-center mb-4">
+                <div style="width: 300px; height: 300px; margin: 0 auto; border-radius: 50%; overflow: hidden; border: 4px solid var(--d-border);">
+                    {% if pair.gesture_lexeme.realizations.first.gif %}
+                        <img src="{{ pair.gesture_lexeme.realizations.first.gif.url }}" alt="Жест" style="width: 100%; height: 100%; object-fit: cover;">
+                    {% else %}
+                        <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: var(--d-bg-elevated);">
+                            <i class="bi bi-hand-index" style="font-size: 3rem; color: var(--d-text-muted);"></i>
+                        </div>
+                    {% endif %}
+                </div>
+                <p class="text-muted mt-2 mb-0">Жест: {{ pair.gesture_lexeme.text }}</p>
+            </div>
+
+            <form method="post" id="moderationForm">
+                {% csrf_token %}
+                
+                <!-- Word -->
+                <div class="mb-4">
+                    <label class="form-label fw-bold">Слово <span class="text-danger">*</span></label>
+                    <div class="search-select" data-type="word">
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-type"></i></span>
+                            <input type="text" class="form-control" name="word" id="wordInput"
+                                   value="{{ pair.text_lexeme.text }}"
+                                   data-lexeme-id="{{ pair.text_lexeme_id }}"
+                                   required autocomplete="off">
+                        </div>
+                        <div class="search-select__dropdown"></div>
+                    </div>
+                    <input type="hidden" name="word_id" id="wordIdInput" value="{{ pair.text_lexeme_id }}">
+                </div>
+
+                <!-- Meaning -->
+                <div class="mb-4">
+                    <label class="form-label">Смысл</label>
+                    <div class="search-select" data-type="meaning">
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-book"></i></span>
+                            <input type="text" class="form-control" name="meaning" id="meaningInput"
+                                   value="{% if pair.meaning %}{{ pair.meaning.description }}{% endif %}"
+                                   data-meaning-id="{% if pair.meaning %}{{ pair.meaning.id }}{% endif %}"
+                                   autocomplete="off">
+                        </div>
+                        <div class="search-select__dropdown"></div>
+                    </div>
+                    <input type="hidden" name="meaning_id" id="meaningIdInput" value="{% if pair.meaning %}{{ pair.meaning.id }}{% endif %}">
+                </div>
+
+                <!-- Categories -->
+                <div class="mb-4">
+                    <label class="form-label">Категории</label>
+
+                    <!-- Selected Categories Tags -->
+                    <div id="selectedCategories" class="mb-2" style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                        {% for cat in current_categories %}
+                        <span class="d-badge d-badge--primary" data-category-id="{{ cat.id }}">
+                            {{ cat.name }}
+                            <i class="bi bi-x-lg" style="cursor: pointer; margin-left: 0.25rem;" onclick="removeCategory('{{ cat.id }}')"></i>
+                        </span>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Category Search Input -->
+                    <div class="search-select mb-2" data-type="category">
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-folder"></i></span>
+                            <input type="text" class="form-control" id="categoryInput"
+                                   placeholder="Добавить категорию..." autocomplete="off">
+                        </div>
+                        <div class="search-select__dropdown"></div>
+                    </div>
+
+                    <!-- Hidden inputs for selected category IDs -->
+                    <div id="categoryIdsContainer">
+                        {% for cat in current_categories %}
+                        <input type="hidden" name="category_ids" value="{{ cat.id }}" data-category-id="{{ cat.id }}">
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Meta info -->
+                <div class="mb-4 p-3 bg-light rounded">
+                    <small class="text-muted">
+                        <div>Автор: {{ pair.created_by.username }}</div>
+                        <div>Создано: {{ pair.created_at|date:"d.m.Y H:i" }}</div>
+                    </small>
+                </div>
+
+                <!-- Actions -->
+                <div class="d-grid gap-2">
+                    <button type="submit" name="action" value="approve" class="btn btn-success btn-lg">
+                        <i class="bi bi-check-lg me-2"></i>Одобрить
+                    </button>
+                    <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#rejectModal">
+                        <i class="bi bi-x-lg me-2"></i>Отклонить
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Reject Modal -->
+    <div class="modal fade" id="rejectModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Отклонить пару</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Причина отклонения</label>
+                            <textarea name="reason" class="form-control" rows="3" required></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Отмена</button>
+                        <button type="submit" name="action" value="reject" class="btn btn-danger">Отклонить</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block page_js %}
+    <script src="{% static 'js/components/ajax_search.js' %}"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // Word search
+        new AjaxSearch({
+            root: '[data-type="word"]',
+            input: '#wordInput',
+            dropdown: '.search-select__dropdown',
+            url: '/api/v1/text-lexemes/?search=',
+            minLength: 2,
+            mapResults: (data) => data.results || [],
+            renderItem: (item) => `
+                <div class="search-select__item" data-id="${item.id}" data-text="${item.text}">
+                    <strong>${item.text}</strong>
+                </div>
+            `,
+            onSelect: ({ id, text }) => {
+                document.getElementById('wordInput').value = text;
+                document.getElementById('wordIdInput').value = id;
+            }
+        });
+
+        // Meaning search
+        new AjaxSearch({
+            root: '[data-type="meaning"]',
+            input: '#meaningInput',
+            dropdown: '.search-select__dropdown',
+            url: '/api/v1/meanings/?search=',
+            minLength: 2,
+            mapResults: (data) => data.results || [],
+            renderItem: (item) => `
+                <div class="search-select__item" data-id="${item.id}" data-text="${item.description}">
+                    <strong>${item.description.substring(0, 50)}</strong>
+                </div>
+            `,
+            onSelect: ({ id, text }) => {
+                document.getElementById('meaningInput').value = text;
+                document.getElementById('meaningIdInput').value = id;
+            }
+        });
+
+        // Category search with multi-select
+        const selectedCategories = new Set();
+
+        // Initialize with existing categories
+        document.querySelectorAll('#categoryIdsContainer input').forEach(input => {
+            selectedCategories.add(input.value);
+        });
+
+        new AjaxSearch({
+            root: '[data-type="category"]',
+            input: '#categoryInput',
+            dropdown: '.search-select__dropdown',
+            url: '/api/v1/categories/?search=',
+            minLength: 2,
+            mapResults: (data) => data.results || [],
+            renderItem: (item) => {
+                const isSelected = selectedCategories.has(String(item.id));
+                return `
+                    <div class="search-select__item ${isSelected ? 'text-muted' : ''}"
+                         data-id="${item.id}"
+                         data-text="${item.name}"
+                         style="${isSelected ? 'opacity: 0.5; pointer-events: none;' : ''}">
+                        <strong>${item.name}</strong>
+                        ${isSelected ? '<small><i class="bi bi-check-circle"></i> уже выбрана</small>' : ''}
+                    </div>
+                `;
+            },
+            onSelect: ({ id, text }) => {
+                addCategory(id, text);
+                document.getElementById('categoryInput').value = '';
+            }
+        });
+
+        // Add category function
+        window.addCategory = function(id, name) {
+            if (selectedCategories.has(String(id))) return;
+
+            selectedCategories.add(String(id));
+
+            // Add tag
+            const tag = document.createElement('span');
+            tag.className = 'd-badge d-badge--primary';
+            tag.setAttribute('data-category-id', id);
+            tag.innerHTML = `
+                ${name}
+                <i class="bi bi-x-lg" style="cursor: pointer; margin-left: 0.25rem;" onclick="removeCategory('${id}')"></i>
+            `;
+            document.getElementById('selectedCategories').appendChild(tag);
+
+            // Add hidden input
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'category_ids';
+            input.value = id;
+            input.setAttribute('data-category-id', id);
+            document.getElementById('categoryIdsContainer').appendChild(input);
+        };
+
+        // Remove category function
+        window.removeCategory = function(id) {
+            selectedCategories.delete(String(id));
+
+            // Remove tag
+            const tag = document.querySelector(`#selectedCategories [data-category-id="${id}"]`);
+            if (tag) tag.remove();
+
+            // Remove hidden input
+            const input = document.querySelector(`#categoryIdsContainer [data-category-id="${id}"]`);
+            if (input) input.remove();
+        };
+    });
+    </script>
+{% endblock %}

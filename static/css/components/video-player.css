@@ -193,8 +193,6 @@
 
 .video-circle .d-video-player__play {
     position: absolute;
-    bottom: 20px;
-    right: 20px;
     width: 64px;
     height: 64px;
     background: var(--d-primary);

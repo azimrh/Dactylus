@@ -34,37 +34,21 @@ def text_lexeme(request, slug):
         is_published=True
     )
 
-    # Получаем связанные жесты через LexemePair
+    # Получаем связанные жесты через LexemePair (прямая связь ForeignKey)
     lexeme_pairs = LexemePair.objects.filter(
-        text_lexeme_type__model='textlexeme',
-        text_lexeme_id=lemma.id
-    )
+        text_lexeme=lemma
+    ).select_related('gesture_lexeme')
 
-    # Собираем ID жестов по типам
-    gesture_ids_by_type = {}
-    for pair in lexeme_pairs:
-        type_id = pair.gesture_lexeme_type_id
-        if type_id not in gesture_ids_by_type:
-            gesture_ids_by_type[type_id] = []
-        gesture_ids_by_type[type_id].append(pair.gesture_lexeme_id)
-
-    # Загружаем жесты отдельно по типам
-    gesture_lexemes = []
-    for type_id, ids in gesture_ids_by_type.items():
-        ct = ContentType.objects.get_for_id(type_id)
-        model_class = ct.model_class()
-        if model_class:
-            gestures = model_class.objects.filter(id__in=ids)
-            gesture_lexemes.extend(list(gestures))
+    # Собираем жесты
+    gesture_lexemes = [pair.gesture_lexeme for pair in lexeme_pairs]
 
     # Получаем ID всех жестов для поиска реализаций
     all_gesture_ids = [g.id for g in gesture_lexemes]
 
     gesture_realizations = GestureRealization.objects.filter(
-        lexeme_type__model__in=['gesturelexeme', 'gesturelexemecompose'],
-        lexeme_id__in=all_gesture_ids,
+        gesture_lexeme_id__in=all_gesture_ids,
         moderation_status='approved'
-    ).select_related('author', 'moderated_by')
+    ).select_related('author', 'moderated_by', 'gesture_lexeme')
 
     # Группировка по жестам
     main_gesture = gesture_realizations.first()

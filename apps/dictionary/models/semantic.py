@@ -5,15 +5,15 @@ from .news import User
 
 
 class Meaning(models.Model):
-    description = models.TextField(verbose_name='Описание смысла', null=True)
+    description = models.TextField(verbose_name='Описание значения', null=True)
 
     author = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Автор')
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        verbose_name = 'Смысл (денотат)'
-        verbose_name_plural = 'Смыслы (денотаты)'
-        app_label = 'dictionary'  # Добавляю явное указание приложения
+        verbose_name = 'Значение (денотат)'
+        verbose_name_plural = 'Значение (денотаты)'
+        app_label = 'dictionary'
 
     def __str__(self):
         return self.description[:50]
@@ -24,14 +24,17 @@ class LexemeMeaningMapping(models.Model):
     lexeme_id = models.PositiveIntegerField()
     lexeme = GenericForeignKey('lexeme_type', 'lexeme_id')
 
+    is_auto_meaning = models.BooleanField(default=True, verbose_name='Создано автоматически')
+
     meaning = models.ForeignKey(Meaning, on_delete=models.CASCADE)
     is_primary = models.BooleanField(default=False, verbose_name='Основное значение')
 
+
     class Meta:
         unique_together = ['lexeme_type', 'lexeme_id', 'meaning']
-        verbose_name = 'Связь лемма-смысл'
-        verbose_name_plural = 'Связи лемма-смысл'
-        app_label = 'dictionary'  # Добавляю явное указание приложения
+        verbose_name = 'Связь лемма-значение'
+        verbose_name_plural = 'Связи лемма-значение'
+        app_label = 'dictionary'
         indexes = [
             models.Index(fields=['lexeme_type', 'lexeme_id']),
         ]

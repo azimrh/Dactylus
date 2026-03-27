@@ -48,6 +48,9 @@ class Category(models.Model):
 
 
 class BaseLexeme(models.Model):
+    text = models.CharField(max_length=200, verbose_name='Текст / Жест')
+    slug = models.SlugField(unique=True)
+
     author = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Автор')
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата публикации')
     is_published = models.BooleanField(default=False, verbose_name='Опубликовано')
@@ -60,7 +63,7 @@ class BaseLexeme(models.Model):
     meanings = models.ManyToManyField(
         'Meaning',
         related_name='%(class)s_set',
-        verbose_name='Смыслы'
+        verbose_name='Значения'
     )
 
     class Meta:
@@ -68,18 +71,8 @@ class BaseLexeme(models.Model):
 
 
 class TextLexeme(BaseLexeme):
-    text = models.CharField(max_length=200, verbose_name='Текст / Жест')
-    slug = models.SlugField(unique=True)
-
     is_letter = models.BooleanField(default=False, verbose_name='Буква / Жест буквы')
     letter_char = models.CharField(max_length=1, blank=True, verbose_name='Символ буквы')
-
-    pairs = GenericRelation(
-        'LexemePair',
-        content_type_field='text_lexeme_type',
-        object_id_field='text_lexeme_id',
-        related_query_name='text_lexeme'
-    )
 
     class Meta:
         verbose_name = 'Текстовая лемма'
@@ -87,63 +80,15 @@ class TextLexeme(BaseLexeme):
         ordering = ['text']
 
     def __str__(self):
-        return self.text
+        return self.text or f"[Empty] ID:{self.id}"
 
     def get_absolute_url(self):
         return reverse('text_lexeme', kwargs={'slug': self.slug})
 
-'''
-class TextLexemeCompose(BaseLexeme):
-    items = models.ManyToManyField(
-        TextLexeme,
-        through='TextComposeItem',
-        related_name='used_in_composes'
-    )
-
-    class Meta:
-        verbose_name = "Сочетание слов"
-        verbose_name_plural = "Сочетания слов"
-        ordering = ['text']
-
-
-class TextComposeItem(models.Model):
-    compose = models.ForeignKey(
-        TextLexemeCompose,
-        on_delete=models.CASCADE,
-        related_name='compose_items'
-    )
-    text_lexeme = models.ForeignKey(TextLexeme, on_delete=models.CASCADE)
-    position = models.PositiveIntegerField()
-
-    class Meta:
-        ordering = ['position']
-        unique_together = ['compose', 'position']
-        indexes = [
-            models.Index(fields=['compose', 'position']),
-            models.Index(fields=['text_lexeme', 'position']),
-        ]
-'''
 
 class GestureLexeme(BaseLexeme):
-    text = models.CharField(unique=True, max_length=200, verbose_name='Текст / Жест')
-    slug = models.SlugField(unique=True)
-
     is_letter = models.BooleanField(default=False, verbose_name='Буква / Жест буквы')
     letter_char = models.CharField(max_length=1, blank=True, verbose_name='Символ буквы')
-
-    pairs = GenericRelation(
-        'LexemePair',
-        content_type_field='gesture_lexeme_type',
-        object_id_field='gesture_lexeme_id',
-        related_query_name='gesture_pairs'
-    )
-
-    realizations = GenericRelation(
-        'GestureRealization',
-        content_type_field='lexeme_type',
-        object_id_field='lexeme_id',
-        related_query_name='gesture_realizations'
-    )
 
     class Meta:
         verbose_name = 'Жестовая лемма'
@@ -153,107 +98,59 @@ class GestureLexeme(BaseLexeme):
     def __str__(self):
         return self.text
 
-'''
-class GestureLexemeCompose(BaseLexeme):
-    items = models.ManyToManyField(
-        GestureLexeme,
-        through='GestureComposeItem',
-        related_name='compose_set'
-    )
-
-    class Meta:
-        verbose_name = "Сочетание жестов"
-        verbose_name_plural = "Сочетания жестов"
-        ordering = ['text']
-
-
-class GestureComposeItem(models.Model):
-    compose = models.ForeignKey(
-        GestureLexemeCompose,
-        on_delete=models.CASCADE,
-        related_name='compose_items'
-    )
-    gesture_lexeme = models.ForeignKey(GestureLexeme, on_delete=models.CASCADE)
-    position = models.PositiveIntegerField()
-
-    class Meta:
-        ordering = ['position']
-        unique_together = ['compose', 'position']
-        indexes = [
-            models.Index(fields=['compose', 'position']),
-            models.Index(fields=['gesture_lexeme', 'position']),
-        ]
-'''
 
 class LexemePair(models.Model):
-    """Связь текстовой и жестовой леммы с ограничением типов."""
+    """Связь текстовой и жестовой леммы."""
 
-    # Текстовая лемма (только TextLexeme или TextLexemeCompose)
-    text_lexeme_type = models.ForeignKey(
-        ContentType,
+    text_lexeme = models.ForeignKey(
+        TextLexeme,
         on_delete=models.CASCADE,
-        related_name='text_pairs',
-        limit_choices_to={'model__in': ['textlexeme', 'textlexemecompose']}
+        related_name='pairs',
+        verbose_name='Текстовая лемма'
     )
-    text_lexeme_id = models.PositiveIntegerField()
-    text_lexeme = GenericForeignKey('text_lexeme_type', 'text_lexeme_id')
 
-    # Жестовая лемма (только GestureLexeme или GestureLexemeCompose)
-    gesture_lexeme_type = models.ForeignKey(
-        ContentType,
+    gesture_lexeme = models.ForeignKey(
+        GestureLexeme,
         on_delete=models.CASCADE,
-        related_name='gesture_pairs',
-        limit_choices_to={'model__in': ['gesturelexeme', 'gesturelexemecompose']}
+        related_name='pairs',
+        verbose_name='Жестовая лемма'
     )
-    gesture_lexeme_id = models.PositiveIntegerField()
-    gesture_lexeme = GenericForeignKey('gesture_lexeme_type', 'gesture_lexeme_id')
+
+    meaning = models.ForeignKey(
+        'Meaning',
+        null=True,
+        on_delete=models.CASCADE,
+        related_name='lexeme_pairs',
+        verbose_name='Смысл'
+    )
+
+    is_auto_meaning = models.BooleanField(
+        default=True,
+        help_text="Автоматически созданное значение"
+    )
 
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
-    is_auto_meaning = models.BooleanField(
-        default=True,
-        help_text="Автоматически созданный смысл"
-    )
 
     class Meta:
         verbose_name = 'Связь текст<-->жест'
         verbose_name_plural = 'Связи текст<-->жест'
+        unique_together = ['text_lexeme', 'gesture_lexeme']
         indexes = [
-            models.Index(fields=['text_lexeme_type', 'text_lexeme_id']),
-            models.Index(fields=['gesture_lexeme_type', 'gesture_lexeme_id']),
+            models.Index(fields=['text_lexeme']),
+            models.Index(fields=['gesture_lexeme']),
         ]
-
-    def clean(self):
-        """Валидация типов лемм."""
-        from django.core.exceptions import ValidationError
-
-        text_model = self.text_lexeme_type.model
-        gesture_model = self.gesture_lexeme_type.model
-
-        allowed_text = ['textlexeme', 'textlexemecompose']
-        allowed_gesture = ['gesturelexeme', 'gesturelexemecompose']
-
-        if text_model not in allowed_text:
-            raise ValidationError(
-                f'Текстовая лемма должна быть одного из типов: {allowed_text}'
-            )
-
-        if gesture_model not in allowed_gesture:
-            raise ValidationError(
-                f'Жестовая лемма должна быть одного из типов: {allowed_gesture}'
-            )
 
 
 class GestureRealization(models.Model):
-    """Реализация жеста с ограничением типа леммы."""
+    """Реализация жеста."""
 
-    lexeme_type = models.ForeignKey(
-        ContentType,
+    gesture_lexeme = models.ForeignKey(
+        GestureLexeme,
         on_delete=models.CASCADE,
-        limit_choices_to={'model__in': ['gesturelexeme', 'gesturelexemecompose']}
+        related_name='realizations',
+        verbose_name='Жестовая лемма'
     )
-    lexeme_id = models.PositiveIntegerField()
-    gesture_lexeme = GenericForeignKey('lexeme_type', 'lexeme_id')
 
     video = models.FileField(upload_to='videos/gestures/')
     gif = models.FileField(upload_to='gif/gestures/')
@@ -290,15 +187,4 @@ class GestureRealization(models.Model):
         verbose_name_plural = 'Реализации жестов'
 
     def __str__(self):
-        gesture = getattr(self, 'gesture_lexeme', None)
-        return f"{getattr(gesture, 'text', 'Unknown gesture')} - {self.author.username}"
-
-    def clean(self):
-        """Валидация типа леммы."""
-        from django.core.exceptions import ValidationError
-
-        allowed = ['gesturelexeme', 'gesturelexemecompose']
-        if self.lexeme_type.model not in allowed:
-            raise ValidationError(
-                f'Лемма должна быть жестовой: {allowed}'
-            )
+        return f"{self.gesture_lexeme.text} - {self.author.username}"

@@ -40,25 +40,21 @@ def category(request, slug):
         is_published=True
     ).select_related('author').prefetch_related('meanings'))
 
+    # ИСПРАВЛЕНО: прямой ForeignKey вместо content_type/id
     pairs = LexemePair.objects.filter(
-        text_lexeme_type__model='textlexeme',
-        text_lexeme_id__in=[l.id for l in text_lexemes_list]
-    )
+        text_lexeme__in=text_lexemes_list
+    ).select_related('gesture_lexeme')
 
     pairs_map = {}
-    gesture_ids_by_type = {}
+    gesture_ids = []
 
     for pair in pairs:
         pairs_map.setdefault(pair.text_lexeme_id, []).append(pair)
+        gesture_ids.append(pair.gesture_lexeme_id)
 
-        type_id = pair.gesture_lexeme_type_id
-        gesture_ids_by_type.setdefault(type_id, []).append(pair.gesture_lexeme_id)
-
+    # ИСПРАВЛЕНО: прямой ForeignKey вместо content_type/id
     gesture_realizations = GestureRealization.objects.filter(
-        lexeme_type__model__in=['gesturelexeme', 'gesturelexemecompose'],
-        lexeme_id__in=[
-            gid for ids in gesture_ids_by_type.values() for gid in ids
-        ],
+        gesture_lexeme_id__in=gesture_ids,
         is_primary=True,
         moderation_status='approved'
     )
@@ -66,16 +62,13 @@ def category(request, slug):
     realizations_map = {}
 
     for r in gesture_realizations:
-        key = (r.lexeme_type_id, r.lexeme_id)
-        realizations_map.setdefault(key, []).append(r)
+        realizations_map.setdefault(r.gesture_lexeme_id, []).append(r)
 
     for lexeme in text_lexemes_list:
         lexeme.primary_image = None
 
         for pair in pairs_map.get(lexeme.id, []):
-            key = (pair.gesture_lexeme_type_id, pair.gesture_lexeme_id)
-
-            realizations = realizations_map.get(key)
+            realizations = realizations_map.get(pair.gesture_lexeme_id)
             if not realizations:
                 continue
 
@@ -98,3 +91,4 @@ def category(request, slug):
         'subcategories': subcategories,
         'text_lexemes': text_lexemes
     })
+

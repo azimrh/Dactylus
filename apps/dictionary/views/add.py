@@ -7,7 +7,7 @@ from django.contrib import messages
 from slugify import slugify
 
 from .base import group_required
-from ..models import GestureRealization, GestureLexeme
+from ..models import GestureRealization, GestureLexeme, Meaning, LexemeMeaningMapping
 from ..models.lexical import Category, TextLexeme, LexemePair
 from ..utils.media_processing import process_image, video_to_gif, process_video
 
@@ -42,9 +42,8 @@ def add_category(request):
         if len(name) > 100:
             errors.append('Название не может быть длиннее 100 символов')
 
-        # Проверка на существование категории
-        cat = Category.objects.get(name=name)
-        if cat:
+        # ИСПРАВЛЕНО: проверка на существование категории
+        if Category.objects.filter(name=name).exists():
             errors.append('Категория с таким именем уже существует!')
 
         parent = None
@@ -141,35 +140,51 @@ def add_word(request):
                 }
             )
 
+        slug = slugify(word)
+
+        # Meaning
+        meaning, created = Meaning.objects.get_or_create(
+            description = word,
+            defaults={
+                'author': user
+            }
+        )
+        print(f"Meaning: {meaning} / {created}")
+
         # TextLexeme
         text_lexeme, created = TextLexeme.objects.get_or_create(
             text=word,
             defaults={
-                'slug': slugify(word),
+                'slug': slug,
                 'author': user,
                 'is_published': True
             }
         )
-        print(text_lexeme)
+        print(f"Text lexeme: {text_lexeme} / {created}")
+        if created:
+            text_lexeme.meanings.add(meaning)
+        print(f"Text lexeme: {text_lexeme} / {created}")
 
         # GestureLexeme
         gesture_lexeme, created = GestureLexeme.objects.get_or_create(
             text=word,
             defaults={
-                'slug': text_lexeme.slug,
+                'slug': slug,
                 'author': user,
                 'is_published': True
             }
         )
-        print(gesture_lexeme)
+        print(f"Gesture lexeme: {gesture_lexeme} / {created}")
+        if created:
+            gesture_lexeme.meanings.add(meaning)
+        print(f"Gesture lexeme: {gesture_lexeme} / {created}")
 
         # GestureRealization
         processed_video = process_video(video)
         gif = video_to_gif(processed_video)
 
         realization = GestureRealization.objects.create(
-            lexeme_type=ContentType.objects.get_for_model(GestureLexeme),
-            lexeme_id=gesture_lexeme.id,
+            gesture_lexeme=gesture_lexeme,
             video=processed_video,
             gif=gif,
             author=user,
@@ -180,14 +195,16 @@ def add_word(request):
 
         # Связь через LexemePair
         LexemePair.objects.get_or_create(
-            text_lexeme_type=ContentType.objects.get_for_model(TextLexeme),
-            text_lexeme_id=text_lexeme.id,
-            gesture_lexeme_type=ContentType.objects.get_for_model(GestureLexeme),
-            gesture_lexeme_id=gesture_lexeme.id,
-            defaults={'created_by': user}
+            text_lexeme=text_lexeme,
+            gesture_lexeme=gesture_lexeme,
+            defaults={
+                'meaning': meaning,
+                'is_auto_meaning': True,
+                'created_by': user
+            }
         )
 
-        messages.success(request, f'Слово "{word}" и жест успешно добавлены.')
+        messages.success(request, f'Слово "{word}" успешно добавлено!')
 
     return render(request,
         'dictionary/add-word.html'
