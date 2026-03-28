@@ -4,29 +4,13 @@ from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelatio
 from django.contrib.contenttypes.models import ContentType
 from .news import User
 
-# Допустимые модели для GenericForeignKey
-ALLOWED_LEXEME_TYPES = {
-    'textlexeme': 'Текстовая лемма',
-    'textlexemecompose': 'Сочетание слов',
-    'gesturelexeme': 'Жестовая лемма',
-    'gesturelexemecompose': 'Сочетание жестов',
-}
-
-
-def get_allowed_content_types():
-    """Возвращает ContentType IDs для разрешённых моделей."""
-    return ContentType.objects.filter(
-        model__in=list(ALLOWED_LEXEME_TYPES.keys())
-    )
-
 
 class Category(models.Model):
     name = models.CharField(max_length=100, verbose_name='Название')
     slug = models.SlugField(unique=True)
     description = models.TextField(blank=True, verbose_name='Описание')
 
-    parent = models.ForeignKey(
-        'self',
+    parent = models.ForeignKey('self',
         on_delete=models.CASCADE,
         null=True,
         blank=True,
@@ -89,7 +73,7 @@ class TextLexeme(BaseLexeme):
         ordering = ['text']
 
     def __str__(self):
-        return self.text or f"[Empty] ID:{self.id}"
+        return self.text
 
     def get_absolute_url(self):
         return reverse('text_lexeme', kwargs={'slug': self.slug})
@@ -106,6 +90,9 @@ class GestureLexeme(BaseLexeme):
 
     def __str__(self):
         return self.text
+
+    def get_absolute_url(self):
+        return reverse('text_lexeme', kwargs={'slug': self.slug})
 
 
 class LexemePair(models.Model):
