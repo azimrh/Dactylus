@@ -153,7 +153,7 @@ def moderation_video(request, pk):
             video.moderated_by = request.user
             video.save()
             messages.success(request, f'Видео для "{video.gesture_lexeme.text}" одобрено')
-            return redirect('moderations')
+            return redirect('moderation')
 
         elif action == 'reject':
             reason = request.POST.get('reason', '')
@@ -162,7 +162,7 @@ def moderation_video(request, pk):
             video.moderation_comment = reason
             video.save()
             messages.success(request, f'Видео отклонено: {reason}')
-            return redirect('moderations')
+            return redirect('moderation')
 
     return render(request, 'dictionary/moderation/video.html', {
         'video': video,
@@ -204,13 +204,13 @@ def moderation_pair(request, pk):
             pair.save()
 
             messages.success(request, 'Пара одобрена')
-            return redirect('moderations')
+            return redirect('moderation')
 
         elif action == 'reject':
             reason = request.POST.get('reason', '')
             pair.delete()
             messages.success(request, f'Пара отклонена: {reason}')
-            return redirect('moderations')
+            return redirect('moderation')
 
     context = {
         'pair': pair,

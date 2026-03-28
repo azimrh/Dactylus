@@ -43,7 +43,7 @@
 
             <form method="post" id="moderationForm">
                 {% csrf_token %}
-                
+
                 <!-- Word -->
                 <div class="mb-4">
                     <label class="form-label fw-bold">Слово <span class="text-danger">*</span></label>
@@ -109,7 +109,7 @@
                 </div>
 
                 <!-- Meta info -->
-                <div class="mb-4 p-3 bg-light rounded">
+                <div class="mb-4 p-3 info-box-inverted">
                     <small class="text-muted">
                         <div>Автор: {{ pair.created_by.username }}</div>
                         <div>Создано: {{ pair.created_at|date:"d.m.Y H:i" }}</div>
@@ -117,11 +117,12 @@
                 </div>
 
                 <!-- Actions -->
-                <div class="d-grid gap-2">
-                    <button type="submit" name="action" value="approve" class="btn btn-success btn-lg">
+                <!-- Actions - side by side -->
+                <div class="d-flex gap-2">
+                    <button type="submit" name="action" value="approve" class="btn btn-success btn-lg flex-fill">
                         <i class="bi bi-check-lg me-2"></i>Одобрить
                     </button>
-                    <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#rejectModal">
+                    <button type="button" class="btn btn-danger btn-lg flex-fill" data-bs-toggle="modal" data-bs-target="#rejectModal">
                         <i class="bi bi-x-lg me-2"></i>Отклонить
                     </button>
                 </div>
@@ -129,12 +130,11 @@
         </div>
     </div>
 
-    <!-- Reject Modal -->
     <div class="modal fade" id="rejectModal" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Отклонить пару</h5>
+                    <h5 class="modal-title">Отклонить смысл</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <form method="post">

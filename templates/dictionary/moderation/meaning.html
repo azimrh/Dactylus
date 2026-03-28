@@ -3,6 +3,7 @@
 
 {% block page_css %}
     <link rel="stylesheet" href="{% static 'css/components/cards.css' %}">
+    <link rel="stylesheet" href="{% static 'css/components/forms.css' %}">
 {% endblock %}
 
 {% block title %}Модерация смысла{% endblock %}
@@ -39,8 +40,8 @@
                 </div>
 
                 <!-- Meta info -->
-                <div class="mb-4 p-3 bg-light rounded">
-                    <small class="text-muted">
+                <div class="mb-4 p-3 info-box-inverted">
+                    <small>
                         <div>Автор: {{ meaning.author.username }}</div>
                         <div>Создано: {{ meaning.created_at|date:"d.m.Y H:i" }}</div>
                     </small>

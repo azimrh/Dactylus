@@ -38,7 +38,7 @@
                         <input type="text" class="form-control" name="text" id="textInput"
                                value="{{ lexeme.text }}" required autocomplete="off">
                     </div>
-                    <small class="text-muted">При изменении slug будет обновлён автоматически</small>
+                    <small>При изменении slug будет обновлён автоматически</small>
                 </div>
 
                 <!-- Categories -->
@@ -74,8 +74,8 @@
                 </div>
 
                 <!-- Meta info -->
-                <div class="mb-4 p-3 bg-light rounded">
-                    <small class="text-muted">
+                <div class="mb-4 p-3 info-box-inverted">
+                    <small>
                         <div>Автор: {{ lexeme.author.username }}</div>
                         <div>Создано: {{ lexeme.created_at|date:"d.m.Y H:i" }}</div>
                         {% if lexeme.is_letter %}

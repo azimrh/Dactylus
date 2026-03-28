@@ -1,4 +1,63 @@
 /* ============================================
+ *  MODERATION INFO BLOCK
+ *  ============================================ */
+
+.info-box {
+    padding: 1rem;
+    border-radius: var(--d-radius);
+    background: var(--d-bg-elevated);
+    border: 1px solid var(--d-border);
+}
+
+.info-box small {
+    color: var(--d-text-secondary);
+    font-size: 0.875rem;
+    line-height: 1.6;
+}
+
+.info-box small div {
+    margin-bottom: 0.25rem;
+}
+
+.info-box small div:last-child {
+    margin-bottom: 0;
+}
+
+
+/* ============================================
+ *  INVERTED INFO BLOCK
+ *  ============================================ */
+
+.info-box-inverted {
+    padding: 1rem;
+    border-radius: var(--d-radius);
+    background: var(--d-text-primary);  /* Инвертированный фон */
+    border: 1px solid var(--d-border);
+}
+
+.info-box-inverted small,
+.info-box-inverted div {
+    color: var(--d-bg);  /* Инвертированный текст */
+    font-size: 0.875rem;
+    line-height: 1.6;
+}
+
+.info-box-inverted div {
+    margin-bottom: 0.25rem;
+}
+
+.info-box-inverted div:last-child {
+    margin-bottom: 0;
+}
+
+/* Для бейджа внутри инвертированного блока */
+.info-box-inverted .d-badge--success {
+    background: var(--d-success);
+    color: var(--d-bg);
+}
+
+
+/* ============================================
  *  FORM COMPONENTS
  *  ============================================ */
 
@@ -188,15 +247,58 @@
     display: block;
 }
 
-/* Auth Card */
+/* ============================================
+ *  FORM CARD (Универсальная форма)
+ *  ============================================ */
+
+/* Auth Card - универсальный компонент для всех форм */
 .auth-card {
     width: 100%;
     max-width: 480px;
+    margin: 0 auto;
     background: var(--d-bg-card);
     border-radius: var(--d-radius-xl);
     box-shadow: var(--d-shadow-lg);
     padding: 2rem;
 }
+
+/* Для широких форм (add-word) */
+.auth-card--wide,
+form.auth-card[data-validate],
+.d-container .auth-card {
+    max-width: 100%;
+}
+
+/* ============================================
+ *  FORM ELEMENTS - Цвета текста
+ *  ============================================ */
+
+/* Метки форм - гарантированный цвет */
+.form-label {
+    color: var(--d-text-primary);
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+}
+
+/* Плейсхолдеры */
+.form-control::placeholder {
+    color: var(--d-text-muted);
+    opacity: 0.8;
+}
+
+/* Текст внутри input */
+.form-control {
+    color: var(--d-text-primary);
+}
+
+/* Input group text */
+.input-group-text {
+    color: var(--d-text-muted);
+}
+
+/* ============================================
+ *  AUTH HEADER & FOOTER
+ *  ============================================ */
 
 .auth-header {
     text-align: center;
@@ -221,6 +323,7 @@
     font-size: 1.5rem;
     font-weight: 700;
     margin-bottom: 0.5rem;
+    color: var(--d-text-primary);
 }
 
 .auth-header p {
@@ -236,7 +339,58 @@
     color: var(--d-text-secondary);
 }
 
-/* Responsive */
+/* ============================================
+ *  PAGE HEADER
+ *  ============================================ */
+
+.page-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.page-header__title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--d-text-primary);
+    margin-bottom: 1rem;
+}
+
+/* ============================================
+ *  ALERTS
+ *  ============================================ */
+
+.alert {
+    color: var(--d-text-primary);
+}
+
+.alert-danger {
+    background: rgba(248, 113, 113, 0.15);
+    border-color: rgba(248, 113, 113, 0.3);
+    color: var(--d-danger);
+}
+
+.alert-success {
+    background: rgba(74, 222, 128, 0.15);
+    border-color: rgba(74, 222, 128, 0.3);
+    color: var(--d-success);
+}
+
+/* ============================================
+ *  UPLOAD AREA - Цвета
+ *  ============================================ */
+
+.upload-area__placeholder strong {
+    color: var(--d-text-primary);
+    font-weight: 500;
+}
+
+.upload-area__placeholder small {
+    color: var(--d-text-muted);
+}
+
+/* ============================================
+ *  RESPONSIVE
+ *  ============================================ */
 @media (max-width: 767px) {
     .hearing-grid { grid-template-columns: 1fr; }
     .hearing-option label {
@@ -244,5 +398,8 @@
         justify-content: flex-start;
         text-align: left;
     }
-    .auth-card { padding: 1.5rem; }
+    .auth-card {
+        padding: 1.5rem;
+        max-width: 100%;
+    }
 }
