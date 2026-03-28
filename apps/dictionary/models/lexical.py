@@ -112,17 +112,14 @@ class LexemePair(models.Model):
         verbose_name='Жестовая лемма'
     )
 
-    meaning = models.ForeignKey(
-        'Meaning',
-        null=True,
-        on_delete=models.CASCADE,
-        related_name='lexeme_pairs',
-        verbose_name='Смысл'
-    )
-
-    is_auto_meaning = models.BooleanField(
-        default=True,
-        help_text="Автоматически созданное значение"
+    moderation_status = models.CharField(
+        max_length=20,
+        choices=[
+            ('pending', 'На проверке'),
+            ('approved', 'Одобрено'),
+            ('rejected', 'Отклонено')
+        ],
+        default='pending'
     )
 
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)

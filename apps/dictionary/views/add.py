@@ -195,11 +195,7 @@ def add_word(request):
         LexemePair.objects.get_or_create(
             text_lexeme=text_lexeme,
             gesture_lexeme=gesture_lexeme,
-            defaults={
-                'meaning': meaning,
-                'is_auto_meaning': True,
-                'created_by': user
-            }
+            defaults={'created_by': user}
         )
 
         messages.success(request, f'Слово "{word}" успешно добавлено!')

@@ -176,14 +176,12 @@ def moderation_pair(request, pk):
         LexemePair.objects.select_related(
             'text_lexeme',
             'gesture_lexeme',
-            'meaning',
             'created_by'
         ).prefetch_related(
             'text_lexeme__categories',
             'gesture_lexeme__realizations'
         ),
-        pk=pk,
-        is_auto_meaning=True
+        pk=pk
     )
 
     if request.method == 'POST':
@@ -202,7 +200,7 @@ def moderation_pair(request, pk):
                 pair.text_lexeme.categories.set(category_ids)
                 pair.gesture_lexeme.categories.set(category_ids)
 
-            pair.is_auto_meaning = False
+            pair.moderation_status = 'approved'
             pair.save()
 
             messages.success(request, 'Пара одобрена')

@@ -29,9 +29,9 @@ def moderation(request):
     meaning_approved = Meaning.objects.filter(moderation_status='approved').count()
     meaning_rejected = Meaning.objects.filter(moderation_status='rejected').count()
 
-    # Статистика по парам (is_auto_meaning=True = pending)
-    pair_pending = LexemePair.objects.filter(is_auto_meaning=True).count()
-    pair_approved = LexemePair.objects.filter(is_auto_meaning=False).count()
+    # Статистика по парам
+    pair_pending = LexemePair.objects.filter(moderation_status='pending').count()
+    pair_approved = LexemePair.objects.filter(moderation_status='approved').count()
 
     # Статистика по видео
     video_pending = GestureRealization.objects.filter(moderation_status='pending').count()
@@ -55,7 +55,7 @@ def moderation(request):
 
     # Данные для вкладки "Пары"
     pending_pairs = LexemePair.objects.filter(
-        is_auto_meaning=True
+        moderation_status='pending'
     ).select_related(
         'text_lexeme',
         'gesture_lexeme',
