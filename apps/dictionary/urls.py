@@ -17,7 +17,11 @@ urlpatterns = [
     path('dictionary/add_word/', views.add_word, name='add-word'),
 
     path('moderation/', views.moderation, name='moderation'),
-    path('moderation/pair/<int:pair_id>/', views.moderation_detail, name='moderation-detail'),
+    path('moderation/text/<int:pk>/', views.moderation_text_lexeme, name='moderation-text'),
+    path('moderation/gesture/<int:pk>/', views.moderation_gesture_lexeme, name='moderation-gesture'),
+    path('moderation/meaning/<int:pk>/', views.moderation_meaning, name='moderation-meaning'),
+    path('moderation/pair/<int:pk>/', views.moderation_pair, name='moderation-pair'),
+    path('moderation/video/<int:pk>/', views.moderation_video, name='moderation-video'),
 
     path('translator/', views.home, name='translator'),
     path('search/', views.home, name='search'),

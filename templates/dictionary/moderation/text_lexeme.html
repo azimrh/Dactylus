@@ -1,0 +1,201 @@
+{% extends 'dictionary/base.html' %}
+{% load static %}
+
+{% block page_css %}
+    <link rel="stylesheet" href="{% static 'css/components/cards.css' %}">
+    <link rel="stylesheet" href="{% static 'css/components/forms.css' %}">
+{% endblock %}
+
+{% block title %}Модерация слова | {{ lexeme.text }}{% endblock %}
+
+{% block content %}
+    <div class="d-container" style="max-width: 800px;">
+        <div class="mb-3">
+            <a href="{% url 'moderation' %}#words" class="btn btn-ghost btn-sm">
+                <i class="bi bi-arrow-left me-1"></i>Назад к списку
+            </a>
+        </div>
+
+        <h1 class="page-header__title mb-4">Модерация слова</h1>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} mb-3">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <div class="auth-card">
+            <form method="post" id="moderationForm">
+                {% csrf_token %}
+
+                <!-- Word Text -->
+                <div class="mb-4">
+                    <label class="form-label fw-bold">Слово <span class="text-danger">*</span></label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-type"></i></span>
+                        <input type="text" class="form-control" name="text" id="textInput"
+                               value="{{ lexeme.text }}" required autocomplete="off">
+                    </div>
+                </div>
+
+                <!-- Categories -->
+                <div class="mb-4">
+                    <label class="form-label">Категории</label>
+
+                    <!-- Selected Categories Tags -->
+                    <div id="selectedCategories" class="mb-2" style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                        {% for cat in current_categories %}
+                        <span class="d-badge d-badge--primary" data-category-id="{{ cat.id }}">
+                            {{ cat.name }}
+                            <i class="bi bi-x-lg" style="cursor: pointer; margin-left: 0.25rem;" onclick="removeCategory('{{ cat.id }}')"></i>
+                        </span>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Category Search Input -->
+                    <div class="search-select mb-2" data-type="category">
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-folder"></i></span>
+                            <input type="text" class="form-control" id="categoryInput"
+                                   placeholder="Добавить категорию..." autocomplete="off">
+                        </div>
+                        <div class="search-select__dropdown"></div>
+                    </div>
+
+                    <!-- Hidden inputs for selected category IDs -->
+                    <div id="categoryIdsContainer">
+                        {% for cat in current_categories %}
+                        <input type="hidden" name="category_ids" value="{{ cat.id }}" data-category-id="{{ cat.id }}">
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Meta info -->
+                <div class="mb-4 p-3 bg-light rounded">
+                    <small class="text-muted">
+                        <div>Автор: {{ lexeme.author.username }}</div>
+                        <div>Создано: {{ lexeme.created_at|date:"d.m.Y H:i" }}</div>
+                        {% if lexeme.is_letter %}
+                        <div class="mt-2"><span class="d-badge d-badge--primary">Буква: {{ lexeme.letter_char }}</span></div>
+                        {% endif %}
+                    </small>
+                </div>
+
+                <!-- Actions - side by side -->
+                <div class="d-flex gap-2">
+                    <button type="submit" name="action" value="approve" class="btn btn-success btn-lg flex-fill">
+                        <i class="bi bi-check-lg me-2"></i>Одобрить
+                    </button>
+                    <button type="button" class="btn btn-danger btn-lg flex-fill" data-bs-toggle="modal" data-bs-target="#rejectModal">
+                        <i class="bi bi-x-lg me-2"></i>Отклонить
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Reject Modal -->
+    <div class="modal fade" id="rejectModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Отклонить слово</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Причина отклонения</label>
+                            <textarea name="reason" class="form-control" rows="3" required></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Отмена</button>
+                        <button type="submit" name="action" value="reject" class="btn btn-danger">Отклонить</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block page_js %}
+    <script src="{% static 'js/components/ajax_search.js' %}"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // Category search with multi-select
+        const selectedCategories = new Set();
+
+        // Initialize with existing categories
+        document.querySelectorAll('#categoryIdsContainer input').forEach(input => {
+            selectedCategories.add(input.value);
+        });
+
+        new AjaxSearch({
+            root: '[data-type="category"]',
+            input: '#categoryInput',
+            dropdown: '.search-select__dropdown',
+            url: '/api/v1/categories/?search=',
+            minLength: 2,
+            mapResults: (data) => data.results || [],
+            renderItem: (item) => {
+                const isSelected = selectedCategories.has(String(item.id));
+                return `
+                    <div class="search-select__item ${isSelected ? 'text-muted' : ''}"
+                         data-id="${item.id}"
+                         data-text="${item.name}"
+                         style="${isSelected ? 'opacity: 0.5; pointer-events: none;' : ''}">
+                        <strong>${item.name}</strong>
+                        ${isSelected ? '<small><i class="bi bi-check-circle"></i> уже выбрана</small>' : ''}
+                    </div>
+                `;
+            },
+            onSelect: ({ id, text }) => {
+                addCategory(id, text);
+                document.getElementById('categoryInput').value = '';
+            }
+        });
+
+        // Add category function
+        window.addCategory = function(id, name) {
+            if (selectedCategories.has(String(id))) return;
+
+            selectedCategories.add(String(id));
+
+            // Add tag
+            const tag = document.createElement('span');
+            tag.className = 'd-badge d-badge--primary';
+            tag.setAttribute('data-category-id', id);
+            tag.innerHTML = `
+                ${name}
+                <i class="bi bi-x-lg" style="cursor: pointer; margin-left: 0.25rem;" onclick="removeCategory('${id}')"></i>
+            `;
+            document.getElementById('selectedCategories').appendChild(tag);
+
+            // Add hidden input
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'category_ids';
+            input.value = id;
+            input.setAttribute('data-category-id', id);
+            document.getElementById('categoryIdsContainer').appendChild(input);
+        };
+
+        // Remove category function
+        window.removeCategory = function(id) {
+            selectedCategories.delete(String(id));
+
+            // Remove tag
+            const tag = document.querySelector(`#selectedCategories [data-category-id="${id}"]`);
+            if (tag) tag.remove();
+
+            // Remove hidden input
+            const input = document.querySelector(`#categoryIdsContainer [data-category-id="${id}"]`);
+            if (input) input.remove();
+        };
+    });
+    </script>
+{% endblock %}

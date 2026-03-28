@@ -1,0 +1,85 @@
+{% extends 'dictionary/base.html' %}
+{% load static %}
+
+{% block page_css %}
+    <link rel="stylesheet" href="{% static 'css/components/cards.css' %}">
+{% endblock %}
+
+{% block title %}Модерация смысла{% endblock %}
+
+{% block content %}
+    <div class="d-container" style="max-width: 800px;">
+        <div class="mb-3">
+            <a href="{% url 'moderation' %}#meanings" class="btn btn-ghost btn-sm">
+                <i class="bi bi-arrow-left me-1"></i>Назад к списку
+            </a>
+        </div>
+
+        <h1 class="page-header__title mb-4">Модерация смысла</h1>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} mb-3">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <div class="auth-card">
+            <form method="post">
+                {% csrf_token %}
+
+                <!-- Description -->
+                <div class="mb-4">
+                    <label class="form-label fw-bold">Описание смысла <span class="text-danger">*</span></label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-book"></i></span>
+                        <textarea class="form-control" name="description" rows="4" required>{{ meaning.description }}</textarea>
+                    </div>
+                </div>
+
+                <!-- Meta info -->
+                <div class="mb-4 p-3 bg-light rounded">
+                    <small class="text-muted">
+                        <div>Автор: {{ meaning.author.username }}</div>
+                        <div>Создано: {{ meaning.created_at|date:"d.m.Y H:i" }}</div>
+                    </small>
+                </div>
+
+                <!-- Actions - side by side -->
+                <div class="d-flex gap-2">
+                    <button type="submit" name="action" value="approve" class="btn btn-success btn-lg flex-fill">
+                        <i class="bi bi-check-lg me-2"></i>Одобрить
+                    </button>
+                    <button type="button" class="btn btn-danger btn-lg flex-fill" data-bs-toggle="modal" data-bs-target="#rejectModal">
+                        <i class="bi bi-x-lg me-2"></i>Отклонить
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal fade" id="rejectModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Отклонить смысл</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Причина отклонения</label>
+                            <textarea name="reason" class="form-control" rows="3" required></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Отмена</button>
+                        <button type="submit" name="action" value="reject" class="btn btn-danger">Отклонить</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}

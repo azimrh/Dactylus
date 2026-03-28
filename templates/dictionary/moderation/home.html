@@ -1,0 +1,246 @@
+{% extends 'dictionary/base.html' %}
+{% load static %}
+
+{% block page_css %}
+    <link rel="stylesheet" href="{% static 'css/components/cards.css' %}">
+    <link rel="stylesheet" href="{% static 'css/components/tabs.css' %}">
+{% endblock %}
+
+{% block title %}Модерация | Dactylus{% endblock %}
+
+{% block content %}
+    <div class="d-container">
+        <h1 class="page-header__title mb-4">Модерация</h1>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} mb-3">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <div class="d-tabs mb-4">
+            <button class="d-tab d-tab--active" data-tab="words" onclick="switchTab('words')">
+                Слова <span class="d-badge d-badge--warning">{{ text_pending }}</span>
+            </button>
+            <button class="d-tab" data-tab="gestures" onclick="switchTab('gestures')">
+                Жесты <span class="d-badge d-badge--warning">{{ gesture_pending }}</span>
+            </button>
+            <button class="d-tab" data-tab="meanings" onclick="switchTab('meanings')">
+                Смыслы <span class="d-badge d-badge--warning">{{ meaning_pending }}</span>
+            </button>
+            <button class="d-tab" data-tab="pairs" onclick="switchTab('pairs')">
+                Пары <span class="d-badge d-badge--warning">{{ pair_pending }}</span>
+            </button>
+            <button class="d-tab" data-tab="video" onclick="switchTab('video')">
+                Видео <span class="d-badge d-badge--warning">{{ video_pending }}</span>
+            </button>
+        </div>
+
+        <!-- Words Tab -->
+        <div id="tab-words" class="tab-content">
+            <h2 class="h5 mb-3">Слова на проверке</h2>
+            {% for word in pending_words %}
+            <div class="mod-item">
+                <div class="mod-item__thumb" style="width: 60px; height: 60px;">
+                    <i class="bi bi-type"></i>
+                </div>
+                <div class="mod-item__content">
+                    <div class="mod-item__title">{{ word.text }}</div>
+                    <div class="mod-item__meta">
+                        <span><i class="bi bi-person me-1"></i>{{ word.author.username }}</span>
+                        <span><i class="bi bi-clock me-1"></i>{{ word.created_at|timesince }} назад</span>
+                    </div>
+                </div>
+                <div class="mod-item__actions">
+                    <a href="{% url 'moderation-text' word.id %}" class="btn btn-primary btn-sm">
+                        <i class="bi bi-pencil me-1"></i>Редактировать
+                    </a>
+                </div>
+            </div>
+            {% empty %}
+            <div class="info-card text-center py-4">
+                <i class="bi bi-check-circle text-success" style="font-size: 3rem;"></i>
+                <p class="mt-3 mb-0">Нет слов на модерации</p>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Gestures Tab -->
+        <div id="tab-gestures" class="tab-content" style="display: none;">
+            <h2 class="h5 mb-3">Жесты на проверке</h2>
+            {% for gesture in pending_gestures %}
+            <div class="mod-item">
+                <div class="mod-item__thumb" style="width: 80px; height: 80px;">
+                    {% if gesture.realizations.first.gif %}
+                        <img src="{{ gesture.realizations.first.gif.url }}" alt="Жест">
+                    {% else %}
+                        <i class="bi bi-hand-index"></i>
+                    {% endif %}
+                </div>
+                <div class="mod-item__content">
+                    <div class="mod-item__title">{{ gesture.text }}</div>
+                    <div class="mod-item__meta">
+                        <span><i class="bi bi-person me-1"></i>{{ gesture.author.username }}</span>
+                        <span><i class="bi bi-clock me-1"></i>{{ gesture.created_at|timesince }} назад</span>
+                    </div>
+                </div>
+                <div class="mod-item__actions">
+                    <a href="{% url 'moderation-gesture' gesture.id %}" class="btn btn-primary btn-sm">
+                        <i class="bi bi-pencil me-1"></i>Редактировать
+                    </a>
+                </div>
+            </div>
+            {% empty %}
+            <div class="info-card text-center py-4">
+                <i class="bi bi-check-circle text-success" style="font-size: 3rem;"></i>
+                <p class="mt-3 mb-0">Нет жестов на модерации</p>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Meanings Tab -->
+        <div id="tab-meanings" class="tab-content" style="display: none;">
+            <h2 class="h5 mb-3">Смыслы на проверке</h2>
+            {% for meaning in pending_meanings %}
+            <div class="mod-item">
+                <div class="mod-item__thumb" style="width: 60px; height: 60px;">
+                    <i class="bi bi-book"></i>
+                </div>
+                <div class="mod-item__content">
+                    <div class="mod-item__title">{{ meaning.description|truncatechars:60 }}</div>
+                    <div class="mod-item__meta">
+                        <span><i class="bi bi-person me-1"></i>{{ meaning.author.username }}</span>
+                        <span><i class="bi bi-clock me-1"></i>{{ meaning.created_at|timesince }} назад</span>
+                    </div>
+                </div>
+                <div class="mod-item__actions">
+                    <a href="{% url 'moderation-meaning' meaning.id %}" class="btn btn-primary btn-sm">
+                        <i class="bi bi-pencil me-1"></i>Редактировать
+                    </a>
+                </div>
+            </div>
+            {% empty %}
+            <div class="info-card text-center py-4">
+                <i class="bi bi-check-circle text-success" style="font-size: 3rem;"></i>
+                <p class="mt-3 mb-0">Нет смыслов на модерации</p>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Pairs Tab -->
+        <div id="tab-pairs" class="tab-content" style="display: none;">
+            <h2 class="h5 mb-3">Пары на проверке</h2>
+            {% for pair in pending_pairs %}
+            <div class="mod-item">
+                <div class="mod-item__thumb" style="width: 160px; height: 160px;">
+                    {% if pair.gesture_lexeme.realizations.first.gif %}
+                        <img src="{{ pair.gesture_lexeme.realizations.first.gif.url }}" alt="Жест">
+                    {% else %}
+                        <i class="bi bi-hand-index"></i>
+                    {% endif %}
+                </div>
+                <div class="mod-item__content">
+                    <div class="mod-item__title">{{ pair.text_lexeme.text }}</div>
+                    <div class="mod-item__meta">
+                        <span><i class="bi bi-person me-1"></i>{{ pair.created_by.username }}</span>
+                        <span><i class="bi bi-clock me-1"></i>{{ pair.created_at|timesince }} назад</span>
+                    </div>
+                </div>
+                <div class="mod-item__actions">
+                    <a href="{% url 'moderation-pair' pair.id %}" class="btn btn-primary btn-sm">
+                        <i class="bi bi-pencil me-1"></i>Редактировать
+                    </a>
+                </div>
+            </div>
+            {% empty %}
+            <div class="info-card text-center py-4">
+                <i class="bi bi-check-circle text-success" style="font-size: 3rem;"></i>
+                <p class="mt-3 mb-0">Нет пар на модерации</p>
+            </div>
+            {% endfor %}
+
+            {% if pending_pairs.has_other_pages %}
+            <nav class="mt-4">
+                <ul class="pagination justify-content-center">
+                    {% if pending_pairs.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ pending_pairs.previous_page_number }}">←</a>
+                    </li>
+                    {% endif %}
+                    <li class="page-item active">
+                        <span class="page-link">{{ pending_pairs.number }}</span>
+                    </li>
+                    {% if pending_pairs.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ pending_pairs.next_page_number }}">→</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+        </div>
+
+        <!-- Video Tab -->
+        <div id="tab-video" class="tab-content" style="display: none;">
+            <h2 class="h5 mb-3">Видео на проверке</h2>
+            {% for video in pending_videos %}
+            <div class="mod-item">
+                <div class="mod-item__thumb" style="width: 160px; height: 160px;">
+                    {% if video.gif %}
+                        <img src="{{ video.gif.url }}" alt="Превью" style="border-radius: var(--d-radius);">
+                    {% else %}
+                        <i class="bi bi-camera-video"></i>
+                    {% endif %}
+                </div>
+                <div class="mod-item__content">
+                    <div class="mod-item__title">{{ video.gesture_lexeme.text }}</div>
+                    <div class="mod-item__meta">
+                        <span><i class="bi bi-person me-1"></i>{{ video.author.username }}</span>
+                        <span><i class="bi bi-clock me-1"></i>{{ video.created_at|timesince }} назад</span>
+                        {% if video.is_primary %}
+                        <span class="d-badge d-badge--success">Основное</span>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="mod-item__actions">
+                    <a href="{% url 'moderation-video' video.id %}" class="btn btn-primary btn-sm">
+                        <i class="bi bi-pencil me-1"></i>Редактировать
+                    </a>
+                </div>
+            </div>
+            {% empty %}
+            <div class="info-card text-center py-4">
+                <i class="bi bi-check-circle text-success" style="font-size: 3rem;"></i>
+                <p class="mt-3 mb-0">Нет видео на модерации</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block page_js %}
+<script>
+function switchTab(tabName) {
+    document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.style.display = 'none';
+    });
+    document.getElementById('tab-' + tabName).style.display = 'block';
+
+    document.querySelectorAll('.d-tab').forEach(btn => {
+        btn.classList.remove('d-tab--active');
+    });
+    document.querySelector('[data-tab="' + tabName + '"]').classList.add('d-tab--active');
+
+    history.pushState(null, null, '#' + tabName);
+}
+
+window.addEventListener('load', () => {
+    const hash = window.location.hash.replace('#', '');
+    if (hash && document.getElementById('tab-' + hash)) {
+        switchTab(hash);
+    }
+});
+</script>
+{% endblock %}
