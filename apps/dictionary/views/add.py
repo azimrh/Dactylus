@@ -156,8 +156,7 @@ def add_word(request):
             text=word,
             defaults={
                 'slug': slug,
-                'author': user,
-                'is_published': True
+                'author': user
             }
         )
         print(f"Text lexeme: {text_lexeme} / {created}")
@@ -170,8 +169,7 @@ def add_word(request):
             text=word,
             defaults={
                 'slug': slug,
-                'author': user,
-                'is_published': True
+                'author': user
             }
         )
         print(f"Gesture lexeme: {gesture_lexeme} / {created}")
@@ -188,8 +186,8 @@ def add_word(request):
             video=processed_video,
             gif=gif,
             author=user,
-            is_primary=True,
-            moderation_status='approved'
+            # is_primary=True,
+            # moderation_status='approved'
         )
         print(realization)
 

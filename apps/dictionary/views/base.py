@@ -47,8 +47,8 @@ def home(request):
     news = News.objects.filter(is_published=True)[:3]
 
     stats = {
-        'gestures': GestureLexeme.objects.filter(is_published=True).count(),
-        'words': TextLexeme.objects.filter(is_published=True).count(),
+        'gestures': GestureLexeme.objects.filter(moderation_status='approved').count(),
+        'words': TextLexeme.objects.filter(moderation_status='approved').count(),
         'users': User.objects.count(),
         'videos': GestureRealization.objects.filter(moderation_status='approved').count(),
     }

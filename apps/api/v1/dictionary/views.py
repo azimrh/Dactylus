@@ -13,8 +13,14 @@ from .serializers import (
 
 class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Category.objects.annotate(
-        words_count=Count('textlexeme', filter=Q(textlexeme__is_published=True), distinct=True),
-        gestures_count=Count('gesturelexeme', filter=Q(gesturelexeme__is_published=True), distinct=True),
+        words_count=Count('textlexeme',
+            filter=Q(textlexeme__moderation_status='approved'),
+            distinct=True
+        ),
+        gestures_count=Count('gesturelexeme',
+            filter=Q(textlexeme__moderation_status='approved'),
+            distinct=True
+        ),
     ).order_by('order', 'name')
 
     serializer_class = CategoryListSerializer

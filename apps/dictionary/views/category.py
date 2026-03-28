@@ -14,15 +14,27 @@ def category(request, slug):
     """Страница категории — подкатегории и слова."""
     category = get_object_or_404(
         Category.objects.annotate(
-            words_count=Count('textlexeme', filter=Q(textlexeme__is_published=True), distinct=True),
-            gestures_count=Count('gesturelexeme', filter=Q(gesturelexeme__is_published=True), distinct=True),
+            words_count=Count('textlexeme',
+                filter=Q(textlexeme__moderation_status='approved'),
+                distinct=True
+            ),
+            gestures_count=Count('gesturelexeme',
+                filter=Q(gesturelexeme__moderation_status='approved'),
+                distinct=True
+            ),
         ),
         slug=slug
     )
 
     subcategories = category.children.annotate(
-        words_count=Count('textlexeme', filter=Q(textlexeme__is_published=True), distinct=True),
-        gestures_count=Count('gesturelexeme', filter=Q(gesturelexeme__is_published=True), distinct=True),
+        words_count=Count('textlexeme',
+            filter=Q(textlexeme__moderation_status='approved'),
+            distinct=True
+        ),
+        gestures_count=Count('gesturelexeme',
+            filter=Q(gesturelexeme__moderation_status='approved'),
+            distinct=True
+        ),
     )
 
     # Навигация
@@ -37,7 +49,7 @@ def category(request, slug):
 
     text_lexemes_list = list(TextLexeme.objects.filter(
         categories=category,
-        is_published=True
+        moderation_status='approved'
     ).select_related('author').prefetch_related('meanings'))
 
     # ИСПРАВЛЕНО: прямой ForeignKey вместо content_type/id

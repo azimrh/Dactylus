@@ -41,22 +41,9 @@ class MeaningAdmin(admin.ModelAdmin):
 
 @admin.register(TextLexeme)
 class TextLexemeAdmin(admin.ModelAdmin):
-    list_display = ('text', 'author', 'is_letter', 'created_at', 'is_published')
+    list_display = ('text', 'author', 'is_letter', 'created_at', 'moderation_status')
     search_fields = ('text',)
-    list_filter = ('is_letter', 'is_published', 'categories')
-
-'''
-class TextComposeItemInline(admin.TabularInline):
-    model = TextComposeItem
-    extra = 1
-    fk_name = 'compose'
-
-@admin.register(TextLexemeCompose)
-class TextLexemeComposeAdmin(admin.ModelAdmin):
-    list_display = ('text', 'author', 'created_at', 'is_published')
-    search_fields = ('text',)
-    inlines = [TextComposeItemInline]
-'''
+    list_filter = ('is_letter', 'moderation_status', 'categories')
 
 # -----------------------
 # Жестовые леммы
@@ -64,22 +51,10 @@ class TextLexemeComposeAdmin(admin.ModelAdmin):
 
 @admin.register(GestureLexeme)
 class GestureLexemeAdmin(admin.ModelAdmin):
-    list_display = ('text', 'author', 'is_letter', 'created_at', 'is_published')
+    list_display = ('text', 'author', 'is_letter', 'created_at', 'moderation_status')
     search_fields = ('text',)
-    list_filter = ('is_letter', 'is_published', 'categories')
+    list_filter = ('is_letter', 'moderation_status', 'categories')
 
-'''
-class GestureComposeItemInline(admin.TabularInline):
-    model = GestureComposeItem
-    extra = 1
-    fk_name = 'compose'
-
-@admin.register(GestureLexemeCompose)
-class GestureLexemeComposeAdmin(admin.ModelAdmin):
-    list_display = ('text', 'author', 'created_at', 'is_published')
-    search_fields = ('text',)
-    inlines = [GestureComposeItemInline]
-'''
 
 @admin.register(GestureRealization)
 class GestureRealizationAdmin(admin.ModelAdmin):

@@ -18,8 +18,14 @@ def dictionary(request):
         parent=None
     ).prefetch_related('children').annotate(
         subcategories_count=Count('children', distinct=True),
-        words_count=Count('textlexeme', filter=Q(textlexeme__is_published=True), distinct=True),
-        gestures_count=Count('gesturelexeme', filter=Q(gesturelexeme__is_published=True), distinct=True),
+        words_count=Count('textlexeme',
+            filter=Q(textlexeme__moderation_status='approved'),
+            distinct=True
+        ),
+        gestures_count=Count('gesturelexeme',
+            filter=Q(textlexeme__moderation_status='approved'),
+            distinct=True
+        ),
     )
 
     return render(request, 'dictionary/dictionary.html', {
@@ -30,8 +36,7 @@ def dictionary(request):
 def text_lexeme(request, slug):
     lemma = get_object_or_404(
         TextLexeme.objects.prefetch_related('meanings', 'categories'),
-        slug=slug,
-        is_published=True
+        slug=slug
     )
 
     # Получаем связанные жесты через LexemePair (прямая связь ForeignKey)
@@ -59,14 +64,14 @@ def text_lexeme(request, slug):
     meanings = list(lemma.meanings.all())
     synonyms = TextLexeme.objects.filter(
         meanings__in=meanings,
-        is_published=True
+        moderation_status='approved'
     ).exclude(id=lemma.id).distinct()[:10]
 
     synonyms_by_meaning = {}
     for meaning in meanings:
         words = TextLexeme.objects.filter(
             meanings=meaning,
-            is_published=True
+            moderation_status='approved'
         ).exclude(id=lemma.id).distinct()[:5]
         if words:
             synonyms_by_meaning[meaning] = words
