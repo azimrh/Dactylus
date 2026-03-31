@@ -11,7 +11,7 @@ urlpatterns = [
 
     path('dictionary/', views.dictionary, name='dictionary'),
     path('dictionary/category/<slug:slug>/', views.category, name='category'),
-    path('dictionary/text/<slug:slug>/', views.text_lexeme, name='text_lemma'),
+    path('dictionary/text/<slug:slug>/', views.text_lexeme, name='text_lexeme'),
 
     path('dictionary/add_category/', views.add_category, name='add-category'),
     path('dictionary/add_word/', views.add_word, name='add-word'),
@@ -22,6 +22,8 @@ urlpatterns = [
     path('moderation/meaning/<int:pk>/', views.moderation_meaning, name='moderation-meaning'),
     path('moderation/pair/<int:pk>/', views.moderation_pair, name='moderation-pair'),
     path('moderation/video/<int:pk>/', views.moderation_video, name='moderation-video'),
+
+    path('personal/', views.personal, name='personal'),
 
     path('translator/', views.home, name='translator'),
     path('search/', views.home, name='search'),

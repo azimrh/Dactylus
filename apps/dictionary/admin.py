@@ -2,11 +2,12 @@ from django.contrib import admin
 
 from .models import (
     Category,
-    TextLexeme, # TextLexemeCompose, TextComposeItem,
-    GestureLexeme, # GestureLexemeCompose, GestureComposeItem,
+    TextLexeme,  # TextLexemeCompose, TextComposeItem,
+    GestureLexeme,  # GestureLexemeCompose, GestureComposeItem,
     LexemePair,
     GestureRealization,
-    Meaning, LexemeMeaningMapping
+    Meaning, LexemeMeaningMapping,
+    Personal
 )
 
 
@@ -82,3 +83,37 @@ class LexemePairAdmin(admin.ModelAdmin):
         return str(obj.gesture_lexeme) if obj.gesture_lexeme else '-'
 
     get_gesture_lexeme.short_description = 'Жестовая лемма'
+
+
+@admin.register(Personal)
+class PersonalAdmin(admin.ModelAdmin):
+    list_display = ('user', 'get_item', 'status', 'added_at', 'last_reviewed')
+    list_filter = ('status', 'content_type', 'added_at')
+    search_fields = ('user__username', 'user__email', 'notes', 'object_id')
+    date_hierarchy = 'added_at'
+    readonly_fields = ('added_at', 'last_reviewed', 'content_object')
+
+    fieldsets = (
+        (None, {
+            'fields': ('user', 'content_type', 'object_id')
+        }),
+        ('Элемент', {
+            'fields': ('content_object',),
+            'classes': ('collapse',)
+        }),
+        ('Статус изучения', {
+            'fields': ('status', 'notes', 'last_reviewed')
+        }),
+        ('Даты', {
+            'fields': ('added_at',),
+            'classes': ('collapse',)
+        }),
+    )
+
+    def get_item(self, obj):
+        return str(obj.content_object) if obj.content_object else f"{obj.content_type.name} #{obj.object_id}"
+
+    get_item.short_description = 'Элемент'
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related('content_type', 'user')

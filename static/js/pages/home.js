@@ -1,13 +1,7 @@
-/**
- * Home Page - Stats counter animation only
- */
 document.addEventListener('DOMContentLoaded', () => {
     initStatsAnimation();
 });
 
-/**
- * Initialize stats counter animation
- */
 function initStatsAnimation() {
     const statsSection = document.querySelector('.stats-section');
     if (!statsSection) return;
@@ -24,9 +18,6 @@ function initStatsAnimation() {
     observer.observe(statsSection);
 }
 
-/**
- * Animate counter elements
- */
 function animateCounters() {
     document.querySelectorAll('.stat__value').forEach(stat => {
         const target = parseInt(stat.dataset.value, 10);

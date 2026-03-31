@@ -5,12 +5,13 @@
 /* Category Card */
 .category-card {
     display: block;
-    background: var(--d-bg-card);
-    border-radius: var(--d-radius-lg);
+    border-radius: var(--d-radius);
+    background: var(--d-bg-elevated);
+    border: 1px solid var(--d-border);
+
     padding: 1.5rem;
     box-shadow: var(--d-shadow);
     transition: all var(--d-transition);
-    border: 2px solid transparent;
     text-decoration: none;
 }
 

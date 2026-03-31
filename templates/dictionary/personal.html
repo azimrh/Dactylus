@@ -1,0 +1,188 @@
+{% extends 'dictionary/base.html' %}
+{% load static %}
+
+{% block page_css %}
+    <link rel="stylesheet" href="{% static 'css/components/cards.css' %}">
+    <link rel="stylesheet" href="{% static 'css/components/tabs.css' %}">
+    <link rel="stylesheet" href="{% static 'css/pages/personal.css' %}">
+{% endblock %}
+
+{% block title %}Мой словарь | Dactylus{% endblock %}
+
+{% block content %}
+    <div class="d-container">
+        <div class="page-header">
+            <h1 class="page-header__title">Мой словарь</h1>
+            <p class="page-header__subtitle">Управляйте сохранёнными словами, жестами и смыслами</p>
+        </div>
+
+        <!-- Type Tabs -->
+        <div class="d-tabs mb-4">
+            <button class="d-tab d-tab--active" data-tab="words" onclick="switchTab('words')">
+                <i class="bi bi-fonts me-2"></i>Слова
+                <span class="d-badge d-badge--primary ms-2">{{ stats.words.total }}</span>
+            </button>
+        </div>
+
+        <!-- Words Tab -->
+        <div id="tab-words" class="tab-content active">
+            <div class="content-section">
+                <div class="content-section__header">
+                    <h2 class="content-section__title">Сохранённые слова</h2>
+                    <div class="content-section__actions">
+                        <div class="search-box">
+                            <i class="bi bi-search"></i>
+                            <input type="text" placeholder="Поиск слов..." class="search-input" id="search-words">
+                        </div>
+                        <select class="form-select form-select-sm" id="filter-words" style="width: auto;">
+                            <option value="">Все статусы</option>
+                            <option value="learned">Выучено</option>
+                            <option value="learning">В процессе</option>
+                            <option value="new">Новое</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="items-grid items-grid--words">
+                    {% for entry in text_entries %}
+                    <div class="word-item" data-status="{{ entry.personal_status }}">
+                        <div class="word-item__main">
+                            <div class="word-item__icon {% if entry.is_letter %}word-item__icon--letter{% endif %}">
+                                {% if entry.is_letter %}
+                                    <span>{{ entry.letter_char }}</span>
+                                {% else %}
+                                    <i class="bi bi-fonts"></i>
+                                {% endif %}
+                            </div>
+                            <div class="word-item__content">
+                                <h3 class="word-item__title">{{ entry.text }}</h3>
+                                <p class="word-item__desc">
+                                    {% with first_meaning=entry.meanings.first %}
+                                        {{ first_meaning.description|default:"Нет описания"|truncatechars:60 }}
+                                    {% endwith %}
+                                </p>
+                                <div class="word-item__meta">
+                                    {% if entry.personal_status == 'learned' %}
+                                    <span class="d-badge d-badge--success">
+                                        <i class="bi bi-check-circle me-1"></i>Выучено
+                                    </span>
+                                    {% elif entry.personal_status == 'learning' %}
+                                    <span class="d-badge d-badge--warning">
+                                        <i class="bi bi-clock me-1"></i>В процессе
+                                    </span>
+                                    {% else %}
+                                    <span class="d-badge d-badge--secondary">
+                                        <i class="bi bi-circle me-1"></i>Новое
+                                    </span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="gesture-row__actions">
+                            <a href="{{ entry.get_absolute_url }}" class="btn btn-sm btn-outline-primary">Подробнее</a>
+                            <button class="btn btn-ghost btn-icon" onclick="updateStatus({{ entry.id }}, 'learned')" title="Отметить выученным">
+                                <i class="bi bi-check-lg"></i>
+                            </button>
+                            <button class="btn btn-ghost btn-icon" onclick="removeEntry({{ entry.id }})" title="Удалить">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="empty-state">
+                        <i class="bi bi-inbox text-muted" style="font-size: 3rem;"></i>
+                        <p class="text-muted mt-2">Нет сохранённых слов</p>
+                        <a href="{% url 'search' %}" class="btn btn-primary btn-sm mt-2">Добавить слово</a>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CSRF Token for AJAX -->
+    {% csrf_token %}
+{% endblock %}
+
+{% block page_js %}
+    <script>
+    function switchTab(tabName) {
+        document.querySelectorAll('.tab-content').forEach(tab => {
+            tab.style.display = 'none';
+        });
+        document.getElementById('tab-' + tabName).style.display = 'block';
+
+        document.querySelectorAll('.d-tab').forEach(btn => {
+            btn.classList.remove('d-tab--active');
+        });
+        document.querySelector('[data-tab="' + tabName + '"]').classList.add('d-tab--active');
+
+        history.pushState(null, null, '#' + tabName);
+    }
+
+    window.addEventListener('load', () => {
+        const hash = window.location.hash.replace('#', '');
+        if (hash && document.getElementById('tab-' + hash)) {
+            switchTab(hash);
+        }
+    });
+
+    window.addEventListener('popstate', () => {
+        const hash = window.location.hash.replace('#', '');
+        if (hash && document.getElementById('tab-' + hash)) {
+            switchTab(hash);
+        }
+    });
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    function updateStatus(entryId, status) {
+        const csrftoken = getCookie('csrftoken');
+        fetch(`/personal/update-status/${entryId}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrftoken,
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `status=${status}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            }
+        });
+    }
+
+    function removeEntry(entryId) {
+        if (!confirm('Удалить из словаря?')) return;
+
+        const csrftoken = getCookie('csrftoken');
+        fetch(`/personal/remove/${entryId}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrftoken,
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            }
+        });
+    }
+    </script>
+{% endblock %}

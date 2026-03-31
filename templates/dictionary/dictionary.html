@@ -14,7 +14,7 @@
 
 {% block content %}
 <div class="d-container">
-    <!-- Search (только на главной) -->
+    <!-- Search (только на главной)
     {% if not category %}
     <div class="mb-4">
         <div class="d-search mx-auto" style="max-width: 600px;">
@@ -22,8 +22,9 @@
             <input type="text" class="d-search__input" placeholder="Поиск по словарю...">
         </div>
     </div>
+    -->
 
-    <!-- Мини-категории (только на главной) -->
+    <!-- Мини-категории (только на главной)
     <div class="mini-categories" id="miniCategories">
         {% for cat in categories %}
         <a href="{{ cat.get_absolute_url }}" class="mini-category">
@@ -32,6 +33,7 @@
         {% endfor %}
     </div>
     {% endif %}
+    -->
 
     <!-- Навигация (только в категории) -->
     {% if category %}
@@ -140,7 +142,7 @@
     <h2 class="h5 mb-3">Слова</h2>
     <div class="word-grid" id="wordsGrid">
         {% for lemma in text_lexemes %}
-        <a href="{% url 'text_lemma' lemma.slug %}" class="word-card">
+        <a href="{% url 'text_lexeme' lemma.slug %}" class="word-card">
             <div class="word-card__image word-card__image--round">
                 <div class="word-card__placeholder">
                     <img src="{{ lemma.primary_image|default:'' }}" style="max-width: 100%;" alt="{{ lemma.text }}">
@@ -220,6 +222,4 @@
 </div>
 {% endblock %}
 
-{% block page_js %}
-    <script src="{% static 'js/pages/dictionary.js' %}"></script>
-{% endblock %}
+{% block page_js %}{% endblock %}

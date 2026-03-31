@@ -67,6 +67,8 @@ class TextLexeme(BaseLexeme):
     is_letter = models.BooleanField(default=False, verbose_name='Буква / Жест буквы')
     letter_char = models.CharField(max_length=1, blank=True, verbose_name='Символ буквы')
 
+    personal_entries = GenericRelation('Personal', related_query_name='personal_text_lexeme')
+
     class Meta:
         verbose_name = 'Текстовая лемма'
         verbose_name_plural = 'Текстовые леммы'
@@ -82,6 +84,8 @@ class TextLexeme(BaseLexeme):
 class GestureLexeme(BaseLexeme):
     is_letter = models.BooleanField(default=False, verbose_name='Буква / Жест буквы')
     letter_char = models.CharField(max_length=1, blank=True, verbose_name='Символ буквы')
+
+    personal_entries = GenericRelation('Personal', related_query_name='personal_gesture_lexeme')
 
     class Meta:
         verbose_name = 'Жестовая лемма'
