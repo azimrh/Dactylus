@@ -11,7 +11,7 @@ env = environ.Env(
 # какой .env загружать
 ENV_FILE = os.environ.get(
     "DJANGO_ENV_FILE",
-    os.path.join(BASE_DIR, ".env.dev")
+    os.path.join(BASE_DIR, ".env")
 )
 environ.Env.read_env(ENV_FILE)
 
