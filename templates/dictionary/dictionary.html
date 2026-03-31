@@ -14,7 +14,7 @@
 
 {% block content %}
 <div class="d-container">
-    <!-- Search (только на главной) -->
+    <!-- Search (только на главной)
     {% if not category %}
     <div class="mb-4">
         <div class="d-search mx-auto" style="max-width: 600px;">
@@ -22,8 +22,9 @@
             <input type="text" class="d-search__input" placeholder="Поиск по словарю...">
         </div>
     </div>
+    -->
 
-    <!-- Мини-категории (только на главной) -->
+    <!-- Мини-категории (только на главной)
     <div class="mini-categories" id="miniCategories">
         {% for cat in categories %}
         <a href="{{ cat.get_absolute_url }}" class="mini-category">
@@ -32,6 +33,7 @@
         {% endfor %}
     </div>
     {% endif %}
+    -->
 
     <!-- Навигация (только в категории) -->
     {% if category %}
@@ -220,6 +222,4 @@
 </div>
 {% endblock %}
 
-{% block page_js %}
-    <script src="{% static 'js/pages/dictionary.js' %}"></script>
-{% endblock %}
+{% block page_js %}{% endblock %}
