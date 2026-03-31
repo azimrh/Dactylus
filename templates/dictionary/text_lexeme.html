@@ -160,7 +160,7 @@
                                     <div class="connection-group__title">По значению «{{ meaning.description }}»</div>
                                     <div class="connection-list">
                                         {% for word in words %}
-                                        <a href="{% url 'text_lemma' word.slug %}" class="connection-item">
+                                        <a href="{% url 'text_lexeme' word.slug %}" class="connection-item">
                                             <span class="connection-item__name">{{ word.text }}</span>
                                         </a>
                                         {% endfor %}
