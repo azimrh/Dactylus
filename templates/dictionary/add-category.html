@@ -18,6 +18,15 @@
                     {% endif %}
                 </div>
 
+                <!-- Messages -->
+                {% if messages %}
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} mb-3">
+                    {{ message }}
+                </div>
+                {% endfor %}
+                {% endif %}
+
                 <form method="post" action="{% url 'add-category' %}" class="auth-card" enctype="multipart/form-data" data-validate>
                     {% csrf_token %}
                     <div class="mb-4">

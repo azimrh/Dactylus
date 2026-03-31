@@ -189,13 +189,10 @@ def moderation_pair(request, pk):
 
         if action == 'approve':
             word_id = request.POST.get('word_id')
-            meaning_id = request.POST.get('meaning_id')
             category_ids = request.POST.getlist('category_ids')
 
             if word_id:
                 pair.text_lexeme_id = word_id
-            if meaning_id:
-                pair.meaning_id = meaning_id
             if category_ids:
                 pair.text_lexeme.categories.set(category_ids)
                 pair.gesture_lexeme.categories.set(category_ids)

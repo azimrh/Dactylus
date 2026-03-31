@@ -60,22 +60,6 @@
                     <input type="hidden" name="word_id" id="wordIdInput" value="{{ pair.text_lexeme_id }}">
                 </div>
 
-                <!-- Meaning -->
-                <div class="mb-4">
-                    <label class="form-label">Смысл</label>
-                    <div class="search-select" data-type="meaning">
-                        <div class="input-group">
-                            <span class="input-group-text"><i class="bi bi-book"></i></span>
-                            <input type="text" class="form-control" name="meaning" id="meaningInput"
-                                   value="{% if pair.meaning %}{{ pair.meaning.description }}{% endif %}"
-                                   data-meaning-id="{% if pair.meaning %}{{ pair.meaning.id }}{% endif %}"
-                                   autocomplete="off">
-                        </div>
-                        <div class="search-select__dropdown"></div>
-                    </div>
-                    <input type="hidden" name="meaning_id" id="meaningIdInput" value="{% if pair.meaning %}{{ pair.meaning.id }}{% endif %}">
-                </div>
-
                 <!-- Categories -->
                 <div class="mb-4">
                     <label class="form-label">Категории</label>
