@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block page_css %}
-    <link rel="stylesheet" href="{% static 'css/pages/word.css' %}">
+    <link rel="stylesheet" href="{% static 'css/pages/word.css' %}?v=1.0.0">
 {% endblock %}
 
 {% block title %}{{ lemma.text }} | Dactylus{% endblock %}
@@ -206,6 +206,6 @@
 {% endblock %}
 
 {% block page_js %}
-    <script src="{% static 'js/components/video-player.js' %}"></script>
-    <script src="{% static 'js/pages/word.js' %}"></script>
+    <script src="{% static 'js/components/video-player.js' %}?v=1.0.0"></script>
+    <script src="{% static 'js/pages/word.js' %}?v=1.0.0"></script>
 {% endblock %}
