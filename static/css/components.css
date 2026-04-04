@@ -1,10 +1,12 @@
+/* components.css — убран video-circle, оставлен только общий video player */
 /* ============================================
- *  DACTYLUS COMPONENTS — Оптимизированная версия
+ *  DACTYLUS COMPONENTS
  *  ============================================ */
 
 /* ============================================
  *  1. NAVBAR & HEADER
  *  ============================================ */
+
 .d-header {
   position: sticky;
   top: 0;
@@ -95,6 +97,10 @@
   width: 100%;
 }
 
+.d-nav__link--mobile {
+  display: none;
+}
+
 /* Header Actions */
 .d-header__actions {
   display: flex;
@@ -104,6 +110,10 @@
 
 .d-header__form {
   display: inline;
+}
+
+.d-search-desktop {
+  display: inline-flex;
 }
 
 /* Theme Toggle */
@@ -288,10 +298,12 @@
   border-top: 1px solid var(--d-border);
   flex-shrink: 0;
   background: var(--d-bg-elevated);
+  padding-bottom: max(1.25rem, env(safe-area-inset-bottom, 20px) + 1rem);
+  margin-bottom: env(safe-area-inset-bottom, 0);
 }
 
 /* ============================================
- *  2. CARDS — Унифицированная система
+ *  2. CARDS
  *  ============================================ */
 
 /* Base Card */
@@ -310,16 +322,19 @@
 
 /* Category Card */
 .category-card {
-  composes: d-card;
   display: block;
   background: var(--d-bg-elevated);
   border: 1px solid var(--d-border);
   border-radius: var(--d-radius);
   padding: 1.5rem;
+  box-shadow: var(--d-shadow);
+  transition: all var(--d-transition);
   text-decoration: none;
 }
 
 .category-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--d-shadow-lg);
   border-color: var(--d-primary-soft);
 }
 
@@ -374,13 +389,19 @@
 
 /* Word Card */
 .word-card {
-  composes: d-card;
   display: block;
+  background: var(--d-bg-card);
+  border-radius: var(--d-radius-lg);
+  box-shadow: var(--d-shadow);
   overflow: hidden;
+  transition: all var(--d-transition);
+  border: 2px solid transparent;
   text-decoration: none;
 }
 
 .word-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--d-shadow-lg);
   border-color: var(--d-primary-soft);
 }
 
@@ -428,15 +449,21 @@
 
 /* Feature Card */
 .feature-card {
-  composes: d-card;
   display: flex;
   align-items: flex-start;
   gap: 1rem;
+  background: var(--d-bg-card);
+  border-radius: var(--d-radius-lg);
   padding: 1.5rem;
+  box-shadow: var(--d-shadow);
+  transition: all var(--d-transition);
+  border: 2px solid transparent;
   text-decoration: none;
 }
 
 .feature-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--d-shadow-lg);
   border-color: var(--d-primary);
 }
 
@@ -489,12 +516,16 @@
 
 /* Stat Card */
 .stat-card {
-  composes: d-card;
+  background: var(--d-bg-card);
+  border-radius: var(--d-radius-lg);
+  box-shadow: var(--d-shadow);
   padding: 1.5rem;
   position: relative;
   border-left: 4px solid transparent;
+  transition: all var(--d-transition);
 }
 
+.stat-card:hover { box-shadow: var(--d-shadow-lg); }
 .stat-card--success { border-left-color: var(--d-success); }
 .stat-card--warning { border-left-color: var(--d-warning); }
 .stat-card--danger { border-left-color: var(--d-danger); }
@@ -539,7 +570,9 @@
 
 /* Info Card */
 .info-card {
-  composes: d-card;
+  background: var(--d-bg-card);
+  border-radius: var(--d-radius-lg);
+  box-shadow: var(--d-shadow);
   padding: 1.5rem;
   margin-bottom: 1.5rem;
 }
@@ -572,9 +605,14 @@
 
 /* News Card */
 .news-card {
-  composes: d-card;
+  background: var(--d-bg-card);
+  border-radius: var(--d-radius-lg);
   overflow: hidden;
+  box-shadow: var(--d-shadow);
+  transition: box-shadow var(--d-transition);
 }
+
+.news-card:hover { box-shadow: var(--d-shadow-lg); }
 
 .news-card__placeholder {
   width: 100%;
@@ -587,9 +625,7 @@
   font-size: 3rem;
 }
 
-.news-card__body {
-  padding: 1.5rem;
-}
+.news-card__body { padding: 1.5rem; }
 
 .news-card__date {
   font-size: 0.875rem;
@@ -976,7 +1012,7 @@
 }
 
 /* ============================================
- *  5. VIDEO PLAYER
+ *  5. VIDEO PLAYER — общий компонент
  *  ============================================ */
 
 .d-video-player {
@@ -1140,36 +1176,6 @@
 .gesture-switcher__btn--active {
   background: var(--d-primary);
   color: white;
-}
-
-/* Circular Video (Hero) */
-.video-circle {
-  position: relative;
-  width: 320px;
-  height: 320px;
-  margin: 0 auto;
-  border-radius: 50%;
-  overflow: hidden;
-  border: 4px solid var(--d-bg-card);
-  box-shadow: var(--d-shadow-xl);
-}
-
-.video-circle video {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.video-circle .d-video-player__overlay {
-  opacity: 1;
-}
-
-.video-circle.playing .d-video-player__overlay {
-  opacity: 0;
-}
-
-.video-circle:hover .d-video-player__overlay {
-  opacity: 1;
 }
 
 /* ============================================
@@ -1393,25 +1399,24 @@
     display: flex;
   }
 
-  .d-nav,
+  .d-nav {
+    display: none;
+  }
+
   .d-auth-desktop {
     display: none !important;
   }
 
-  .news-grid {
-    grid-template-columns: 1fr;
+  .d-search-desktop {
+    display: none;
   }
 
-  .stats-grid {
-    grid-template-columns: repeat(2, 1fr);
+  .d-nav__link--mobile {
+    display: flex;
   }
 }
 
 @media (max-width: 767px) {
-  .d-container {
-    padding: 0 1rem;
-  }
-
   .d-logo {
     font-size: 1.1rem;
   }
@@ -1441,24 +1446,6 @@
     flex-direction: row;
     justify-content: flex-start;
     text-align: left;
-  }
-
-  .video-circle {
-    width: 240px;
-    height: 240px;
-  }
-
-  .category-grid,
-  .word-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .features-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .stats-grid {
-    grid-template-columns: 1fr 1fr;
   }
 }
 

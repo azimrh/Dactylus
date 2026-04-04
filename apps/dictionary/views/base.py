@@ -3,13 +3,6 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import login
 
 from apps.dictionary.forms import CustomUserCreationForm
-from apps.dictionary.models import (
-    News, User,
-    Category,
-    TextLexeme, # TextLexemeCompose,
-    GestureLexeme, # GestureLexemeCompose,
-    GestureRealization, LexemePair
-)
 
 def group_required(*group_names):
     def in_groups(user):
@@ -40,22 +33,3 @@ def register(request):
     else:
         form = CustomUserCreationForm()
     return render(request, 'dictionary/register.html', {'form': form})
-
-
-def home(request):
-    categories = Category.objects.filter(parent=None)[:6]
-    news = News.objects.filter(is_published=True)[:3]
-
-    stats = {
-        'gestures': GestureLexeme.objects.filter(moderation_status='approved').count(),
-        'words': TextLexeme.objects.filter(moderation_status='approved').count(),
-        'users': User.objects.count(),
-        'videos': GestureRealization.objects.filter(moderation_status='approved').count(),
-    }
-
-    context = {
-        'categories': categories,
-        'news': news,
-        'stats': stats,
-    }
-    return render(request, 'dictionary/home.html', context)

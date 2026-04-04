@@ -1,4 +1,5 @@
 from .base import *
+from .home import *
 from .dictionary import *
 from .category import *
 from .personal import *

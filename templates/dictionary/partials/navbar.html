@@ -1,89 +1,82 @@
 {% load static %}
-        <header class="d-header">
-            <div class="d-container d-header__inner">
-                <a href="{% url 'home' %}" class="d-logo">
-                    <span class="d-logo__icon">🤟</span>
-                    <span>Dactylus</span>
-                </a>
+<header class="d-header">
+    <div class="d-container d-header__inner">
+        <a href="{% url 'home' %}" class="d-logo">
+            <span class="d-logo__icon">🤟</span>
+            <span>Dactylus</span>
+        </a>
 
-                <!-- Desktop Navigation -->
-                <nav class="d-nav" id="mainNav">
-                    <a href="{% url 'dictionary' %}" class="d-nav__link">Словарь</a>
-                    {% if user.is_authenticated %}<a href="{% url 'personal' %}" class="d-nav__link">Мой словарь</a>{% endif %}
-                </nav>
+        <!-- Unified Navigation -->
+        <nav class="d-nav" id="mainNav">
+            <a href="{% url 'dictionary' %}" class="d-nav__link">Словарь</a>
+            {% if user.is_authenticated %}
+            <a href="{% url 'personal' %}" class="d-nav__link">Мой словарь</a>
+            {% endif %}
 
-                <div class="d-header__actions">
-                    <button class="d-theme-toggle" id="themeToggle" aria-label="Переключить тему">
-                        <i class="bi bi-moon moon"></i>
-                        <i class="bi bi-sun sun"></i>
-                    </button>
-                    <a href="{% url 'search' %}" class="btn btn-ghost btn-icon" aria-label="Поиск">
-                        <i class="bi bi-search"></i>
-                    </a>
+            <!-- Mobile-only links (hidden on desktop) -->
+            <a href="{% url 'search' %}" class="d-nav__link d-nav__link--mobile">Поиск</a>
+        </nav>
 
-                    <!-- Mobile Menu Toggle -->
-                    <button class="d-menu-toggle" id="menuToggle" aria-label="Открыть меню" aria-expanded="false" aria-controls="mobileMenu">
-                        <span class="d-menu-toggle__bar"></span>
-                        <span class="d-menu-toggle__bar"></span>
-                        <span class="d-menu-toggle__bar"></span>
-                    </button>
+        <div class="d-header__actions">
+            <button class="d-theme-toggle" id="themeToggle" aria-label="Переключить тему">
+                <i class="bi bi-moon moon"></i>
+                <i class="bi bi-sun sun"></i>
+            </button>
+            <a href="{% url 'search' %}" class="btn btn-ghost btn-icon d-search-desktop" aria-label="Поиск">
+                <i class="bi bi-search"></i>
+            </a>
 
-                    <!-- Desktop Auth -->
-                    {% if user.is_authenticated %}
-                    <form action="{% url 'logout' %}" method="post" class="d-header__form d-auth-desktop">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-outline-secondary btn-sm">Выйти</button>
-                    </form>
-                    {% else %}
-                    <a href="{% url 'login' %}" class="btn btn-outline-primary btn-sm d-auth-desktop">Войти</a>
-                    {% endif %}
-                </div>
-            </div>
-        </header>
+            <!-- Mobile Menu Toggle -->
+            <button class="d-menu-toggle" id="menuToggle" aria-label="Открыть меню" aria-expanded="false" aria-controls="mobileMenu">
+                <span class="d-menu-toggle__bar"></span>
+                <span class="d-menu-toggle__bar"></span>
+                <span class="d-menu-toggle__bar"></span>
+            </button>
 
-        <!-- Mobile Menu Overlay -->
-        <div class="d-mobile-overlay" id="mobileOverlay" aria-hidden="true"></div>
-
-        <!-- Mobile Menu Sidebar -->
-        <div class="d-mobile-menu" id="mobileMenu" aria-hidden="true" aria-label="Мобильное меню">
-            <div class="d-mobile-menu__header">
-                <span class="d-mobile-menu__title">Меню</span>
-                <button class="d-mobile-menu__close" id="menuClose" aria-label="Закрыть меню">
-                    <i class="bi bi-x-lg"></i>
-                </button>
-            </div>
-
-            <nav class="d-mobile-nav">
-                <a href="{% url 'dictionary' %}" class="d-mobile-nav__link">
-                    <i class="bi bi-book"></i>
-                    <span>Словарь</span>
-                </a>
-                {% if user.is_authenticated %}
-                <a href="{% url 'personal' %}" class="d-mobile-nav__link">
-                    <i class="bi bi-bookmark"></i>
-                    <span>Мой словарь</span>
-                </a>
-                {% endif %}
-                <a href="{% url 'search' %}" class="d-mobile-nav__link">
-                    <i class="bi bi-search"></i>
-                    <span>Поиск</span>
-                </a>
-            </nav>
-
-            <div class="d-mobile-menu__footer">
-                {% if user.is_authenticated %}
-                <form action="{% url 'logout' %}" method="post">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-outline-secondary w-100">
-                        <i class="bi bi-box-arrow-right"></i>
-                        Выйти
-                    </button>
-                </form>
-                {% else %}
-                <a href="{% url 'login' %}" class="btn btn-outline-primary w-100">
-                    <i class="bi bi-box-arrow-in-right"></i>
-                    Войти
-                </a>
-                {% endif %}
-            </div>
+            <!-- Desktop Auth -->
+            {% if user.is_authenticated %}
+            <form action="{% url 'logout' %}" method="post" class="d-header__form d-auth-desktop">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-outline-secondary btn-sm">Выйти</button>
+            </form>
+            {% else %}
+            <a href="{% url 'login' %}" class="btn btn-outline-primary btn-sm d-auth-desktop">Войти</a>
+            {% endif %}
         </div>
+    </div>
+</header>
+
+<!-- Mobile Menu Overlay -->
+<div class="d-mobile-overlay" id="mobileOverlay" aria-hidden="true"></div>
+
+<!-- Mobile Menu Sidebar -->
+<div class="d-mobile-menu" id="mobileMenu" aria-hidden="true" aria-label="Мобильное меню">
+    <div class="d-mobile-menu__header">
+        <span class="d-mobile-menu__title">Меню</span>
+        <button class="d-mobile-menu__close" id="menuClose" aria-label="Закрыть меню">
+            <i class="bi bi-x-lg"></i>
+        </button>
+    </div>
+
+    <!-- Mobile Navigation - клонирует основное меню через JS -->
+    <nav class="d-mobile-nav" id="mobileNav">
+        <!-- Заполняется JS из #mainNav -->
+    </nav>
+
+    <div class="d-mobile-menu__footer">
+        {% if user.is_authenticated %}
+        <form action="{% url 'logout' %}" method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-outline-secondary w-100">
+                <i class="bi bi-box-arrow-right"></i>
+                Выйти
+            </button>
+        </form>
+        {% else %}
+        <a href="{% url 'login' %}" class="btn btn-outline-primary w-100">
+            <i class="bi bi-box-arrow-in-right"></i>
+            Войти
+        </a>
+        {% endif %}
+    </div>
+</div>
