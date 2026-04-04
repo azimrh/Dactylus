@@ -2,9 +2,6 @@
 {% load static %}
 
 {% block page_css %}
-    <link rel="stylesheet" href="{% static 'css/components/cards.css' %}">
-    <link rel="stylesheet" href="{% static 'css/components/search.css' %}">
-    <link rel="stylesheet" href="{% static 'css/components/pagination.css' %}">
     <link rel="stylesheet" href="{% static 'css/pages/dictionary.css' %}">
 {% endblock %}
 
@@ -14,7 +11,7 @@
 
 {% block content %}
 <div class="d-container">
-    <!-- Search (только на главной)
+    <!-- Search -->
     {% if not category %}
     <div class="mb-4">
         <div class="d-search mx-auto" style="max-width: 600px;">
@@ -22,9 +19,8 @@
             <input type="text" class="d-search__input" placeholder="Поиск по словарю...">
         </div>
     </div>
-    -->
 
-    <!-- Мини-категории (только на главной)
+    <!-- Мини-категории (только на главной) -->
     <div class="mini-categories" id="miniCategories">
         {% for cat in categories %}
         <a href="{{ cat.get_absolute_url }}" class="mini-category">
@@ -33,7 +29,6 @@
         {% endfor %}
     </div>
     {% endif %}
-    -->
 
     <!-- Навигация (только в категории) -->
     {% if category %}
@@ -152,7 +147,7 @@
                 <h3 class="word-card__title">{{ lemma.text }}</h3>
                 <div class="word-card__meta">
                     {% if lemma.meanings.all %}
-                    <span class="word-card__tag">{{ lemma.meanings.first.part_of_speech }}</span>
+                    <span class="word-card__tag">{{ lemma.meanings.first.description }}</span>
                     {% endif %}
                 </div>
             </div>
