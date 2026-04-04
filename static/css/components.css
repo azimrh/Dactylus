@@ -1,8 +1,3 @@
-/* components.css — удалены дублирующиеся стили category-card и word-card */
-/* ============================================
- *  DACTYLUS COMPONENTS
- *  ============================================ */
-
 /* ============================================
  *  1. NAVBAR & HEADER
  *  ============================================ */
@@ -39,6 +34,7 @@
   color: var(--d-primary);
   text-decoration: none;
   transition: opacity var(--d-transition);
+  flex-shrink: 0;
 }
 
 .d-logo:hover {
@@ -54,9 +50,52 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
-  font-size: 1.25rem;
+  overflow: hidden;
   flex-shrink: 0;
+}
+
+.d-logo__icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 3px;
+}
+
+/* Если изображение не загрузилось, показываем иконку-заглушку */
+.d-logo__icon:has(img) {
+  background: transparent;
+}
+
+.d-logo__icon:has(img[src=""]) {
+  background: linear-gradient(135deg, var(--d-primary), var(--d-primary-light));
+}
+
+/* Альтернативный вариант: если нужно, чтобы изображение было поверх градиента */
+.d-logo__icon {
+  position: relative;
+}
+
+.d-logo__icon img {
+  position: relative;
+  z-index: 1;
+}
+
+.d-logo__icon::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, var(--d-primary), var(--d-primary-light));
+  border-radius: var(--d-radius);
+  z-index: 0;
+}
+
+.d-logo__icon img {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: var(--d-radius);
 }
 
 /* Navigation */
