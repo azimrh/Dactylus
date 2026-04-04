@@ -120,8 +120,10 @@ body {
 }
 
 /* ============================================
- *  BUTTONS (Bootstrap Override)
+ *  BOOTSTRAP OVERRIDES — Базовые компоненты
  *  ============================================ */
+
+/* Buttons */
 .btn {
   --bs-btn-padding-x: 1.25rem;
   --bs-btn-padding-y: 0.625rem;
@@ -164,9 +166,7 @@ body {
   justify-content: center;
 }
 
-/* ============================================
- *  CARDS (Bootstrap Override)
- *  ============================================ */
+/* Cards Base */
 .card {
   --bs-card-bg: var(--d-bg-card);
   --bs-card-border-color: var(--d-border);
@@ -175,9 +175,7 @@ body {
   border: none;
 }
 
-/* ============================================
- *  FORMS (Bootstrap Override)
- *  ============================================ */
+/* Forms Base */
 .form-control,
 .form-select {
   --bs-body-bg: var(--d-bg-input);
@@ -195,14 +193,91 @@ body {
   box-shadow: 0 0 0 3px var(--d-primary-soft);
 }
 
+.form-label {
+  color: var(--d-text-primary);
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+}
+
+.form-control::placeholder {
+  color: var(--d-text-muted);
+  opacity: 0.8;
+}
+
 .input-group-text {
   background: var(--d-bg-elevated);
   border-color: var(--d-border);
   color: var(--d-text-muted);
 }
 
+/* Form Validation */
+.form-control.is-invalid {
+  border-color: var(--d-danger);
+  background-image: none;
+}
+
+.form-control.is-invalid:focus {
+  box-shadow: 0 0 0 3px rgba(248, 113, 113, 0.15);
+}
+
+.invalid-feedback {
+  display: none;
+  color: var(--d-danger);
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}
+
+.was-validated .form-control:invalid ~ .invalid-feedback,
+.form-control.is-invalid ~ .invalid-feedback {
+  display: block;
+}
+
+/* Pagination Base */
+.pagination {
+  --bs-pagination-bg: var(--d-bg-card);
+  --bs-pagination-border-color: var(--d-border);
+  --bs-pagination-color: var(--d-text-secondary);
+  --bs-pagination-hover-bg: var(--d-bg-elevated);
+  --bs-pagination-hover-color: var(--d-text-primary);
+  --bs-pagination-hover-border-color: var(--d-border);
+  --bs-pagination-active-bg: var(--d-primary);
+  --bs-pagination-active-border-color: var(--d-primary);
+  --bs-pagination-active-color: white;
+  --bs-pagination-disabled-bg: var(--d-bg-card);
+  --bs-pagination-disabled-color: var(--d-text-muted);
+  --bs-pagination-disabled-border-color: var(--d-border);
+}
+
+.page-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.5rem;
+  height: 2.5rem;
+  padding: 0 0.75rem;
+  border-radius: var(--d-radius);
+  margin: 0 0.25rem;
+}
+
+/* Alerts */
+.alert {
+  color: var(--d-text-primary);
+}
+
+.alert-danger {
+  background: rgba(248, 113, 113, 0.15);
+  border-color: rgba(248, 113, 113, 0.3);
+  color: var(--d-danger);
+}
+
+.alert-success {
+  background: rgba(74, 222, 128, 0.15);
+  border-color: rgba(74, 222, 128, 0.3);
+  color: var(--d-success);
+}
+
 /* ============================================
- *  BADGES & STATUS
+ *  BADGES & STATUS — Базовые
  *  ============================================ */
 .d-badge {
   display: inline-flex;
@@ -268,6 +343,40 @@ body {
 }
 
 /* ============================================
+ *  GRID LAYOUTS — Базовые сетки
+ *  ============================================ */
+.category-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.25rem;
+}
+
+.word-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1.5rem;
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.25rem;
+}
+
+.news-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 3rem;
+  text-align: center;
+}
+
+/* ============================================
  *  UTILITIES
  *  ============================================ */
 .d-gradient-text {
@@ -289,3 +398,19 @@ body {
 .d-breadcrumb a { color: var(--d-text-muted); text-decoration: none; }
 .d-breadcrumb a:hover { color: var(--d-primary); }
 .d-breadcrumb__current { color: var(--d-text-primary); font-weight: 500; }
+
+/* ============================================
+ *  RESPONSIVE — Базовые breakpoints
+ *  ============================================ */
+@media (max-width: 991px) {
+  .news-grid { grid-template-columns: 1fr; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 767px) {
+  .d-container { padding: 0 1rem; }
+  .category-grid,
+  .word-grid { grid-template-columns: 1fr; }
+  .features-grid { grid-template-columns: 1fr; }
+  .stats-grid { grid-template-columns: 1fr 1fr; }
+}

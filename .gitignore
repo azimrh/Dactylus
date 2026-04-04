@@ -4,6 +4,7 @@
 
 media/
 logs/
+todo/
 
 *.sqlite3
 *.json
