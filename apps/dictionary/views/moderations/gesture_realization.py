@@ -10,7 +10,7 @@ from ..base import group_required
 @group_required('moderator')
 def moderation_gesture_realization(request, pk):
     """Модерация видео (GestureRealization)"""
-    video = get_object_or_404(GestureRealization, pk=pk, moderation_status='pending')
+    video = get_object_or_404(GestureRealization, pk=pk)
 
     if request.method == 'POST':
         action = request.POST.get('action')

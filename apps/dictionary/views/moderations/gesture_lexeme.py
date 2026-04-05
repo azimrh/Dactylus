@@ -9,7 +9,7 @@ from ..base import group_required
 @group_required('moderator')
 def moderation_gesture_lexeme(request, pk):
     """Модерация жестовой леммы"""
-    lexeme = get_object_or_404(GestureLexeme, pk=pk, moderation_status='pending')
+    lexeme = get_object_or_404(GestureLexeme, pk=pk)
 
     if request.method == 'POST':
         action = request.POST.get('action')

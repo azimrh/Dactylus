@@ -10,7 +10,7 @@ from ..base import group_required
 @group_required('moderator')
 def moderation_text_lexeme(request, pk):
     """Модерация текстовой леммы"""
-    lexeme = get_object_or_404(TextLexeme, pk=pk, moderation_status='pending')
+    lexeme = get_object_or_404(TextLexeme, pk=pk)
 
     if request.method == 'POST':
         action = request.POST.get('action')

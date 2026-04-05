@@ -10,7 +10,7 @@ from ..base import group_required
 @group_required('moderator')
 def moderation_meaning(request, pk):
     """Модерация смысла"""
-    meaning = get_object_or_404(Meaning, pk=pk, moderation_status='pending')
+    meaning = get_object_or_404(Meaning, pk=pk)
 
     if request.method == 'POST':
         action = request.POST.get('action')
