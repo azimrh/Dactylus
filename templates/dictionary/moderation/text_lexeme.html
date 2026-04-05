@@ -77,7 +77,7 @@
                     <div id="selectedMeanings" class="mb-2" style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
                         {% for mean in current_meanings %}
                         <span class="d-badge d-badge--primary" data-meaning-id="{{ mean.id }}">
-                            {{ mean.name }}
+                            {{ mean.description }}
                             <i class="bi bi-x-lg" style="cursor: pointer; margin-left: 0.25rem;" onclick="removeMeaning('{{ mean.id }}')"></i>
                         </span>
                         {% endfor %}
@@ -94,7 +94,7 @@
                     </div>
 
                     <!-- Hidden inputs for selected meaning IDs -->
-                    <div id="meaningsIdsContainer">
+                    <div id="meaningIdsContainer">
                         {% for mean in current_meanings %}
                         <input type="hidden" name="meaning_ids" value="{{ mean.id }}" data-meaning-id="{{ mean.id }}">
                         {% endfor %}
@@ -152,79 +152,151 @@
 {% endblock %}
 
 {% block page_js %}
-<script src="{% static 'js/components/ajax_search.js' %}"></script>
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-    // Category search with multi-select
-    const selectedCategories = new Set();
+    <script src="{% static 'js/components/ajax_search.js' %}"></script>
+    <script language="JavaScript">
+    document.addEventListener('DOMContentLoaded', () => {
+        // CATEGORIES
 
-    // Initialize with existing categories
-    document.querySelectorAll('#categoryIdsContainer input').forEach(input => {
-        selectedCategories.add(input.value);
-    });
+        const selectedCategories = new Set();
 
-    new AjaxSearch({
-        root: '[data-type="category"]',
-        input: '#categoryInput',
-        dropdown: '.search-select__dropdown',
-        url: '/api/v1/categories/?search=',
-        minLength: 2,
-        mapResults: (data) => data.results || [],
-        renderItem: (item) => {
-            const isSelected = selectedCategories.has(String(item.id));
-            return `
-                <div class="search-select__item ${isSelected ? 'text-muted' : ''}"
-                     data-id="${item.id}"
-                     data-text="${item.name}"
-                     style="${isSelected ? 'opacity: 0.5; pointer-events: none;' : ''}">
-                    <strong>${item.name}</strong>
-                    ${isSelected ? '<small><i class="bi bi-check-circle"></i> уже выбрана</small>' : ''}
-                </div>
+        document.querySelectorAll('#categoryIdsContainer input').forEach(input => {
+            selectedCategories.add(input.value);
+        });
+
+        new AjaxSearch({
+            root: '[data-type="category"]',
+            input: '#categoryInput',
+            dropdown: '.search-select__dropdown',
+            url: '/api/v1/categories/?search=',
+            minLength: 2,
+            mapResults: (data) => data.results || [],
+            renderItem: (item) => {
+                const isSelected = selectedCategories.has(String(item.id));
+                return `
+                    <div class="search-select__item ${isSelected ? 'text-muted' : ''}"
+                         data-id="${item.id}"
+                         data-text="${item.name}"
+                         style="${isSelected ? 'opacity: 0.5; pointer-events: none;' : ''}">
+                        <strong>${item.name}</strong>
+                        ${isSelected ? '<small><i class="bi bi-check-circle"></i> уже выбрана</small>' : ''}
+                    </div>
+                `;
+            },
+            onSelect: ({ id, text }) => {
+                addCategory(id, text);
+                document.getElementById('categoryInput').value = '';
+            }
+        });
+
+        // Add category function
+        window.addCategory = function(id, name) {
+            if (selectedCategories.has(String(id))) return;
+
+            selectedCategories.add(String(id));
+
+            // Add tag
+            const tag = document.createElement('span');
+            tag.className = 'd-badge d-badge--primary';
+            tag.setAttribute('data-category-id', id);
+            tag.innerHTML = `
+                ${name}
+                <i class="bi bi-x-lg" style="cursor: pointer; margin-left: 0.25rem;" onclick="removeCategory('${id}')"></i>
             `;
-        },
-        onSelect: ({ id, text }) => {
-            addCategory(id, text);
-            document.getElementById('categoryInput').value = '';
-        }
+            document.getElementById('selectedCategories').appendChild(tag);
+
+            // Add hidden input
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'category_ids';
+            input.value = id;
+            input.setAttribute('data-category-id', id);
+            document.getElementById('categoryIdsContainer').appendChild(input);
+        };
+
+        // Remove category function
+        window.removeCategory = function(id) {
+            selectedCategories.delete(String(id));
+
+            // Remove tag
+            const tag = document.querySelector(`#selectedCategories [data-category-id="${id}"]`);
+            if (tag) tag.remove();
+
+            // Remove hidden input
+            const input = document.querySelector(`#categoryIdsContainer [data-category-id="${id}"]`);
+            if (input) input.remove();
+        };
+
+
+        // MEANINGS
+
+        const selectedMeanings = new Set();
+
+        document.querySelectorAll('#meaningIdsContainer input').forEach(input => {
+            selectedMeanings.add(input.value);
+        });
+
+        new AjaxSearch({
+            root: '[data-type="meaning"]',
+            input: '#meaningInput',
+            dropdown: '.search-select__dropdown',
+            url: '/api/v1/meanings/?search=',
+            minLength: 2,
+            mapResults: (data) => data.results || [],
+            renderItem: (item) => {
+                const isSelected = selectedMeanings.has(String(item.id));
+                return `
+                    <div class="search-select__item ${isSelected ? 'text-muted' : ''}"
+                         data-id="${item.id}"
+                         data-text="${item.description}"
+                         style="${isSelected ? 'opacity: 0.5; pointer-events: none;' : ''}">
+                        <strong>${item.description}</strong>
+                        ${isSelected ? '<small><i class="bi bi-check-circle"></i> уже выбрано</small>' : ''}
+                    </div>
+                `;
+            },
+            onSelect: ({ id, text }) => {
+                addMeaning(id, text);
+                document.getElementById('meaningInput').value = '';
+            }
+        });
+
+        // Add meaning function
+        window.addMeaning = function(id, name) {
+            if (selectedMeanings.has(String(id))) return;
+
+            selectedMeanings.add(String(id));
+
+            // Add tag
+            const tag = document.createElement('span');
+            tag.className = 'd-badge d-badge--primary';
+            tag.setAttribute('data-meaning-id', id);
+            tag.innerHTML = `
+                ${name}
+                <i class="bi bi-x-lg" style="cursor: pointer; margin-left: 0.25rem;" onclick="removeMeaning('${id}')"></i>
+            `;
+            document.getElementById('selectedMeanings').appendChild(tag);
+
+            // Add hidden input
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'meaning_ids';
+            input.value = id;
+            input.setAttribute('data-meaning-id', id);
+            document.getElementById('meaningIdsContainer').appendChild(input);
+        };
+
+        // Remove meaning function
+        window.removeMeaning = function(id) {
+            selectedMeanings.delete(String(id));
+
+            // Remove tag
+            const tag = document.querySelector(`#selectedMeanings [data-meaning-id="${id}"]`);
+            if (tag) tag.remove();
+
+            // Remove hidden input
+            const input = document.querySelector(`#meaningIdsContainer [data-meaning-id="${id}"]`);
+            if (input) input.remove();
+        };
     });
-
-    // Add category function
-    window.addCategory = function(id, name) {
-        if (selectedCategories.has(String(id))) return;
-
-        selectedCategories.add(String(id));
-
-        // Add tag
-        const tag = document.createElement('span');
-        tag.className = 'd-badge d-badge--primary';
-        tag.setAttribute('data-category-id', id);
-        tag.innerHTML = `
-            ${name}
-            <i class="bi bi-x-lg" style="cursor: pointer; margin-left: 0.25rem;" onclick="removeCategory('${id}')"></i>
-        `;
-        document.getElementById('selectedCategories').appendChild(tag);
-
-        // Add hidden input
-        const input = document.createElement('input');
-        input.type = 'hidden';
-        input.name = 'category_ids';
-        input.value = id;
-        input.setAttribute('data-category-id', id);
-        document.getElementById('categoryIdsContainer').appendChild(input);
-    };
-
-    // Remove category function
-    window.removeCategory = function(id) {
-        selectedCategories.delete(String(id));
-
-        // Remove tag
-        const tag = document.querySelector(`#selectedCategories [data-category-id="${id}"]`);
-        if (tag) tag.remove();
-
-        // Remove hidden input
-        const input = document.querySelector(`#categoryIdsContainer [data-category-id="${id}"]`);
-        if (input) input.remove();
-    };
-});
-</script>
+    </script>
 {% endblock %}

@@ -70,6 +70,38 @@
                     </div>
                 </div>
 
+                <!-- Categories -->
+                <div class="mb-4">
+                    <label class="form-label">Значения</label>
+
+                    <!-- Selected Meanings Tags -->
+                    <div id="selectedMeanings" class="mb-2" style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                        {% for mean in current_meanings %}
+                        <span class="d-badge d-badge--primary" data-meaning-id="{{ mean.id }}">
+                            {{ mean.description }}
+                            <i class="bi bi-x-lg" style="cursor: pointer; margin-left: 0.25rem;" onclick="removeMeaning('{{ mean.id }}')"></i>
+                        </span>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Meaning Search Input -->
+                    <div class="search-select mb-2" data-type="meaning">
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-folder"></i></span>
+                            <input type="text" class="form-control" id="meaningInput"
+                                   placeholder="Добавить значение..." autocomplete="off">
+                        </div>
+                        <div class="search-select__dropdown"></div>
+                    </div>
+
+                    <!-- Hidden inputs for selected meaning IDs -->
+                    <div id="meaningIdsContainer">
+                        {% for mean in current_meanings %}
+                        <input type="hidden" name="meaning_ids" value="{{ mean.id }}" data-category-id="{{ mean.id }}">
+                        {% endfor %}
+                    </div>
+                </div>
+
                 <!-- Meta info -->
                 <div class="mb-4 p-3 info-box-inverted">
                     <small>
@@ -124,10 +156,9 @@
     <script src="{% static 'js/components/ajax_search.js' %}"></script>
     <script>
     document.addEventListener('DOMContentLoaded', () => {
-        // Category search with multi-select
-        const selectedCategories = new Set();
+        // CATEGORIES
 
-        // Initialize with existing categories
+        const selectedCategories = new Set();
         document.querySelectorAll('#categoryIdsContainer input').forEach(input => {
             selectedCategories.add(input.value);
         });
@@ -192,6 +223,76 @@
 
             // Remove hidden input
             const input = document.querySelector(`#categoryIdsContainer [data-category-id="${id}"]`);
+            if (input) input.remove();
+        };
+
+        // MEANINGS
+
+        const selectedMeanings = new Set();
+        document.querySelectorAll('#meaningIdsContainer input').forEach(input => {
+            selectedMeanings.add(input.value);
+        });
+
+        new AjaxSearch({
+            root: '[data-type="meaning"]',
+            input: '#meaningInput',
+            dropdown: '.search-select__dropdown',
+            url: '/api/v1/meanings/?search=',
+            minLength: 2,
+            mapResults: (data) => data.results || [],
+            renderItem: (item) => {
+                const isSelected = selectedMeanings.has(String(item.id));
+                return `
+                    <div class="search-select__item ${isSelected ? 'text-muted' : ''}"
+                         data-id="${item.id}"
+                         data-text="${item.description}"
+                         style="${isSelected ? 'opacity: 0.5; pointer-events: none;' : ''}">
+                        <strong>${item.description}</strong>
+                        ${isSelected ? '<small><i class="bi bi-check-circle"></i> уже выбрано</small>' : ''}
+                    </div>
+                `;
+            },
+            onSelect: ({ id, text }) => {
+                addMeaning(id, text);
+                document.getElementById('meaningInput').value = '';
+            }
+        });
+
+        // Add meaning function
+        window.addMeaning = function(id, name) {
+            if (selectedMeanings.has(String(id))) return;
+
+            selectedMeanings.add(String(id));
+
+            // Add tag
+            const tag = document.createElement('span');
+            tag.className = 'd-badge d-badge--primary';
+            tag.setAttribute('data-meaning-id', id);
+            tag.innerHTML = `
+                ${name}
+                <i class="bi bi-x-lg" style="cursor: pointer; margin-left: 0.25rem;" onclick="removeMeaning('${id}')"></i>
+            `;
+            document.getElementById('selectedMeanings').appendChild(tag);
+
+            // Add hidden input
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'meaning_ids';
+            input.value = id;
+            input.setAttribute('data-meaning-id', id);
+            document.getElementById('meaningIdsContainer').appendChild(input);
+        };
+
+        // Remove meaning function
+        window.removeMeaning = function(id) {
+            selectedMeanings.delete(String(id));
+
+            // Remove tag
+            const tag = document.querySelector(`#selectedMeanings [data-meaning-id="${id}"]`);
+            if (tag) tag.remove();
+
+            // Remove hidden input
+            const input = document.querySelector(`#meaningIdsContainer [data-meaning-id="${id}"]`);
             if (input) input.remove();
         };
     });

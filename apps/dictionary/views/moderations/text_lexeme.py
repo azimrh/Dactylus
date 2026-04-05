@@ -18,6 +18,7 @@ def moderation_text_lexeme(request, pk):
         if action == 'approve':
             new_text = request.POST.get('text')
             category_ids = request.POST.getlist('category_ids')
+            meaning_ids = request.POST.getlist('meaning_ids')
 
             # Проверка на дубликат при изменении текста
             if new_text and new_text != lexeme.text:
@@ -36,6 +37,10 @@ def moderation_text_lexeme(request, pk):
             if category_ids:
                 lexeme.categories.set(category_ids)
 
+            # Обновляем значения
+            if meaning_ids:
+                lexeme.meanings.set(meaning_ids)
+
             lexeme.moderation_status = 'approved'
             lexeme.save()
             messages.success(request, f'Слово "{lexeme.text}" одобрено')
@@ -51,5 +56,6 @@ def moderation_text_lexeme(request, pk):
     context = {
         'lexeme': lexeme,
         'current_categories': list(lexeme.categories.values('id', 'name')),
+        'current_meanings': list(lexeme.meanings.values('id', 'description')),
     }
     return render(request, 'dictionary/moderation/text_lexeme.html', context)
