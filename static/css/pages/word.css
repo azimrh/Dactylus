@@ -1,25 +1,32 @@
 /* ============================================
- *  WORD/GESTURE DETAIL PAGE - REFACTORED
+ *  WORD/GESTURE DETAIL PAGE
  *  ============================================ */
 
 .word-layout {
     display: flex;
     flex-direction: column;
-    gap: 2rem;
+    gap: 1.5rem;
 }
 
-/* Top Row: Header + Video */
-.word-top-row {
+/* Main content row: left column (header+tabs) + right column (video) */
+.word-content-row {
     display: grid;
     grid-template-columns: 1fr 420px;
     gap: 2rem;
     align-items: start;
 }
 
-.word-header {
+/* Left column - header, tabs and content */
+.word-left-column {
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
+    min-width: 0;
+}
+
+/* Header - now inside left column */
+.word-header {
+    margin-bottom: 0;
 }
 
 .word-header__title-group {
@@ -30,18 +37,105 @@
 }
 
 .word-header__title {
-    font-size: 3rem;
+    font-size: 2.5rem;
     font-weight: 700;
     margin: 0;
     line-height: 1.2;
 }
 
-/* Video Sidebar */
-.word-sidebar {
+/* Tabs navigation - horizontal browser-style tabs */
+.content-tabs__nav {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    border-bottom: 2px solid var(--d-border);
+    padding-bottom: 0.5rem;
+}
+
+.content-tabs__btn {
+    padding: 0.75rem 1.25rem;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: var(--d-text-secondary);
+    background: none;
+    border: none;
+    border-radius: var(--d-radius) var(--d-radius) 0 0;
+    cursor: pointer;
+    transition: all var(--d-transition);
+    position: relative;
+    margin-bottom: -0.5rem;
+}
+
+.content-tabs__btn:hover {
+    color: var(--d-primary);
+    background: var(--d-bg-elevated);
+}
+
+.content-tabs__btn--active {
+    color: var(--d-primary);
+    background: var(--d-bg-card);
+}
+
+.content-tabs__btn--active::after {
+    content: '';
+    position: absolute;
+    bottom: -0.5rem;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--d-primary);
+}
+
+/* Tab panels viewport and track */
+.content-tabs__viewport {
+    overflow: hidden;
+    position: relative;
+    min-height: 400px;
+}
+
+.content-tabs__track {
+    display: flex;
+    position: relative;
+}
+
+.tab-panel {
+    width: 100%;
+    flex-shrink: 0;
+    opacity: 0;
+    display: none;
+    transform: translateX(100%);
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.tab-panel.active {
+    opacity: 1;
+    display: block;
+    transform: translateX(0);
+}
+
+/* Right column - actions + video, aligned with header */
+.word-video-column {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
     position: sticky;
     top: calc(var(--d-header-height) + 2rem);
 }
 
+/* Action buttons row */
+.word-actions {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.word-actions .btn {
+    flex: 1;
+    min-width: fit-content;
+}
+
+/* Video sidebar */
 .video-sidebar {
     background: var(--d-bg-card);
     border-radius: var(--d-radius-lg);
@@ -49,7 +143,7 @@
     box-shadow: var(--d-shadow);
 }
 
-/* Video Player Size */
+/* Video player */
 .d-video-player {
     aspect-ratio: 1;
     border-radius: var(--d-radius);
@@ -65,7 +159,7 @@
     display: block;
 }
 
-/* Fix overlay blocking clicks */
+/* Fix overlay - pointer-events for play button only */
 .d-video-player__overlay {
     position: absolute;
     inset: 0;
@@ -123,102 +217,17 @@
     opacity: 0.5;
 }
 
-/* Main Content */
-.word-main {
-    min-width: 0;
-}
-
-/* Content Tabs with Horizontal Scroll */
-.content-tabs {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-}
-
-.content-tabs__nav {
-    display: flex;
-    gap: 0.5rem;
-    flex-wrap: wrap;
-    border-bottom: 2px solid var(--d-border);
-    padding-bottom: 0.5rem;
-}
-
-.content-tabs__btn {
-    padding: 0.75rem 1.25rem;
-    font-size: 0.9375rem;
-    font-weight: 500;
-    color: var(--d-text-secondary);
-    background: none;
-    border: none;
-    border-radius: var(--d-radius) var(--d-radius) 0 0;
-    cursor: pointer;
-    transition: all var(--d-transition);
-    position: relative;
-    margin-bottom: -0.5rem;
-}
-
-.content-tabs__btn:hover {
-    color: var(--d-primary);
-    background: var(--d-bg-elevated);
-}
-
-.content-tabs__btn--active {
-    color: var(--d-primary);
-    background: var(--d-bg-card);
-}
-
-.content-tabs__btn--active::after {
-    content: '';
-    position: absolute;
-    bottom: -0.5rem;
-    left: 0;
-    right: 0;
-    height: 2px;
-    background: var(--d-primary);
-}
-
-/* Carousel Viewport */
-.content-tabs__viewport {
-    overflow: hidden;
-    position: relative;
-    min-height: 400px;
-}
-
-.content-tabs__track {
-    display: flex;
-    position: relative;
-}
-
-.tab-panel {
-    width: 100%;
-    flex-shrink: 0;
-    opacity: 0;
-    display: none;
-    transform: translateX(100%);
-    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1),
-                opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.tab-panel.active {
-    opacity: 1;
-    display: block;
-    transform: translateX(0);
-}
-
-/* Meanings Redesign */
-.meanings-card {
-    padding: 0;
-}
-
+/* Meanings list - unified with info-card */
 .meanings-list {
     display: flex;
     flex-direction: column;
+    gap: 0;
 }
 
 .meaning-item {
     display: flex;
     gap: 1.25rem;
-    padding: 1.5rem;
+    padding: 1.25rem;
     border-bottom: 1px solid var(--d-border);
     transition: background var(--d-transition);
 }
@@ -250,79 +259,96 @@
     min-width: 0;
 }
 
-.meaning-item__header {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    margin-bottom: 0.75rem;
-    flex-wrap: wrap;
-}
-
-.meaning-item__term {
-    font-size: 1.125rem;
-    font-weight: 600;
-    color: var(--d-text-primary);
-    margin: 0;
-}
-
-.meaning-item__pos {
-    font-size: 0.75rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--d-text-muted);
-    background: var(--d-bg-elevated);
-    padding: 0.25rem 0.75rem;
-    border-radius: var(--d-radius-full);
-}
-
 .meaning-item__desc {
     color: var(--d-text-secondary);
     line-height: 1.7;
-    margin: 0 0 0.75rem;
+    margin: 0;
 }
 
-.meaning-item__notes {
+.meaning-empty {
     display: flex;
+    flex-direction: column;
     align-items: center;
-    gap: 0.5rem;
-    font-size: 0.875rem;
+    gap: 1rem;
+    padding: 3rem;
     color: var(--d-text-muted);
-    font-style: italic;
 }
 
-.meaning-item__notes i {
-    color: var(--d-accent);
+.meaning-empty i {
+    font-size: 3rem;
+    opacity: 0.5;
 }
 
-/* Responsive */
-@media (max-width: 1200px) {
-    .word-top-row {
-        grid-template-columns: 1fr 380px;
-    }
-
-    .word-header__title {
-        font-size: 2.5rem;
-    }
+/* Info list for "Information" tab */
+.info-list {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.75rem 1.5rem;
+    margin: 0;
 }
+
+.info-list dt {
+    color: var(--d-text-muted);
+    font-weight: 500;
+}
+
+.info-list dd {
+    margin: 0;
+    color: var(--d-text-primary);
+}
+
+.meaning-tag {
+    display: inline-block;
+    padding: 0.375rem 0.875rem;
+    background: var(--d-bg-elevated);
+    border-radius: var(--d-radius-full);
+    color: var(--d-text-secondary);
+    text-decoration: none;
+    font-size: 0.875rem;
+    margin-right: 0.5rem;
+    margin-bottom: 0.5rem;
+    transition: all var(--d-transition);
+}
+
+.meaning-tag:hover {
+    background: var(--d-primary-soft);
+    color: var(--d-primary);
+}
+
+/* ============================================
+ *  MOBILE VERSION (stacked layout)
+ *  ============================================ */
 
 @media (max-width: 991px) {
-    .word-top-row {
+    .word-content-row {
         grid-template-columns: 1fr;
         gap: 1.5rem;
     }
 
-    .word-sidebar {
-        position: static;
-        max-width: 500px;
-        margin: 0 auto;
-        width: 100%;
+    /* Меняем порядок: заголовок (внутри left-column) первый, видео второй */
+    .word-left-column {
+        order: 1;
+        display: contents; /* Разворачиваем содержимое для управления порядком */
     }
 
     .word-header {
-        flex-direction: row;
-        align-items: center;
-        justify-content: space-between;
+        order: 1;
+    }
+
+    .content-tabs__nav {
+        order: 3;
+    }
+
+    .content-tabs__viewport {
+        order: 4;
+    }
+
+    .word-video-column {
+        position: static;
+        order: 2;
+        max-width: 500px;
+        margin: 0 auto;
+        width: 100%;
     }
 
     .word-header__title {
@@ -331,18 +357,13 @@
 }
 
 @media (max-width: 767px) {
-    .word-header {
-        flex-direction: column;
-        align-items: flex-start;
+    .word-header__title {
+        font-size: 1.75rem;
     }
 
-    .word-header .btn {
+    .word-actions .btn {
         width: 100%;
         justify-content: center;
-    }
-
-    .word-sidebar {
-        max-width: 100%;
     }
 
     .meaning-item {
@@ -354,5 +375,18 @@
         width: 2rem;
         height: 2rem;
         font-size: 1rem;
+    }
+
+    .info-list {
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+    }
+
+    .info-list dt {
+        margin-top: 0.75rem;
+    }
+
+    .info-list dt:first-child {
+        margin-top: 0;
     }
 }
