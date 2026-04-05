@@ -38,6 +38,7 @@ def page_category(request, slug):
     )
 
     # Навигация
+
     navigation = []
     current = category
     while current.parent:
@@ -47,12 +48,13 @@ def page_category(request, slug):
         })
         current = current.parent
 
+    # Слова в категории
+
     text_lexemes_list = list(TextLexeme.objects.filter(
         categories=category,
         moderation_status='approved'
     ).select_related('author').prefetch_related('meanings'))
 
-    # ИСПРАВЛЕНО: прямой ForeignKey вместо content_type/id
     pairs = LexemePair.objects.filter(
         text_lexeme__in=text_lexemes_list
     ).select_related('gesture_lexeme')
@@ -64,7 +66,8 @@ def page_category(request, slug):
         pairs_map.setdefault(pair.text_lexeme_id, []).append(pair)
         gesture_ids.append(pair.gesture_lexeme_id)
 
-    # ИСПРАВЛЕНО: прямой ForeignKey вместо content_type/id
+    # Реализации жестов
+
     gesture_realizations = GestureRealization.objects.filter(
         gesture_lexeme_id__in=gesture_ids,
         is_primary=True,
@@ -92,6 +95,8 @@ def page_category(request, slug):
             if r.image:
                 lexeme.primary_image = r.image.url
                 break
+
+    # Пагинация
 
     paginator = Paginator(text_lexemes_list, 24)
     page = request.GET.get('page')
