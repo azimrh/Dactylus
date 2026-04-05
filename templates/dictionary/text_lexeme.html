@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block page_css %}
-    <link rel="stylesheet" href="{% static 'css/pages/word.css' %}">
+    <link rel="stylesheet" href="{% static 'css/pages/word.css' %}?v=1.1.0">
 {% endblock %}
 
 {% block title %}{{ lemma.text }} | Dactylus{% endblock %}
@@ -21,87 +21,25 @@
     </nav>
 
     <div class="word-layout">
-        <!-- Header + Video Row -->
-        <div class="word-top-row">
-            <!-- Header -->
-            <div class="word-header">
-                <div class="word-header__title-group">
-                    <h1 class="word-header__title">{{ lemma.text }}</h1>
-                    <span class="d-badge {% if in_personal %}d-badge--verified{% endif %}">
-                        {% if in_personal %}
-                        <i class="bi bi-check-circle-fill me-1"></i>В вашем словаре
-                        {% else %}
-                        <i class="bi bi-plus-circle me-1"></i>Не в словаре
-                        {% endif %}
-                    </span>
-                </div>
-                <button class="btn {% if in_personal %}btn-outline-primary{% else %}btn-primary{% endif %}"
-                        data-word-id="{{ lemma.id }}"
-                        onclick="addToPersonal('text', {{ lemma.id }})">
-                    {% if in_personal %}
-                    <i class="bi bi-check-lg me-1"></i>В словаре
-                    {% else %}
-                    <i class="bi bi-plus-lg me-2"></i>В мой словарь
-                    {% endif %}
-                </button>
-            </div>
-
-            <!-- Video Sidebar -->
-            <aside class="word-sidebar">
-                <div class="video-sidebar">
-                    {% if main_gesture %}
-                    <div class="d-video-player" id="mainPlayer" data-gesture-id="{{ main_gesture.id }}">
-                        <video loop playsinline>
-                            <!-- {% if main_gesture.image %}poster="{{ main_gesture.image.url }}"{% endif %} -->
-                            <source src="{{ main_gesture.video.url }}" type="video/mp4">
-                        </video>
-                        <div class="d-video-player__overlay">
-                            <button class="d-video-player__play">
-                                <i class="bi bi-play-fill"></i>
-                            </button>
-                        </div>
-                        <div class="d-video-controls">
-                            <div class="video-progress">
-                                <div class="video-progress__bar"></div>
-                            </div>
-                            <span class="video-time">0:00 / 0:00</span>
-                        </div>
-                    </div>
-                    {% else %}
-                    <div class="d-video-player no-video">
-                        <div class="no-video__placeholder">
-                            <i class="bi bi-camera-video-off"></i>
-                            <p>Нет видео для этого жеста</p>
-                        </div>
-                    </div>
-                    {% endif %}
-
-                    {% if gesture_realizations|length > 1 %}
-                    <div class="gesture-switcher">
-                        {% for gesture in gesture_realizations %}
-                        <button class="gesture-switcher__btn {% if gesture.id == main_gesture.id %}gesture-switcher__btn--active{% endif %}"
-                                data-gesture-id="{{ gesture.id }}"
-                                data-video-url="{{ gesture.video.url }}"
-                                {% if gesture.image %}data-poster="{{ gesture.image.url }}"{% endif %}>
-                            Жест {{ forloop.counter }}
-                        </button>
-                        {% endfor %}
-                    </div>
-                    {% endif %}
-
-                    <div class="speed-control">
-                        <i class="bi bi-speedometer2"></i>
-                        <input type="range" min="0.25" max="1.5" step="0.25" value="1" class="speed-slider">
-                        <span class="speed-control__value">1x</span>
+        <!-- Main content row: header+tabs left, video right -->
+        <div class="word-content-row">
+            <!-- Left column: header + tabs + content -->
+            <div class="word-left-column">
+                <!-- Header with title -->
+                <div class="word-header">
+                    <div class="word-header__title-group">
+                        <h1 class="word-header__title">{{ lemma.text }}</h1>
+                        <span class="d-badge {% if in_personal %}d-badge--verified{% endif %}">
+                            {% if in_personal %}
+                            <i class="bi bi-check-circle-fill me-1"></i>В вашем словаре
+                            {% else %}
+                            <i class="bi bi-plus-circle me-1"></i>Не в словаре
+                            {% endif %}
+                        </span>
                     </div>
                 </div>
-            </aside>
-        </div>
 
-        <!-- Main Content -->
-        <div class="word-main">
-            <!-- Content Tabs -->
-            <div class="content-tabs">
+                <!-- Tabs Navigation -->
                 <div class="content-tabs__nav">
                     <button class="content-tabs__btn content-tabs__btn--active" data-tab="meanings">Значения</button>
                     {% if synonyms_by_meaning %}
@@ -113,11 +51,12 @@
                     <button class="content-tabs__btn" data-tab="info">Информация</button>
                 </div>
 
+                <!-- Tab Panels -->
                 <div class="content-tabs__viewport">
                     <div class="content-tabs__track" id="tabsTrack">
                         <!-- Tab: Значения -->
                         <div class="tab-panel active" id="tab-meanings">
-                            <div class="info-card meanings-card">
+                            <div class="info-card">
                                 <div class="info-card__header">
                                     <div class="info-card__icon"><i class="bi bi-book"></i></div>
                                     <h2 class="info-card__title">Значения слова</h2>
@@ -200,12 +139,82 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Right column: actions + video -->
+            <div class="word-video-column">
+                <!-- Action buttons row -->
+                <div class="word-actions">
+                    <button class="btn {% if in_personal %}btn-outline-primary{% else %}btn-primary{% endif %}"
+                            data-word-id="{{ lemma.id }}"
+                            onclick="addToPersonal('text', {{ lemma.id }})">
+                        {% if in_personal %}
+                        <i class="bi bi-check-lg me-1"></i>В словаре
+                        {% else %}
+                        <i class="bi bi-plus-lg me-2"></i>В мой словарь
+                        {% endif %}
+                    </button>
+                    {% if perms.dictionary.change_textlexeme %}
+                    <a href="{% url 'admin:dictionary_textlexeme_change' lemma.id %}"
+                       class="btn btn-outline-secondary">
+                        <i class="bi bi-pencil me-1"></i>Изменить
+                    </a>
+                    {% endif %}
+                </div>
+
+                <!-- Video player -->
+                <div class="video-sidebar">
+                    {% if main_gesture %}
+                    <div class="d-video-player" id="mainPlayer" data-gesture-id="{{ main_gesture.id }}">
+                        <video loop playsinline {% if main_gesture.image %}poster="{{ main_gesture.image.url }}"{% endif %}>
+                            <source src="{{ main_gesture.video.url }}" type="video/mp4">
+                        </video>
+                        <div class="d-video-player__overlay">
+                            <button class="d-video-player__play">
+                                <i class="bi bi-play-fill"></i>
+                            </button>
+                        </div>
+                        <div class="d-video-controls">
+                            <div class="video-progress">
+                                <div class="video-progress__bar"></div>
+                            </div>
+                            <span class="video-time">0:00 / 0:00</span>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="d-video-player no-video">
+                        <div class="no-video__placeholder">
+                            <i class="bi bi-camera-video-off"></i>
+                            <p>Нет видео для этого жеста</p>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if gesture_realizations|length > 1 %}
+                    <div class="gesture-switcher">
+                        {% for gesture in gesture_realizations %}
+                        <button class="gesture-switcher__btn {% if gesture.id == main_gesture.id %}gesture-switcher__btn--active{% endif %}"
+                                data-gesture-id="{{ gesture.id }}"
+                                data-video-url="{{ gesture.video.url }}"
+                                {% if gesture.image %}data-poster="{{ gesture.image.url }}"{% endif %}>
+                            Жест {{ forloop.counter }}
+                        </button>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <div class="speed-control">
+                        <i class="bi bi-speedometer2"></i>
+                        <input type="range" min="0.25" max="1.5" step="0.25" value="1" class="speed-slider">
+                        <span class="speed-control__value">1x</span>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 {% endblock %}
 
 {% block page_js %}
-    <script src="{% static 'js/components/video-player.js' %}"></script>
-    <script src="{% static 'js/pages/word.js' %}"></script>
+    <script src="{% static 'js/components/video-player.js' %}?v=1.0.0"></script>
+    <script src="{% static 'js/pages/word.js' %}?v=1.1.0"></script>
 {% endblock %}
