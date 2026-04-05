@@ -16,7 +16,7 @@ function initTabs() {
     track.style.position = 'relative';
     track.style.minHeight = '400px';
 
-    // Initialize panels
+    // Initialize panels - все неактивные панели за пределами viewport
     tabPanels.forEach((panel, index) => {
         panel.style.position = 'absolute';
         panel.style.top = '0';
@@ -31,6 +31,7 @@ function initTabs() {
             // Set track height to active panel
             track.style.minHeight = panel.offsetHeight + 'px';
         } else {
+            // Неактивные панели справа (готовы к выезду слева направо)
             panel.style.transform = 'translateX(100%)';
             panel.style.opacity = '0';
             panel.style.zIndex = '0';
@@ -57,16 +58,25 @@ function initTabs() {
         tabButtons.forEach(b => b.classList.remove('content-tabs__btn--active'));
         btn.classList.add('content-tabs__btn--active');
 
-        // Position next panel outside viewport
-        nextPanel.style.transform = `translateX(${direction * 100}%)`;
+        // === ИСПРАВЛЕННАЯ АНИМАЦИЯ ===
+        // Новая панель приезжает с противоположной стороны от той, куда уезжает текущая
+
+        // 1. Позиционируем новую панель с противоположной стороны
+        // Если direction = 1 (вправо), текущая уходит влево (-100%), новая приходит справа (+100% -> 0)
+        // Если direction = -1 (влево), текущая уходит вправо (+100%), новая приходит слева (-100% -> 0)
+        const nextPanelStartX = direction * 100; // +100% или -100%
+        const currentPanelEndX = -direction * 100; // -100% или +100%
+
+        nextPanel.style.transform = `translateX(${nextPanelStartX}%)`;
         nextPanel.style.opacity = '0';
         nextPanel.style.zIndex = '2';
+        nextPanel.style.display = 'block'; // Убедимся что видима
 
-        // Force reflow
+        // Force reflow для применения начальной позиции
         nextPanel.offsetHeight;
 
-        // Animate: current out, next in
-        currentPanel.style.transform = `translateX(${-direction * 100}%)`;
+        // 2. Анимируем: текущая уезжает, новая приезжает
+        currentPanel.style.transform = `translateX(${currentPanelEndX}%)`;
         currentPanel.style.opacity = '0';
         currentPanel.style.zIndex = '1';
 
@@ -80,6 +90,7 @@ function initTabs() {
         setTimeout(() => {
             currentPanel.classList.remove('active');
             currentPanel.style.zIndex = '0';
+            currentPanel.style.display = 'none'; // Скрываем полностью
 
             nextPanel.classList.add('active');
             nextPanel.style.zIndex = '1';
@@ -144,6 +155,7 @@ function addToPersonal(lemmaType, lemmaId) {
         method: 'POST',
         headers: {
             'X-CSRFToken': csrfToken,
+            'X-Requested-With': 'XMLHttpRequest',
             'Content-Type': 'application/json',
         }
     })
