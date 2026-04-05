@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from apps.dictionary.models import Category, TextLexeme
+from apps.dictionary.models import Category, TextLexeme, Meaning
 
 
 class CategoryListSerializer(serializers.ModelSerializer):
@@ -68,3 +68,40 @@ class TextLexemeListSerializer(serializers.ModelSerializer):
     class Meta:
         model = TextLexeme
         fields = ['id', 'text', 'slug']
+
+
+# Meanings
+
+class MeaningListSerializer(serializers.ModelSerializer):
+    """Короткий сериализатор значений"""
+
+    class Meta:
+        model = Meaning
+        fields = ['id', 'description', 'moderation_status', 'created_at']
+
+
+class MeaningDetailSerializer(serializers.ModelSerializer):
+    """Полный сериализатор значения с лексемами"""
+    text_lexemes = serializers.SerializerMethodField()
+    gesture_lexemes = serializers.SerializerMethodField()
+    author_name = serializers.CharField(source='author.username', read_only=True)
+
+    class Meta:
+        model = Meaning
+        fields = ['id', 'description', 'moderation_status',
+                  'author_name', 'created_at',
+                  'text_lexemes', 'gesture_lexemes']
+
+    def get_text_lexemes(self, obj):
+        """Получить связанные текстовые леммы"""
+        return [
+            {'id': lexeme.id, 'text': lexeme.text, 'slug': lexeme.slug}
+            for lexeme in obj.textlexeme_set.filter(moderation_status='approved')
+        ]
+
+    def get_gesture_lexemes(self, obj):
+        """Получить связанные жестовые леммы"""
+        return [
+            {'id': lexeme.id, 'text': lexeme.text, 'slug': lexeme.slug}
+            for lexeme in obj.gesturelexeme_set.filter(moderation_status='approved')
+        ]
