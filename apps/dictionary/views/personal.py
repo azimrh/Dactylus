@@ -9,7 +9,7 @@ from ..models import Personal, TextLexeme, GestureLexeme, Meaning, LexemePair
 
 
 @login_required
-def personal(request):
+def page_personal(request):
     """Основная страница личного словаря."""
     user = request.user
 

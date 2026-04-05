@@ -9,7 +9,7 @@ from apps.dictionary.models import (
 )
 
 
-def home(request):
+def page_home(request):
     categories = Category.objects.filter(parent=None)[:6]
     news = News.objects.filter(is_published=True)[:3]
 

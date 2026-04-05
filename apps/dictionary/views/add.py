@@ -14,7 +14,7 @@ from ..utils.media_processing import process_image, video_to_gif, process_video
 
 @login_required
 @group_required('admin', 'linguist', 'moderator')
-def add_category(request):
+def page_add_category(request):
     parent_slug = request.GET.get('parent', '').strip() or request.POST.get('parent_slug', '').strip()
 
     parent = None
@@ -119,7 +119,7 @@ def add_category(request):
 
 
 @login_required
-def add_word(request):
+def page_add_word(request):
     if request.method == 'POST':
         word = request.POST.get('word', '').strip()
         video = request.FILES.get('video')

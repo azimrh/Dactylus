@@ -75,7 +75,7 @@ class LexemePairAdmin(admin.ModelAdmin):
     list_filter = ['moderation_status']
 
     def get_text_lexeme(self, obj):
-        return str(obj.text_lexeme) if obj.text_lexeme else '-'
+        return str(obj.page_text_lexeme) if obj.page_text_lexeme else '-'
 
     get_text_lexeme.short_description = 'Текстовая лемма'
 

@@ -4,14 +4,15 @@ from django.shortcuts import render, get_object_or_404, redirect
 
 from apps.dictionary.models import (
     Meaning,
-    TextLexeme, GestureLexeme, LexemePair, GestureRealization
+    TextLexeme, GestureLexeme,
+    LexemePair, GestureRealization
 )
 from ..base import group_required
 
 
 @login_required
 @group_required('moderator')
-def moderation(request):
+def moderation_home(request):
     """Главная страница модерации с данными для всех вкладок"""
 
     # Статистика по текстовым леммам

@@ -10,7 +10,7 @@ from ..models.lexical import (
 )
 
 
-def category(request, slug):
+def page_category(request, slug):
     """Страница категории — подкатегории и слова."""
     category = get_object_or_404(
         Category.objects.annotate(

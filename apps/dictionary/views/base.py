@@ -20,7 +20,7 @@ def group_required(*group_names):
     )
 
 
-def register(request):
+def page_register(request):
     if request.user.is_authenticated:
         return redirect('home')
 

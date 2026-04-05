@@ -12,7 +12,7 @@ from apps.dictionary.models import (
 from .base import group_required
 
 
-def dictionary(request):
+def page_dictionary(request):
     """Главная страница словаря — список корневых категорий."""
     categories = Category.objects.filter(
         parent=None
@@ -33,7 +33,7 @@ def dictionary(request):
         'category': None,
     })
 
-def text_lexeme(request, slug):
+def page_text_lexeme(request, slug):
     lemma = get_object_or_404(
         TextLexeme.objects.prefetch_related('meanings', 'categories'),
         slug=slug
