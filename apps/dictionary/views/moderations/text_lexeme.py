@@ -1,6 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
+from django.utils.text import slugify
 
 from apps.dictionary.models import TextLexeme
 from ..base import group_required
@@ -22,7 +23,6 @@ def moderation_text_lexeme(request, pk):
 
             # Проверка на дубликат при изменении текста
             if new_text and new_text != lexeme.text:
-                from django.utils.text import slugify
                 new_slug = slugify(new_text)
 
                 # Проверяем, не существует ли уже слова с таким slug

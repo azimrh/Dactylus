@@ -8,9 +8,15 @@
 {% block content %}
     <div class="d-container" style="max-width: 800px;">
         <div class="mb-3">
+            {% if lexeme.moderation_status == 'pending' %}
             <a href="{% url 'moderation' %}#words" class="btn btn-ghost btn-sm">
                 <i class="bi bi-arrow-left me-1"></i>Назад к списку
             </a>
+            {% elif lexeme.moderation_status == 'approved' %}
+            <a href="{% url 'text_lexeme' lexeme.slug %}" class="btn btn-ghost btn-sm">
+                <i class="bi bi-arrow-left me-1"></i>Назад к слову
+            </a>
+            {% endif %}
         </div>
 
         <h1 class="page-header__title mb-4">Модерация слова</h1>
