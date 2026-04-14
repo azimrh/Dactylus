@@ -23,8 +23,7 @@
                 </label>
                 <div class="input-group">
                     <span class="input-group-text"><i class="bi bi-person"></i></span>
-                    <input class="form-control" name="username" id="id_email"
-                           placeholder="Your email" required>
+                    <input type="email" class="form-control" name="username" id="id_email" placeholder="Your email" required>
                 </div>
                 <div class="invalid-feedback">Введите корректный Email</div>
             </div>
@@ -36,7 +35,7 @@
                 <div class="input-group">
                     <span class="input-group-text"><i class="bi bi-lock"></i></span>
                     <input type="password" class="form-control" name="password" id="id_password" placeholder="Введите пароль" required>
-                    <button type="button" class="password-toggle"><i class="bi bi-eye"></i></button>
+                    <button type="button" class="password-toggle" aria-label="Отобразить пароль"><i class="bi bi-eye"></i></button>
                 </div>
                 <div class="invalid-feedback">Введите пароль</div>
             </div>
