@@ -3,7 +3,7 @@
     <div class="d-container d-header__inner">
         <a href="{% url 'home' %}" class="d-logo">
             <span class="d-logo__icon">
-                <img src="{% static 'images/logo.png' %}">
+                <img src="{% static 'images/logo.png' %}" alt="Логотип Dactylus - жест V два пальца вверх">
             </span>
             <span>Dactylus</span>
         </a>
@@ -21,11 +21,11 @@
 
         <div class="d-header__actions">
             <button class="d-theme-toggle" id="themeToggle" aria-label="Переключить тему">
-                <i class="bi bi-moon moon"></i>
-                <i class="bi bi-sun sun"></i>
+                <i class="bi bi-moon moon" aria-hidden="true"></i>
+                <i class="bi bi-sun sun" aria-hidden="true"></i>
             </button>
             <a href="{% url 'search' %}" class="btn btn-ghost btn-icon d-search-desktop" aria-label="Поиск">
-                <i class="bi bi-search"></i>
+                <i class="bi bi-search" aria-hidden="true"></i>
             </a>
 
             <!-- Mobile Menu Toggle -->
@@ -56,7 +56,7 @@
     <div class="d-mobile-menu__header">
         <span class="d-mobile-menu__title">Меню</span>
         <button class="d-mobile-menu__close" id="menuClose" aria-label="Закрыть меню">
-            <i class="bi bi-x-lg"></i>
+            <i class="bi bi-x-lg" aria-hidden="true"></i>
         </button>
     </div>
 
@@ -70,13 +70,13 @@
         <form action="{% url 'logout' %}" method="post">
             {% csrf_token %}
             <button type="submit" class="btn btn-outline-secondary w-100">
-                <i class="bi bi-box-arrow-right"></i>
+                <i class="bi bi-box-arrow-right" aria-hidden="true"></i>
                 Выйти
             </button>
         </form>
         {% else %}
         <a href="{% url 'login' %}" class="btn btn-outline-primary w-100">
-            <i class="bi bi-box-arrow-in-right"></i>
+            <i class="bi bi-box-arrow-in-right" aria-hidden="true"></i>
             Войти
         </a>
         {% endif %}
