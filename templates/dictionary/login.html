@@ -22,7 +22,7 @@
                     <span class="text-danger">*</span>
                 </label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="bi bi-person"></i></span>
+                    <span class="input-group-text"><i class="bi bi-person" aria-hidden="true"></i></span>
                     <input type="email" class="form-control" name="username" id="id_email" placeholder="Your email" required>
                 </div>
                 <div class="invalid-feedback">Введите корректный Email</div>
@@ -33,7 +33,7 @@
                     Пароль <span class="text-danger">*</span>
                 </label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                    <span class="input-group-text"><i class="bi bi-lock" aria-hidden="true"></i></span>
                     <input type="password" class="form-control" name="password" id="id_password" placeholder="Введите пароль" required>
                     <button type="button" class="password-toggle" aria-label="Показать пароль"><i class="bi bi-eye"></i></button>
                 </div>
@@ -51,13 +51,13 @@
             </div>
 
             {% if form.errors %}
-            <div class="alert alert-danger d-none" id="loginErrors">
+            <div class="alert alert-danger d-none" id="loginErrors" role="alert">
                 Неверное имя пользователя или пароль.
             </div>
             {% endif %}
 
             <button type="submit" class="btn btn-primary w-100">
-                <i class="bi bi-box-arrow-in-right me-2"></i>Войти
+                <i class="bi bi-box-arrow-in-right me-2" aria-hidden="true"></i> Войти
             </button>
         </form>
 

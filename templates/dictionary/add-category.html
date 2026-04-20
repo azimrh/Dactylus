@@ -33,7 +33,7 @@
                             <span class="text-danger">*</span>
                         </label>
                         <div class="input-group">
-                            <span class="input-group-text"><i class="bi bi-folder"></i></span>
+                            <span class="input-group-text"><i class="bi bi-folder" aria-hidden="true"></i></span>
                             <input type="text" class="form-control" name="name" placeholder="Например: Еда и напитки" required>
                         </div>
                         <div class="invalid-feedback">Введите название категории</div>
@@ -45,7 +45,7 @@
                     <div class="mb-4">
                         <label class="form-label">Порядок отображения</label>
                         <div class="input-group">
-                            <span class="input-group-text"><i class="bi bi-list-ol"></i></span>
+                            <span class="input-group-text"><i class="bi bi-list-ol" aria-hidden="true"></i></span>
                             <select class="form-select" name="order" id="orderSelect">
                                 <option value="first">В начале</option>
                                 {% if sibling_categories %}
@@ -65,7 +65,7 @@
                         <div class="upload-area">
                             <input type="file" name="image" accept="image/*">
                             <div class="upload-area__placeholder">
-                                <i class="bi bi-cloud-upload"></i>
+                                <i class="bi bi-cloud-upload" aria-hidden="true"></i>
                                 <strong>Нажмите или перетащите изображение</strong>
                                 <small>PNG, JPG до 5 МБ</small>
                             </div>
@@ -83,7 +83,7 @@
 
                     <div class="d-grid gap-2">
                         <button type="submit" class="btn btn-primary btn-lg">
-                        <i class="bi bi-plus-lg me-2"></i>Создать категорию
+                        <i class="bi bi-plus-lg me-2" aria-hidden="true"></i>Создать категорию
                         </button>
                         <a href="{% url 'dictionary' %}" class="btn btn-ghost">Отмена</a>
                     </div>
