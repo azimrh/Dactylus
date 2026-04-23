@@ -22,7 +22,7 @@
                     Имя пользователя <span class="text-danger">*</span>
                 </label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="bi bi-person"></i></span>
+                    <span class="input-group-text"><i class="bi bi-person" aria-hidden="true"></i></span>
                     <input type="text" class="form-control" name="username" id="id_username" placeholder="Логин" required>
                 </div>
                 <div class="invalid-feedback">Введите ваше имя</div>
@@ -34,7 +34,7 @@
                     Email <span class="text-danger">*</span>
                 </label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                    <span class="input-group-text"><i class="bi bi-envelope" aria-hidden="true"></i></span>
                     <input type="email" class="form-control" name="email" id="id_email" placeholder="your@email.com" required>
                 </div>
                 <div class="invalid-feedback">Введите корректный email</div>
@@ -100,7 +100,7 @@
                 <div class="form-check">
                     <input class="form-check-input" type="checkbox" id="terms" name="terms" required>
                     <label class="form-check-label" for="terms">
-                    Я согласен с <a href="#">условиями использования</a> и <a href="#">политикой конфиденциальности</a>
+                        Я согласен с <a href="#">условиями использования</a> и <a href="#">политикой конфиденциальности</a>
                     </label>
                 </div>
                 <div class="invalid-feedback">Необходимо принять условия</div>
@@ -117,7 +117,7 @@
             {% endif %}
 
             <button type="submit" class="btn btn-primary w-100">
-                <i class="bi bi-person-plus me-2"></i>Зарегистрироваться
+                <i class="bi bi-person-plus me-2" aria-hidden="true"></i> Зарегистрироваться
             </button>
         </form>
 

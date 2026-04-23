@@ -62,15 +62,15 @@
                                 <div class="word-item__meta">
                                     {% if entry.personal_status == 'learned' %}
                                     <span class="d-badge d-badge--success">
-                                        <i class="bi bi-check-circle me-1"></i>Выучено
+                                        <i class="bi bi-check-circle me-1" aria-hidden="true"></i> Выучено
                                     </span>
                                     {% elif entry.personal_status == 'learning' %}
                                     <span class="d-badge d-badge--warning">
-                                        <i class="bi bi-clock me-1"></i>В процессе
+                                        <i class="bi bi-clock me-1" aria-hidden="true"></i> В процессе
                                     </span>
                                     {% else %}
                                     <span class="d-badge d-badge--secondary">
-                                        <i class="bi bi-circle me-1"></i>Новое
+                                        <i class="bi bi-circle me-1" aria-hidden="true"></i> Новое
                                     </span>
                                     {% endif %}
                                 </div>
@@ -79,10 +79,10 @@
                         <div class="gesture-row__actions">
                             <a href="{{ entry.get_absolute_url }}" class="btn btn-sm btn-outline-primary">Подробнее</a>
                             <button class="btn btn-ghost btn-icon" onclick="updateStatus({{ entry.id }}, 'learned')" title="Отметить выученным">
-                                <i class="bi bi-check-lg"></i>
+                                <i class="bi bi-check-lg" aria-hidden="true"></i>
                             </button>
                             <button class="btn btn-ghost btn-icon" onclick="removeEntry({{ entry.id }})" title="Удалить">
-                                <i class="bi bi-trash"></i>
+                                <i class="bi bi-trash" aria-hidden="true"></i>
                             </button>
                         </div>
                     </div>

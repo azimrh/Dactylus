@@ -19,7 +19,7 @@
                     </video>
                     <div class="d-video-player__overlay">
                         <button class="d-video-player__play" aria-label="Воспроизвести">
-                            <i class="bi bi-play-fill"></i>
+                            <i class="bi bi-play-fill" aria-hidden="true"></i>
                         </button>
                     </div>
                 </div>
@@ -34,10 +34,10 @@
                 </p>
                 <div class="hero__actions">
                     <a href="{% url 'dictionary' %}" class="btn btn-primary btn-lg">
-                        <i class="bi bi-book me-2"></i>Перейти к словарю
+                        <i class="bi bi-book me-2" aria-hidden="true"></i> Перейти к словарю
                     </a>
                     <a href="{% url 'add-word' %}" class="btn btn-outline-primary btn-lg">
-                        <i class="bi bi-plus-lg me-2"></i>Добавить слово
+                        <i class="bi bi-plus-lg me-2" aria-hidden="true"></i> Добавить слово
                     </a>
                 </div>
             </div>
@@ -51,21 +51,21 @@
         <h2 class="text-center mb-5 h2">Возможности платформы</h2>
         <div class="features-grid">
             <a href="{% url 'dictionary' %}" class="feature-card">
-                <div class="feature-card__icon"><i class="bi bi-book"></i></div>
+                <div class="feature-card__icon"><i class="bi bi-book" aria-hidden="true"></i></div>
                 <div>
                     <h3 class="feature-card__title">Словарь</h3>
                     <p class="feature-card__desc">Около {{ stats.gestures }} жестов с видео-пояснениями и подробными описаниями</p>
                 </div>
             </a>
             <a href="" class="feature-card">
-                <div class="feature-card__icon"><i class="bi bi-journal-bookmark"></i></div>
+                <div class="feature-card__icon"><i class="bi bi-journal-bookmark" aria-hidden="true"></i></div>
                 <div>
                     <h3 class="feature-card__title">Личный словарь</h3>
                     <p class="feature-card__desc">Сохраняйте изучаемые слова и отслеживайте прогресс</p>
                 </div>
             </a>
             <div class="feature-card feature-card--disabled">
-                <div class="feature-card__icon feature-card__icon--muted"><i class="bi bi-phone"></i></div>
+                <div class="feature-card__icon feature-card__icon--muted"><i class="bi bi-phone" aria-hidden="true"></i></div>
                 <div>
                     <h3 class="feature-card__title">Мобильное приложение</h3>
                     <p class="feature-card__desc">Изучайте жестовый язык anywhere, anytime</p>
@@ -73,7 +73,7 @@
                 </div>
             </div>
             <div class="feature-card feature-card--disabled">
-                <div class="feature-card__icon feature-card__icon--muted"><i class="bi bi-translate"></i></div>
+                <div class="feature-card__icon feature-card__icon--muted"><i class="bi bi-translate" aria-hidden="true"></i></div>
                 <div>
                     <h3 class="feature-card__title">Переводчик</h3>
                     <p class="feature-card__desc">Мгновенный перевод текста в жестовый язык и обратно</p>
@@ -116,7 +116,7 @@
         <div class="d-flex justify-content-between align-items-center mb-5">
             <h2 class="h2 mb-0">Новости проекта</h2>
             <a href="#" class="btn btn-ghost">
-                Все новости <i class="bi bi-arrow-right ms-2"></i>
+                Все новости <i class="bi bi-arrow-right ms-2" aria-hidden="true"></i>
             </a>
         </div>
         <div class="news-grid">
