@@ -44,7 +44,7 @@ class MeaningAdmin(admin.ModelAdmin):
 class TextLexemeAdmin(admin.ModelAdmin):
     list_display = ('text', 'author', 'is_letter', 'created_at', 'moderation_status')
     search_fields = ('text',)
-    list_filter = ('is_letter', 'moderation_status', 'categories')
+    list_filter = ('is_letter', 'moderation_status')
 
 # -----------------------
 # Жестовые леммы
@@ -54,7 +54,7 @@ class TextLexemeAdmin(admin.ModelAdmin):
 class GestureLexemeAdmin(admin.ModelAdmin):
     list_display = ('text', 'author', 'is_letter', 'created_at', 'moderation_status')
     search_fields = ('text',)
-    list_filter = ('is_letter', 'moderation_status', 'categories')
+    list_filter = ('is_letter', 'moderation_status')
 
 
 @admin.register(GestureRealization)
@@ -72,7 +72,7 @@ class GestureRealizationAdmin(admin.ModelAdmin):
 class LexemePairAdmin(admin.ModelAdmin):
     list_display = ('get_text_lexeme', 'get_gesture_lexeme', 'moderation_status', 'created_by', 'created_at')
     search_fields = ('text_lexeme__text', 'gesture_lexeme__text')
-    list_filter = ['moderation_status']
+    list_filter = ['moderation_status', 'categories']
 
     def get_text_lexeme(self, obj):
         return str(obj.text_lexeme) if obj.text_lexeme else '-'

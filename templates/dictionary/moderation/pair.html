@@ -98,7 +98,6 @@
                 </div>
 
                 <!-- Actions -->
-                <!-- Actions - side by side -->
                 <div class="d-flex gap-2">
                     <button type="submit" name="action" value="approve" class="btn btn-success btn-lg flex-fill">
                         <i class="bi bi-check-lg me-2"></i>Одобрить
@@ -115,7 +114,7 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Отклонить смысл</h5>
+                    <h5 class="modal-title">Отклонить пару</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <form method="post">
@@ -156,25 +155,6 @@
             onSelect: ({ id, text }) => {
                 document.getElementById('wordInput').value = text;
                 document.getElementById('wordIdInput').value = id;
-            }
-        });
-
-        // Meaning search
-        new AjaxSearch({
-            root: '[data-type="meaning"]',
-            input: '#meaningInput',
-            dropdown: '.search-select__dropdown',
-            url: '/api/v1/meanings/?search=',
-            minLength: 2,
-            mapResults: (data) => data.results || [],
-            renderItem: (item) => `
-                <div class="search-select__item" data-id="${item.id}" data-text="${item.description}">
-                    <strong>${item.description.substring(0, 50)}</strong>
-                </div>
-            `,
-            onSelect: ({ id, text }) => {
-                document.getElementById('meaningInput').value = text;
-                document.getElementById('meaningIdInput').value = id;
             }
         });
 

@@ -15,7 +15,7 @@ def moderation_lexeme_pair(request, pk):
             'gesture_lexeme',
             'created_by'
         ).prefetch_related(
-            'text_lexeme__categories',
+            'categories',
             'gesture_lexeme__realizations'
         ),
         pk=pk
@@ -30,9 +30,9 @@ def moderation_lexeme_pair(request, pk):
 
             if word_id:
                 pair.text_lexeme_id = word_id
+
             if category_ids:
-                pair.text_lexeme.categories.set(category_ids)
-                pair.gesture_lexeme.categories.set(category_ids)
+                pair.categories.set(category_ids)
 
             pair.moderation_status = 'approved'
             pair.save()
@@ -48,7 +48,7 @@ def moderation_lexeme_pair(request, pk):
 
     context = {
         'pair': pair,
-        'current_categories': list(pair.text_lexeme.categories.values('id', 'name')),
+        'current_categories': list(pair.categories.values('id', 'name')),
     }
 
     return render(request, 'dictionary/moderation/pair.html', context)

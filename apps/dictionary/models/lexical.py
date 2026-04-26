@@ -47,11 +47,6 @@ class BaseLexeme(models.Model):
     author = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Автор')
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата публикации')
 
-    categories = models.ManyToManyField(
-        Category,
-        verbose_name='Категории'
-    )
-
     meanings = models.ManyToManyField(
         'Meaning',
         related_name='%(class)s_set',
@@ -113,6 +108,11 @@ class LexemePair(models.Model):
         on_delete=models.CASCADE,
         related_name='pairs',
         verbose_name='Жестовая лемма'
+    )
+
+    categories = models.ManyToManyField(
+        Category,
+        verbose_name='Категории'
     )
 
     moderation_status = models.CharField(

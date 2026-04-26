@@ -18,12 +18,14 @@ def page_dictionary(request):
         parent=None
     ).prefetch_related('children').annotate(
         subcategories_count=Count('children', distinct=True),
-        words_count=Count('textlexeme',
-            filter=Q(textlexeme__moderation_status='approved'),
+        words_count=Count(
+            'lexemepair__text_lexeme',
+            filter=Q(lexemepair__moderation_status='approved'),
             distinct=True
         ),
-        gestures_count=Count('gesturelexeme',
-            filter=Q(textlexeme__moderation_status='approved'),
+        gestures_count=Count(
+            'lexemepair__gesture_lexeme',
+            filter=Q(lexemepair__moderation_status='approved'),
             distinct=True
         ),
     )
@@ -33,21 +35,19 @@ def page_dictionary(request):
         'category': None,
     })
 
+
 def page_text_lexeme(request, slug):
     lemma = get_object_or_404(
-        TextLexeme.objects.prefetch_related('meanings', 'categories'),
+        TextLexeme.objects.prefetch_related('meanings'),
         slug=slug
     )
 
-    # Получаем связанные жесты через LexemePair (прямая связь ForeignKey)
+    # Связанные жесты через пары
     lexeme_pairs = LexemePair.objects.filter(
         text_lexeme=lemma
     ).select_related('gesture_lexeme')
 
-    # Собираем жесты
     gesture_lexemes = [pair.gesture_lexeme for pair in lexeme_pairs]
-
-    # Получаем ID всех жестов для поиска реализаций
     all_gesture_ids = [g.id for g in gesture_lexemes]
 
     gesture_realizations = GestureRealization.objects.filter(
@@ -55,7 +55,6 @@ def page_text_lexeme(request, slug):
         moderation_status='approved'
     ).select_related('author', 'moderated_by', 'gesture_lexeme')
 
-    # Группировка по жестам
     main_gesture = gesture_realizations.first()
     other_gestures = list(gesture_realizations.exclude(
         id=main_gesture.id if main_gesture else None
@@ -76,11 +75,17 @@ def page_text_lexeme(request, slug):
         if words:
             synonyms_by_meaning[meaning] = words
 
-    # Навигация
-    categories = lemma.categories.all()
+    # Категории через одобренные пары
+    categories = Category.objects.filter(
+        lexemepair__text_lexeme=lemma,
+        lexemepair__moderation_status='approved'
+    ).distinct()
+
+    # Навигация по первой из категорий
     navigation = []
-    if categories:
-        current = categories.first()
+    first_category = categories.first()
+    if first_category:
+        current = first_category
         path = []
         while current:
             path.insert(0, current)

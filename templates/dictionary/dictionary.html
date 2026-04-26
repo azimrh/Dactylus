@@ -88,8 +88,8 @@
                 </div>
             </div>
             <div class="category-card__examples">
-                {% for word in sub.textlexeme_set.all|slice:":4" %}
-                <span class="category-card__tag">{{ word.text }}</span>
+                {% for pair in sub.lexemepair_set.all|slice:":4" %}
+                <span class="category-card__tag">{{ pair.text_lexeme.text }}</span>
                 {% empty %}
                 <span class="category-card__tag">Нет слов</span>
                 {% endfor %}
@@ -123,8 +123,8 @@
                 </div>
             </div>
             <div class="category-card__examples">
-                {% for word in cat.textlexeme_set.all|slice:":4" %}
-                <span class="category-card__tag">{{ word.text }}</span>
+                {% for pair in cat.lexemepair_set.all|slice:":4" %}
+                <span class="category-card__tag">{{ pair.text_lexeme.text }}</span>
                 {% empty %}
                 <span class="category-card__tag category-card__tag--empty">Нет слов</span>
                 {% endfor %}
