@@ -1,6 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
+from django.urls import reverse
 
 from apps.dictionary.models import GestureLexeme
 from ..base import group_required
@@ -38,17 +39,17 @@ def moderation_gesture_lexeme(request, pk):
             lexeme.moderation_status = 'approved'
             lexeme.save()
             messages.success(request, f'Жест "{lexeme.text}" одобрен')
-            return redirect('moderation')
+            return redirect(reverse('moderation') + '#gestures')
 
         elif action == 'reject':
             reason = request.POST.get('reason', '')
             lexeme.moderation_status = 'rejected'
             lexeme.save()
             messages.success(request, f'Жест "{lexeme.text}" отклонен: {reason}')
-            return redirect('moderation')
+            return redirect(reverse('moderation') + '#gestures')
 
     context = {
         'lexeme': lexeme,
         'current_meanings': list(lexeme.meanings.values('id', 'description')),
     }
-    return render(request, 'dictionary/moderation/#gestures', context)
+    return render(request, 'dictionary/moderation/gesture_lexeme.html', context)

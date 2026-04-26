@@ -1,6 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
+from django.urls import reverse
 
 from apps.dictionary.models import LexemePair
 from ..base import group_required
@@ -38,17 +39,17 @@ def moderation_lexeme_pair(request, pk):
             pair.save()
 
             messages.success(request, 'Пара одобрена')
-            return redirect('moderation')
+            return redirect(reverse('moderation') + '#pairs')
 
         elif action == 'reject':
             reason = request.POST.get('reason', '')
             pair.delete()
             messages.success(request, f'Пара отклонена: {reason}')
-            return redirect('moderation')
+            return redirect(reverse('moderation') + '#pairs')
 
     context = {
         'pair': pair,
         'current_categories': list(pair.categories.values('id', 'name')),
     }
 
-    return render(request, 'dictionary/moderation/#pairs', context)
+    return render(request, 'dictionary/moderation/pair.html', context)
