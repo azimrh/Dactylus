@@ -31,6 +31,6 @@ def moderation_gesture_realization(request, pk):
             messages.success(request, f'Видео отклонено: {reason}')
             return redirect('moderation')
 
-    return render(request, 'dictionary/moderation/video.html', {
+    return render(request, 'dictionary/moderation/#video', {
         'video': video,
     })

@@ -52,4 +52,4 @@ def moderation_text_lexeme(request, pk):
         'lexeme': lexeme,
         'current_meanings': list(lexeme.meanings.values('id', 'description')),
     }
-    return render(request, 'dictionary/moderation/text_lexeme.html', context)
+    return render(request, 'dictionary/moderation/#words', context)

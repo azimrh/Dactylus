@@ -33,6 +33,6 @@ def moderation_meaning(request, pk):
             messages.success(request, f'Смысл отклонен: {reason}')
             return redirect('moderation')
 
-    return render(request, 'dictionary/moderation/meaning.html', {
+    return render(request, 'dictionary/moderation/#meanings', {
         'meaning': meaning,
     })

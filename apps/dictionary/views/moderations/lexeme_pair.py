@@ -51,4 +51,4 @@ def moderation_lexeme_pair(request, pk):
         'current_categories': list(pair.categories.values('id', 'name')),
     }
 
-    return render(request, 'dictionary/moderation/pair.html', context)
+    return render(request, 'dictionary/moderation/#pairs', context)

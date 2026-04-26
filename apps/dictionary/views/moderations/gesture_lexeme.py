@@ -51,4 +51,4 @@ def moderation_gesture_lexeme(request, pk):
         'lexeme': lexeme,
         'current_meanings': list(lexeme.meanings.values('id', 'description')),
     }
-    return render(request, 'dictionary/moderation/gesture_lexeme.html', context)
+    return render(request, 'dictionary/moderation/#gestures', context)
