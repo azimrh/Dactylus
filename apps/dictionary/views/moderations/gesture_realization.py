@@ -1,6 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
+from django.urls import reverse
 
 from apps.dictionary.models import GestureRealization
 from ..base import group_required
@@ -20,7 +21,7 @@ def moderation_gesture_realization(request, pk):
             video.moderated_by = request.user
             video.save()
             messages.success(request, f'Видео для "{video.gesture_lexeme.text}" одобрено')
-            return redirect('moderation')
+            return redirect(reverse('moderation') + '#video')
 
         elif action == 'reject':
             reason = request.POST.get('reason', '')
@@ -29,8 +30,8 @@ def moderation_gesture_realization(request, pk):
             video.moderation_comment = reason
             video.save()
             messages.success(request, f'Видео отклонено: {reason}')
-            return redirect('moderation')
+            return redirect(reverse('moderation') + '#video')
 
-    return render(request, 'dictionary/moderation/#video', {
+    return render(request, 'dictionary/moderation/video.html', {
         'video': video,
     })

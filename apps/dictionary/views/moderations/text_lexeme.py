@@ -1,6 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
+from django.urls import reverse
 from django.utils.text import slugify
 
 from apps.dictionary.models import TextLexeme
@@ -39,17 +40,17 @@ def moderation_text_lexeme(request, pk):
             lexeme.moderation_status = 'approved'
             lexeme.save()
             messages.success(request, f'Слово "{lexeme.text}" одобрено')
-            return redirect('moderation')
+            return redirect(reverse('moderation') + '#words')
 
         elif action == 'reject':
             reason = request.POST.get('reason', '')
             lexeme.moderation_status = 'rejected'
             lexeme.save()
             messages.success(request, f'Слово "{lexeme.text}" отклонено: {reason}')
-            return redirect('moderation')
+            return redirect(reverse('moderation') + '#words')
 
     context = {
         'lexeme': lexeme,
         'current_meanings': list(lexeme.meanings.values('id', 'description')),
     }
-    return render(request, 'dictionary/moderation/#words', context)
+    return render(request, 'dictionary/moderation/text_lexeme.html', context)

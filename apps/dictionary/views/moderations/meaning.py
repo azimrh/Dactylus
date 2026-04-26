@@ -1,6 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
+from django.urls import reverse
 
 from apps.dictionary.models import Meaning
 from ..base import group_required
@@ -25,14 +26,14 @@ def moderation_meaning(request, pk):
             meaning.save()  # <-- всегда сохраняем статус
 
             messages.success(request, 'Смысл одобрен')
-            return redirect('moderation')
+            return redirect(reverse('moderation') + '#meanings')
 
         elif action == 'reject':
             reason = request.POST.get('reason', '')
             meaning.delete()
             messages.success(request, f'Смысл отклонен: {reason}')
-            return redirect('moderation')
+            return redirect(reverse('moderation') + '#meanings')
 
-    return render(request, 'dictionary/moderation/#meanings', {
+    return render(request, 'dictionary/moderation/meaning.html', {
         'meaning': meaning,
     })

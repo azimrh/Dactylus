@@ -134,7 +134,6 @@
     </div>
     {% elif category %}
     <!-- Страница категории: сетка слов -->
-    <h2 class="h5 mb-3">Слова</h2>
     <div class="word-grid" id="wordsGrid">
         {% for lemma in text_lexemes %}
         <a href="{% url 'text_lexeme' lemma.slug %}" class="word-card">
