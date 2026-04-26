@@ -14,12 +14,14 @@ from .serializers import (
 
 class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Category.objects.annotate(
-        words_count=Count('textlexeme',
-            filter=Q(textlexeme__moderation_status='approved'),
+        words_count=Count(
+            'lexemepair__text_lexeme',
+            filter=Q(lexemepair__moderation_status='approved'),
             distinct=True
         ),
-        gestures_count=Count('gesturelexeme',
-            filter=Q(textlexeme__moderation_status='approved'),
+        gestures_count=Count(
+            'lexemepair__gesture_lexeme',
+            filter=Q(lexemepair__moderation_status='approved'),
             distinct=True
         ),
     ).order_by('order', 'name')
@@ -54,8 +56,16 @@ class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
         """Прямые дочерние категории"""
         category = self.get_object()
         children = category.children.annotate(
-            words_count=Count('textlexeme', filter=Q(textlexeme__is_published=True), distinct=True),
-            gestures_count=Count('gesturelexeme', filter=Q(gesturelexeme__is_published=True), distinct=True),
+            words_count=Count(
+                'lexemepair__text_lexeme',
+                filter=Q(lexemepair__moderation_status='approved'),
+                distinct=True
+            ),
+            gestures_count=Count(
+                'lexemepair__gesture_lexeme',
+                filter=Q(lexemepair__moderation_status='approved'),
+                distinct=True
+            ),
         ).order_by('order', 'name')
         serializer = CategoryListSerializer(children, many=True)
         return Response(serializer.data)

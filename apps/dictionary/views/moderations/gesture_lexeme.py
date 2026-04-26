@@ -16,7 +16,6 @@ def moderation_gesture_lexeme(request, pk):
 
         if action == 'approve':
             new_text = request.POST.get('text')
-            category_ids = request.POST.getlist('category_ids')
             meaning_ids = request.POST.getlist('meaning_ids')
 
             # Проверка на дубликат при изменении текста
@@ -31,10 +30,6 @@ def moderation_gesture_lexeme(request, pk):
 
                 lexeme.text = new_text
                 lexeme.slug = new_slug
-
-            # Обновляем категории
-            if category_ids:
-                lexeme.categories.set(category_ids)
 
             # Обновляем значения
             if meaning_ids:
@@ -54,7 +49,6 @@ def moderation_gesture_lexeme(request, pk):
 
     context = {
         'lexeme': lexeme,
-        'current_categories': list(lexeme.categories.values('id', 'name')),
         'current_meanings': list(lexeme.meanings.values('id', 'description')),
     }
     return render(request, 'dictionary/moderation/gesture_lexeme.html', context)
