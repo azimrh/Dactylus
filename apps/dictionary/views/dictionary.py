@@ -1,6 +1,6 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
-from django.db.models import Count, Q
+from django.db.models import Count, Q, Prefetch
 from django.core.paginator import Paginator
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
@@ -16,7 +16,15 @@ def page_dictionary(request):
     """Главная страница словаря — список корневых категорий."""
     categories = Category.objects.filter(
         parent=None
-    ).prefetch_related('children').annotate(
+    ).prefetch_related(
+        'children',
+        Prefetch(
+            'lexemepair_set',
+            queryset=LexemePair.objects.filter(
+                moderation_status='approved'
+            ).select_related('text_lexeme').order_by('text_lexeme__text')
+        )
+    ).annotate(
         subcategories_count=Count('children', distinct=True),
         words_count=Count(
             'lexemepair__text_lexeme',
