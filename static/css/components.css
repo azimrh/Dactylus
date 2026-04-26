@@ -1293,6 +1293,64 @@
   color: var(--d-text-primary);
 }
 
+
+/* ============================================
+ *  Custom Checkbox (Form Check)
+ *  ============================================ */
+
+.form-check {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0;
+  margin-bottom: 1rem;
+}
+
+.form-check-input {
+  width: 1.25rem;
+  height: 1.25rem;
+  margin: 0;
+  flex-shrink: 0;
+  background-color: var(--d-bg-input);
+  border: 2px solid var(--d-border);
+  border-radius: 0.25rem;
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+  transition: all var(--d-transition);
+  position: relative;
+}
+
+.form-check-input:checked {
+  background-color: var(--d-primary);
+  border-color: var(--d-primary);
+}
+
+.form-check-input:checked::after {
+  content: '';
+  position: absolute;
+  left: 4px;
+  top: 1px;
+  width: 5px;
+  height: 9px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.form-check-input:focus {
+  box-shadow: 0 0 0 3px var(--d-primary-soft);
+  border-color: var(--d-primary);
+}
+
+.form-check-label {
+  color: var(--d-text-primary);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  cursor: pointer;
+  user-select: none;
+}
+
 /* ============================================
  *  6. RESPONSIVE
  *  ============================================ */

@@ -19,6 +19,7 @@ def moderation_gesture_realization(request, pk):
         if action == 'approve':
             video.moderation_status = 'approved'
             video.moderated_by = request.user
+            video.is_primary = request.POST.get('is_primary') == 'on'
             video.save()
             messages.success(request, f'Видео для "{video.gesture_lexeme.text}" одобрено')
             return redirect(reverse('moderation') + '#video')
