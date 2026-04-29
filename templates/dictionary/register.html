@@ -23,7 +23,7 @@
                 </label>
                 <div class="input-group">
                     <span class="input-group-text"><i class="bi bi-person" aria-hidden="true"></i></span>
-                    <input type="text" class="form-control" name="username" id="id_username" placeholder="Логин" required>
+                    <input type="text" class="form-control" name="username" id="id_username" placeholder="Логин" required autocomplete="off">
                 </div>
                 <div class="invalid-feedback">Введите ваше имя</div>
             </div>
@@ -47,7 +47,7 @@
                 </label>
                 <div class="input-group">
                     <span class="input-group-text"><i class="bi bi-lock"></i></span>
-                    <input type="password" class="form-control" id="id_password1" name="password1" placeholder="Придумайте пароль" required minlength="8">
+                    <input type="password" class="form-control" id="id_password1" name="password1" placeholder="Придумайте пароль" required minlength="8" autocomplete="off">
                     <button type="button" class="password-toggle" aria-label="Показать пароль"><i class="bi bi-eye"></i></button>
                 </div>
                 <div class="invalid-feedback">Пароль должен содержать минимум 8 символов</div>
@@ -60,7 +60,7 @@
                 </label>
                 <div class="input-group">
                     <span class="input-group-text"><i class="bi bi-lock"></i></span>
-                    <input type="password" class="form-control" id="id_password2" name="password2" placeholder="Придумайте пароль" required minlength="8">
+                    <input type="password" class="form-control" id="id_password2" name="password2" placeholder="Повторите пароль" required minlength="8" autocomplete="off">
                     <button type="button" class="password-toggle" aria-label="Показать подтверждение пароля"><i class="bi bi-eye"></i></button>
                 </div>
                 <div class="invalid-feedback">Пароли должны совпадать</div>
