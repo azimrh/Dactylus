@@ -14,14 +14,6 @@
             <p>Войдите в свой аккаунт Dactylus</p>
         </div>
 
-        {% if messages %}
-        {% for message in messages %}
-        <div class="alert alert-{{ message.tags }} mb-3">
-            {{ message }}
-        </div>
-        {% endfor %}
-        {% endif %}
-
         <form method="post" action="{% url 'login' %}" data-validate>
             {% csrf_token %}
             <div class="mb-3">
@@ -59,7 +51,7 @@
             </div>
 
             {% if form.errors %}
-            <div class="alert alert-danger d-none" id="loginErrors" role="alert">
+            <div class="alert alert-danger" id="loginErrors" role="alert">
                 Неверное имя пользователя или пароль.
             </div>
             {% endif %}
