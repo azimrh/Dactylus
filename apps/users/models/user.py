@@ -14,11 +14,11 @@ class User(AbstractUser):
     created_at = models.DateTimeField(auto_now_add=True)
 
     HEARING_STATUS_CHOICES = [
-        ('learner', 'Учащийся'),
-        ('teacher', 'Преподаватель'),
-        ('native', 'Носитель языка'),
-        ('researcher', 'Исследователь'),
+        ('hearing', 'Слышащий'),
+        ('hard', 'Слабослышащий'),
+        ('deaf', 'Глухой'),
     ]
+
     hearing_status = models.CharField(
         max_length=20,
         choices=HEARING_STATUS_CHOICES,

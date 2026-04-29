@@ -14,8 +14,18 @@
             <p>Присоединяйтесь к сообществу Dactylus</p>
         </div>
 
-        <form method="post" action="{% url 'register' %}" data-validate>
+        <!-- Общие ошибки формы -->
+        {% if form.non_field_errors %}
+        <div class="alert alert-danger">
+            {% for error in form.non_field_errors %}
+                {{ error }}
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <form method="post" action="{% url 'register' %}" data-validate novalidate>
             {% csrf_token %}
+
             <!-- Name -->
             <div class="mb-3">
                 <label for="id_username" class="form-label">
@@ -23,9 +33,21 @@
                 </label>
                 <div class="input-group">
                     <span class="input-group-text"><i class="bi bi-person" aria-hidden="true"></i></span>
-                    <input type="text" class="form-control" name="username" id="id_username" placeholder="Логин" required autocomplete="off">
+                    <input type="text" class="form-control {% if form.username.errors %}is-invalid{% endif %}"
+                           name="username" id="id_username"
+                           placeholder="Логин"
+                           value="{{ form.username.value|default:'' }}"
+                           autocomplete="off">
                 </div>
+                {% if form.username.errors %}
+                <div class="invalid-feedback d-block">
+                    {% for error in form.username.errors %}
+                        {{ error }}
+                    {% endfor %}
+                </div>
+                {% else %}
                 <div class="invalid-feedback">Введите ваше имя</div>
+                {% endif %}
             </div>
 
             <!-- Email -->
@@ -35,9 +57,20 @@
                 </label>
                 <div class="input-group">
                     <span class="input-group-text"><i class="bi bi-envelope" aria-hidden="true"></i></span>
-                    <input type="email" class="form-control" name="email" id="id_email" placeholder="your@email.com" required>
+                    <input type="email" class="form-control {% if form.email.errors %}is-invalid{% endif %}"
+                           name="email" id="id_email"
+                           placeholder="your@email.com"
+                           value="{{ form.email.value|default:'' }}">
                 </div>
+                {% if form.email.errors %}
+                <div class="invalid-feedback d-block">
+                    {% for error in form.email.errors %}
+                        {{ error }}
+                    {% endfor %}
+                </div>
+                {% else %}
                 <div class="invalid-feedback">Введите корректный email</div>
+                {% endif %}
             </div>
 
             <!-- Password1 -->
@@ -47,10 +80,24 @@
                 </label>
                 <div class="input-group">
                     <span class="input-group-text"><i class="bi bi-lock"></i></span>
-                    <input type="password" class="form-control" id="id_password1" name="password1" placeholder="Придумайте пароль" required minlength="8" autocomplete="off">
+                    <input type="password" class="form-control {% if form.password1.errors %}is-invalid{% endif %}"
+                           id="id_password1" name="password1"
+                           placeholder="Придумайте пароль"
+                           autocomplete="off">
                     <button type="button" class="password-toggle" aria-label="Показать пароль"><i class="bi bi-eye"></i></button>
                 </div>
+                {% if form.password1.errors %}
+                <div class="invalid-feedback d-block">
+                    {% for error in form.password1.errors %}
+                        {{ error }}
+                    {% endfor %}
+                </div>
+                {% else %}
                 <div class="invalid-feedback">Пароль должен содержать минимум 8 символов</div>
+                {% endif %}
+                <div class="form-text text-muted">
+                    Пароль должен содержать минимум 8 символов, не должен быть слишком простым и состоять только из цифр.
+                </div>
             </div>
 
             <!-- Password2 -->
@@ -60,61 +107,83 @@
                 </label>
                 <div class="input-group">
                     <span class="input-group-text"><i class="bi bi-lock"></i></span>
-                    <input type="password" class="form-control" id="id_password2" name="password2" placeholder="Повторите пароль" required minlength="8" autocomplete="off">
+                    <input type="password" class="form-control {% if form.password2.errors %}is-invalid{% endif %}"
+                           id="id_password2" name="password2"
+                           placeholder="Повторите пароль"
+                           autocomplete="off">
                     <button type="button" class="password-toggle" aria-label="Показать подтверждение пароля"><i class="bi bi-eye"></i></button>
                 </div>
+                {% if form.password2.errors %}
+                <div class="invalid-feedback d-block">
+                    {% for error in form.password2.errors %}
+                        {{ error }}
+                    {% endfor %}
+                </div>
+                {% else %}
                 <div class="invalid-feedback">Пароли должны совпадать</div>
+                {% endif %}
             </div>
 
-            <!-- Hearing Type - Critical Field per TZ -->
+            <!-- Hearing Type -->
             <div class="mb-4">
                 <label class="form-label">Тип слуха <span class="text-danger">*</span></label>
                 <div class="hearing-grid">
                     <div class="hearing-option">
-                        <input type="radio" id="hearing" name="hearing_type" value="hearing" required>
+                        <input type="radio" id="hearing" name="hearing_status" value="hearing"
+                               {% if form.hearing_status.value == 'hearing' %}checked{% endif %}>
                         <label for="hearing">
                             <span class="hearing-option__icon"><i class="bi bi-ear"></i></span>
                             <span class="hearing-option__text">Слышащий</span>
                         </label>
                     </div>
                     <div class="hearing-option">
-                        <input type="radio" id="hard" name="hearing_type" value="hard">
+                        <input type="radio" id="hard" name="hearing_status" value="hard"
+                               {% if form.hearing_status.value == 'hard' %}checked{% endif %}>
                         <label for="hard">
                             <span class="hearing-option__icon"><i class="bi bi-ear"></i></span>
                             <span class="hearing-option__text">Слабослышащий</span>
                         </label>
                     </div>
                     <div class="hearing-option">
-                        <input type="radio" id="deaf" name="hearing_type" value="deaf">
+                        <input type="radio" id="deaf" name="hearing_status" value="deaf"
+                               {% if form.hearing_status.value == 'deaf' %}checked{% endif %}>
                         <label for="deaf">
                             <span class="hearing-option__icon"><i class="bi bi-ear"></i></span>
                             <span class="hearing-option__text">Глухой</span>
                         </label>
                     </div>
                 </div>
+                {% if form.hearing_status.errors %}
+                <div class="invalid-feedback d-block">
+                    {% for error in form.hearing_status.errors %}
+                        {{ error }}
+                    {% endfor %}
+                </div>
+                {% else %}
                 <div class="invalid-feedback">Выберите тип слуха</div>
+                {% endif %}
             </div>
 
             <!-- Terms -->
             <div class="mb-4">
                 <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="terms" name="terms" required>
+                    <input class="form-check-input {% if form.terms.errors %}is-invalid{% endif %}"
+                           type="checkbox" id="terms" name="terms"
+                           {% if form.terms.value %}checked{% endif %}>
                     <label class="form-check-label" for="terms">
                         Я согласен с <a href="#">условиями использования</a> и <a href="#">политикой конфиденциальности</a>
                     </label>
                 </div>
+                {% if form.terms.errors %}
+                <div class="invalid-feedback d-block">
+                    {% for error in form.terms.errors %}
+                        {{ error }}
+                    {% endfor %}
+                </div>
+                {% else %}
                 <div class="invalid-feedback">Необходимо принять условия</div>
+                {% endif %}
             </div>
-
-            {% if form.errors %}
-            <div class="alert alert-danger" id="registerErrors">
-            {% for field, errors in form.errors.items %}
-                {% for error in errors %}
-                <ul class="mb-0">{{ error }}</ul>
-                {% endfor %}
-            {% endfor %}
-            </div>
-            {% endif %}
 
             <button type="submit" class="btn btn-primary w-100">
                 <i class="bi bi-person-plus me-2" aria-hidden="true"></i> Зарегистрироваться
@@ -126,6 +195,27 @@
         </div>
     </div>
 </div>
+
+<script>
+// Автоматическое отображение ошибок после отправки
+document.querySelector('form').addEventListener('submit', function() {
+    // Убираем novalidate при отправке, чтобы браузер показал свои ошибки
+    this.removeAttribute('novalidate');
+});
+</script>
 {% endblock %}
 
-{% block page_js %}{% endblock %}
+{% block page_js %}
+<script>
+// Показать/скрыть пароль
+document.querySelectorAll('.password-toggle').forEach(button => {
+    button.addEventListener('click', function() {
+        const input = this.closest('.input-group').querySelector('input');
+        const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
+        input.setAttribute('type', type);
+        this.querySelector('i').classList.toggle('bi-eye');
+        this.querySelector('i').classList.toggle('bi-eye-slash');
+    });
+});
+</script>
+{% endblock %}
