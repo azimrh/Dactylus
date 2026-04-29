@@ -14,6 +14,14 @@
             <p>Войдите в свой аккаунт Dactylus</p>
         </div>
 
+        {% if messages %}
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} mb-3">
+            {{ message }}
+        </div>
+        {% endfor %}
+        {% endif %}
+
         <form method="post" action="{% url 'login' %}" data-validate>
             {% csrf_token %}
             <div class="mb-3">
