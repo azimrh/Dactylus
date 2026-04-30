@@ -7,7 +7,8 @@ from django.urls import reverse
 
 from apps.dictionary.models import (
     Category,
-    TextLexeme, LexemePair, GestureRealization
+    TextLexeme, LexemePair, GestureRealization,
+    Personal
 )
 from .base import group_required
 
@@ -92,8 +93,16 @@ def page_text_lexeme(request, slug):
             })
             current = current.parent
 
-    # ID пары для добавления в словарь
     lexeme_pair = lexeme_pairs.first()
+    lexeme_pair_id = lexeme_pair.id if lexeme_pair else None
+
+    # Проверка, есть ли в личном словаре
+    in_personal = False
+    if request.user.is_authenticated and lexeme_pair_id:
+        in_personal = Personal.objects.filter(
+            user=request.user,
+            lexeme_pair_id=lexeme_pair_id
+        ).exists()
 
     return render(request, 'dictionary/text_lexeme.html', {
         'lemma': lemma,
@@ -103,5 +112,6 @@ def page_text_lexeme(request, slug):
         'gesture_realizations': gesture_realizations,
         'categories': categories,
         'navigation': navigation,
-        'lexeme_pair_id': lexeme_pair.id if lexeme_pair else None,
+        'lexeme_pair_id': lexeme_pair_id,
+        'in_personal': in_personal,
     })
