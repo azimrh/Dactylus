@@ -50,70 +50,58 @@ def page_text_lexeme(request, slug):
         slug=slug
     )
 
-    # Связанные жесты через пары
+    # Пары с жестами
     lexeme_pairs = LexemePair.objects.filter(
-        text_lexeme=lemma
+        text_lexeme=lemma,
+        moderation_status='approved'
     ).select_related('gesture_lexeme')
 
-    gesture_lexemes = [pair.gesture_lexeme for pair in lexeme_pairs]
-    all_gesture_ids = [g.id for g in gesture_lexemes]
-
+    # Реализации жестов
+    gesture_ids = [pair.gesture_lexeme_id for pair in lexeme_pairs]
     gesture_realizations = GestureRealization.objects.filter(
-        gesture_lexeme_id__in=all_gesture_ids,
+        gesture_lexeme_id__in=gesture_ids,
         moderation_status='approved'
-    ).select_related('author', 'moderated_by', 'gesture_lexeme')
+    ).select_related('author', 'gesture_lexeme')
 
     main_gesture = gesture_realizations.first()
-    other_gestures = list(gesture_realizations.exclude(
-        id=main_gesture.id if main_gesture else None
-    ))
 
+    # Значения и синонимы
     meanings = list(lemma.meanings.all())
-    synonyms = TextLexeme.objects.filter(
-        meanings__in=meanings,
-        moderation_status='approved'
-    ).exclude(id=lemma.id).distinct()[:10]
-
     synonyms_by_meaning = {}
     for meaning in meanings:
         words = TextLexeme.objects.filter(
             meanings=meaning,
             moderation_status='approved'
-        ).exclude(id=lemma.id).distinct()[:5]
+        ).exclude(id=lemma.id)[:5]
         if words:
             synonyms_by_meaning[meaning] = words
 
-    # Категории через одобренные пары
+    # Категории и навигация
     categories = Category.objects.filter(
         lexemepair__text_lexeme=lemma,
         lexemepair__moderation_status='approved'
     ).distinct()
 
-    # Навигация по первой из категорий
     navigation = []
-    first_category = categories.first()
-    if first_category:
-        current = first_category
-        path = []
+    if first := categories.first():
+        current = first
         while current:
-            path.insert(0, current)
-            current = current.parent
-        for cat in path:
-            navigation.append({
-                'name': cat.name,
-                'href': reverse('category', kwargs={'slug': cat.slug})
+            navigation.insert(0, {
+                'name': current.name,
+                'href': reverse('category', kwargs={'slug': current.slug})
             })
+            current = current.parent
 
-    context = {
+    # ID пары для добавления в словарь
+    lexeme_pair = lexeme_pairs.first()
+
+    return render(request, 'dictionary/text_lexeme.html', {
         'lemma': lemma,
         'meanings': meanings,
-        'synonyms': synonyms,
         'synonyms_by_meaning': synonyms_by_meaning,
         'main_gesture': main_gesture,
-        'other_gestures': other_gestures,
         'gesture_realizations': gesture_realizations,
-        'gesture_lexemes': gesture_lexemes,
         'categories': categories,
         'navigation': navigation,
-    }
-    return render(request, 'dictionary/text_lexeme.html', context)
+        'lexeme_pair_id': lexeme_pair.id if lexeme_pair else None,
+    })

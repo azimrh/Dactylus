@@ -146,24 +146,3 @@ function initSpeedControl() {
         speedValue.textContent = speed + 'x';
     });
 }
-
-function addToPersonal(lemmaType, lemmaId) {
-    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value ||
-                     document.cookie.match(/csrftoken=([^;]+)/)?.[1] || '';
-
-    fetch(`/add-to-personal/${lemmaType}/${lemmaId}/`, {
-        method: 'POST',
-        headers: {
-            'X-CSRFToken': csrfToken,
-            'X-Requested-With': 'XMLHttpRequest',
-            'Content-Type': 'application/json',
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.status === 'added') {
-            location.reload();
-        }
-    })
-    .catch(err => console.error('Error:', err));
-}

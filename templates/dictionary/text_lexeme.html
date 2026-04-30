@@ -217,4 +217,49 @@
 {% block page_js %}
     <script src="{% static 'js/components/video-player.js' %}?v=1.0.0"></script>
     <script src="{% static 'js/pages/word.js' %}?v=1.1.0"></script>
+    <script>
+    function addToPersonal(lemmaType, lemmaId) {
+        // Используем CSRF из куки
+        const csrfToken = document.cookie.split('; ')
+            .find(row => row.startsWith('csrftoken='))
+            ?.split('=')[1] || '';
+
+        fetch('/api/v1/personal/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken,
+            },
+            credentials: 'same-origin',  // Отправляем куки
+            body: JSON.stringify({
+                lexeme_pair: {{ lexeme_pair_id }},
+                status: 'new'
+            })
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(err => Promise.reject(err));
+            }
+            return response.json();
+        })
+        .then(data => {
+            const button = document.querySelector('[data-word-id]');
+            if (button) {
+                button.classList.remove('btn-primary');
+                button.classList.add('btn-outline-primary');
+                button.innerHTML = '<i class="bi bi-check-lg me-1"></i> В словаре';
+
+                const badge = document.querySelector('.d-badge');
+                if (badge) {
+                    badge.classList.add('d-badge--verified');
+                    badge.innerHTML = '<i class="bi bi-check-circle-fill me-1"></i> В вашем словаре';
+                }
+            }
+        })
+        .catch(err => {
+            console.error('Error:', err);
+            alert(err.detail || 'Не удалось добавить в словарь');
+        });
+    }
+    </script>
 {% endblock %}

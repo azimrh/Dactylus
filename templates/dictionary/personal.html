@@ -131,56 +131,5 @@
             switchTab(hash);
         }
     });
-
-    function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
-            }
-        }
-        return cookieValue;
-    }
-
-    function updateStatus(entryId, status) {
-        const csrftoken = getCookie('csrftoken');
-        fetch(`/personal/update-status/${entryId}/`, {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': csrftoken,
-                'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            body: `status=${status}`
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                location.reload();
-            }
-        });
-    }
-
-    function removeEntry(entryId) {
-        if (!confirm('Удалить из словаря?')) return;
-
-        const csrftoken = getCookie('csrftoken');
-        fetch(`/personal/remove/${entryId}/`, {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': csrftoken,
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                location.reload();
-            }
-        });
-    }
     </script>
 {% endblock %}

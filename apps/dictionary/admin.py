@@ -87,19 +87,22 @@ class LexemePairAdmin(admin.ModelAdmin):
 
 @admin.register(Personal)
 class PersonalAdmin(admin.ModelAdmin):
-    list_display = ('user', 'get_item', 'status', 'added_at', 'last_reviewed')
-    list_filter = ('status', 'content_type', 'added_at')
-    search_fields = ('user__username', 'user__email', 'notes', 'object_id')
+    list_display = ('user', 'lexeme_pair', 'status', 'added_at', 'last_reviewed')
+    list_filter = ('status', 'added_at')
+    search_fields = (
+        'user__username',
+        'user__email',
+        'notes',
+        'lexeme_pair__word_from__text',
+        'lexeme_pair__word_to__text'
+    )
     date_hierarchy = 'added_at'
-    readonly_fields = ('added_at', 'last_reviewed', 'content_object')
+    readonly_fields = ('added_at', 'last_reviewed')
+    raw_id_fields = ('user', 'lexeme_pair')
 
     fieldsets = (
         (None, {
-            'fields': ('user', 'content_type', 'object_id')
-        }),
-        ('Элемент', {
-            'fields': ('content_object',),
-            'classes': ('collapse',)
+            'fields': ('user', 'lexeme_pair')
         }),
         ('Статус изучения', {
             'fields': ('status', 'notes', 'last_reviewed')
@@ -110,10 +113,19 @@ class PersonalAdmin(admin.ModelAdmin):
         }),
     )
 
-    def get_item(self, obj):
-        return str(obj.content_object) if obj.content_object else f"{obj.content_type.name} #{obj.object_id}"
-
-    get_item.short_description = 'Элемент'
-
     def get_queryset(self, request):
-        return super().get_queryset(request).select_related('content_type', 'user')
+        return super().get_queryset(request).select_related(
+            'user',
+            'lexeme_pair'
+        )
+
+    def get_search_results(self, request, queryset, search_term):
+        queryset, use_distinct = super().get_search_results(request, queryset, search_term)
+        if search_term:
+            from django.db.models import Q
+            queryset |= self.model.objects.filter(
+                Q(lexeme_pair__word_from__text__icontains=search_term) |
+                Q(lexeme_pair__word_to__text__icontains=search_term) |
+                Q(lexeme_pair__id__icontains=search_term)
+            )
+        return queryset, use_distinct

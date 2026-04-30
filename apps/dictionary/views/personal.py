@@ -13,73 +13,35 @@ def page_personal(request):
     """Основная страница личного словаря."""
     user = request.user
 
-    # Получаем записи с префетчем связанных объектов
-    entries = Personal.objects.filter(user=user).select_related('content_type')
+    entries = Personal.objects.filter(user=user).select_related(
+        'lexeme_pair__text_lexeme',
+        'lexeme_pair__gesture_lexeme'
+    ).prefetch_related(
+        'lexeme_pair__text_lexeme__meanings'
+    )
 
-    # Разделяем по типам контента
-    text_ids = entries.filter(content_type__model='textlexeme').values_list('object_id', flat=True)
-    gesture_ids = entries.filter(content_type__model='gesturelexeme').values_list('object_id', flat=True)
-    meaning_ids = entries.filter(content_type__model='meaning').values_list('object_id', flat=True)
-    pair_ids = entries.filter(content_type__model='lexemepair').values_list('object_id', flat=True)
+    text_entries = []
+    for entry in entries:
+        pair = entry.lexeme_pair
+        if pair and pair.text_lexeme:
+            text_lexeme = pair.text_lexeme
+            text_lexeme.personal_status = entry.status
+            text_lexeme.personal_notes = entry.notes
+            text_lexeme.personal_entry_id = entry.id
+            text_entries.append(text_lexeme)
 
-    # Загружаем сами объекты
-    text_entries = TextLexeme.objects.filter(id__in=text_ids).prefetch_related('meanings')
-    gesture_entries = GestureLexeme.objects.filter(id__in=gesture_ids).prefetch_related('realizations')
-    meaning_entries = Meaning.objects.filter(id__in=meaning_ids)
-    pair_entries = LexemePair.objects.filter(id__in=pair_ids).select_related('text_lexeme', 'gesture_lexeme')
-
-    # Статистика по статусам для каждого типа
     stats = {
         'words': {
-            'total': len(text_ids),
-            'learned': entries.filter(content_type__model='textlexeme', status='learned').count(),
-            'learning': entries.filter(content_type__model='textlexeme', status='learning').count(),
-        },
-        'gestures': {
-            'total': len(gesture_ids),
-            'learned': entries.filter(content_type__model='gesturelexeme', status='learned').count(),
-            'learning': entries.filter(content_type__model='gesturelexeme', status='learning').count(),
-        },
-        'meanings': {
-            'total': len(meaning_ids),
-            'learned': entries.filter(content_type__model='meaning', status='learned').count(),
-            'learning': entries.filter(content_type__model='meaning', status='learning').count(),
-        },
-        'pairs': {
-            'total': len(pair_ids),
-            'learned': entries.filter(content_type__model='lexemepair', status='learned').count(),
-            'learning': entries.filter(content_type__model='lexemepair', status='learning').count(),
+            'total': entries.count(),
+            'learned': entries.filter(status='learned').count(),
+            'learning': entries.filter(status='learning').count(),
         }
     }
-
-    # Обогащаем объекты статусами из Personal
-    def enrich_with_status(objs, model_name):
-        status_map = {
-            obj_id: status for obj_id, status in
-            entries.filter(content_type__model=model_name).values_list('object_id', 'status')
-        }
-        notes_map = {
-            obj_id: notes for obj_id, notes in
-            entries.filter(content_type__model=model_name).values_list('object_id', 'notes')
-        }
-        for obj in objs:
-            obj.personal_status = status_map.get(obj.id, 'new')
-            obj.personal_notes = notes_map.get(obj.id, '')
-        return objs
-
-    text_entries = enrich_with_status(text_entries, 'textlexeme')
-    gesture_entries = enrich_with_status(gesture_entries, 'gesturelexeme')
-    meaning_entries = enrich_with_status(meaning_entries, 'meaning')
-    pair_entries = enrich_with_status(pair_entries, 'lexemepair')
 
     context = {
         'text_entries': text_entries,
-        'gesture_entries': gesture_entries,
-        'meaning_entries': meaning_entries,
-        'pair_entries': pair_entries,
         'stats': stats,
     }
-
     return render(request, 'dictionary/personal.html', context)
 
 

@@ -1,16 +1,11 @@
 from django.db import models
-from django.contrib.contenttypes.fields import GenericForeignKey
-from django.contrib.contenttypes.models import ContentType
-from .news import User
+
+from apps.users.models import User
 
 
 class Personal(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='personal_items')
-
-    # GFK на любую лексему или значение
-    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
-    object_id = models.PositiveIntegerField()
-    content_object = GenericForeignKey('content_type', 'object_id')
+    lexeme_pair = models.ForeignKey('LexemePair', on_delete=models.CASCADE, null=True)  # Временно null=True
 
     status = models.CharField(max_length=20, choices=[
         ('new', 'Новое'),
@@ -23,5 +18,5 @@ class Personal(models.Model):
     last_reviewed = models.DateTimeField(null=True, blank=True)
 
     class Meta:
-        unique_together = ['user', 'content_type', 'object_id']
+        unique_together = ['user', 'lexeme_pair']
         ordering = ['-added_at']
