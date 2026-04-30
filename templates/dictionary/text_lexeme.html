@@ -144,15 +144,16 @@
             <div class="word-video-column">
                 <!-- Action buttons row -->
                 <div class="word-actions">
+                    {% if lexeme_pair_id %}
                     <button class="btn {% if in_personal %}btn-outline-primary{% else %}btn-primary{% endif %}"
-                            data-word-id="{{ lemma.id }}"
-                            onclick="addToPersonal('text', {{ lemma.id }})">
+                            onclick="addToPersonal()">
                         {% if in_personal %}
-                        <i class="bi bi-check-lg me-1" aria-hidden="true"></i> В словаре
+                        <i class="bi bi-check-lg me-1"></i> В словаре
                         {% else %}
-                        <i class="bi bi-plus-lg me-2" aria-hidden="true"></i> В мой словарь
+                        <i class="bi bi-plus-lg me-2"></i> В мой словарь
                         {% endif %}
                     </button>
+                    {% endif %}
                     {% if perms.dictionary.change_textlexeme %}
                     <a href="{% url 'moderation-text' lemma.id %}"
                        class="btn btn-outline-secondary">
