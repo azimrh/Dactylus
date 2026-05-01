@@ -14,7 +14,6 @@
             <p class="page-header__subtitle">Управляйте сохранёнными словами, жестами и смыслами</p>
         </div>
 
-        <!-- Type Tabs -->
         <div class="d-tabs mb-4">
             <button class="d-tab d-tab--active" data-tab="words" onclick="switchTab('words')">
                 <i class="bi bi-fonts me-2"></i>Слова
@@ -22,7 +21,6 @@
             </button>
         </div>
 
-        <!-- Words Tab -->
         <div id="tab-words" class="tab-content active">
             <div class="content-section">
                 <div class="content-section__header">
@@ -43,14 +41,16 @@
 
                 <div class="items-grid items-grid--words">
                     {% for entry in text_entries %}
-                    <div class="word-item" data-status="{{ entry.personal_status }}">
+                    <div class="word-item" data-status="{{ entry.personal_status }}" data-entry-id="{{ entry.personal_entry_id }}">
                         <div class="word-item__main">
-                            <div class="word-item__icon {% if entry.is_letter %}word-item__icon--letter{% endif %}">
-                                {% if entry.is_letter %}
-                                    <span>{{ entry.letter_char }}</span>
-                                {% else %}
-                                    <i class="bi bi-fonts"></i>
-                                {% endif %}
+                            <div class="gesture-row__thumb gesture-preview">
+                                {% with gesture=entry.gesture_lexeme.realizations.first %}
+                                    {% if gesture and gesture.gif %}
+                                        <img src="{{ gesture.gif.url }}" alt="Жест" class="gesture-gif">
+                                    {% else %}
+                                        <i class="bi bi-hand-index"></i>
+                                    {% endif %}
+                                {% endwith %}
                             </div>
                             <div class="word-item__content">
                                 <h3 class="word-item__title">{{ entry.text }}</h3>
@@ -78,10 +78,10 @@
                         </div>
                         <div class="gesture-row__actions">
                             <a href="{{ entry.get_absolute_url }}" class="btn btn-sm btn-outline-primary">Подробнее</a>
-                            <button class="btn btn-ghost btn-icon" onclick="updateStatus({{ entry.id }}, 'learned')" title="Отметить выученным">
+                            <button class="btn btn-ghost btn-icon" onclick="updateStatus({{ entry.personal_entry_id }}, 'learned')" title="Отметить выученным">
                                 <i class="bi bi-check-lg" aria-hidden="true"></i>
                             </button>
-                            <button class="btn btn-ghost btn-icon" onclick="removeEntry({{ entry.id }})" title="Удалить">
+                            <button class="btn btn-ghost btn-icon" onclick="removeEntry({{ entry.personal_entry_id }})" title="Удалить">
                                 <i class="bi bi-trash" aria-hidden="true"></i>
                             </button>
                         </div>
@@ -98,7 +98,6 @@
         </div>
     </div>
 
-    <!-- CSRF Token for AJAX -->
     {% csrf_token %}
 {% endblock %}
 
@@ -117,6 +116,105 @@
 
         history.pushState(null, null, '#' + tabName);
     }
+
+    function updateStatus(entryId, targetStatus) {
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value
+            || document.cookie.split('; ').find(row => row.startsWith('csrftoken='))?.split('=')[1]
+            || '';
+
+        const card = document.querySelector(`[data-entry-id="${entryId}"]`)?.closest('.word-item');
+        const currentStatus = card?.dataset.status || 'new';
+
+        const newStatus = (currentStatus === targetStatus) ? 'new' : targetStatus;
+
+        fetch(`/api/v1/personal/${entryId}/`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken,
+            },
+            credentials: 'same-origin',
+            body: JSON.stringify({ status: newStatus })
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(err => Promise.reject(err));
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (card) {
+                const badge = card.querySelector('.word-item__meta .d-badge');
+                if (newStatus === 'learned') {
+                    badge.className = 'd-badge d-badge--success';
+                    badge.innerHTML = '<i class="bi bi-check-circle me-1" aria-hidden="true"></i> Выучено';
+                } else if (newStatus === 'learning') {
+                    badge.className = 'd-badge d-badge--warning';
+                    badge.innerHTML = '<i class="bi bi-clock me-1" aria-hidden="true"></i> В процессе';
+                } else {
+                    badge.className = 'd-badge d-badge--secondary';
+                    badge.innerHTML = '<i class="bi bi-circle me-1" aria-hidden="true"></i> Новое';
+                }
+                card.dataset.status = newStatus;
+            }
+        })
+        .catch(err => {
+            console.error('Error:', err);
+            alert(err.detail || 'Не удалось обновить статус');
+        });
+    }
+
+    function removeEntry(entryId) {
+        if (!confirm('Удалить из личного словаря?')) return;
+
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value
+            || document.cookie.split('; ').find(row => row.startsWith('csrftoken='))?.split('=')[1]
+            || '';
+
+        fetch(`/api/v1/personal/${entryId}/`, {
+            method: 'DELETE',
+            headers: {
+                'X-CSRFToken': csrfToken,
+            },
+            credentials: 'same-origin'
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(err => Promise.reject(err));
+            }
+            const card = document.querySelector(`[data-entry-id="${entryId}"]`)?.closest('.word-item');
+            if (card) {
+                card.style.transition = 'opacity 0.3s, transform 0.3s';
+                card.style.opacity = '0';
+                card.style.transform = 'translateX(20px)';
+                setTimeout(() => card.remove(), 300);
+            }
+        })
+        .catch(err => {
+            console.error('Error:', err);
+            alert(err.detail || 'Не удалось удалить запись');
+        });
+    }
+
+    document.getElementById('search-words')?.addEventListener('input', function() {
+        const query = this.value.toLowerCase();
+        document.querySelectorAll('.word-item').forEach(item => {
+            const title = item.querySelector('.word-item__title')?.textContent.toLowerCase() || '';
+            const desc = item.querySelector('.word-item__desc')?.textContent.toLowerCase() || '';
+            item.style.display = (title.includes(query) || desc.includes(query)) ? '' : 'none';
+        });
+    });
+
+    document.getElementById('filter-words')?.addEventListener('change', function() {
+        const status = this.value;
+        document.querySelectorAll('.word-item').forEach(item => {
+            if (!status || item.dataset.status === status) {
+                item.style.display = '';
+            } else {
+                item.style.display = 'none';
+            }
+        });
+    });
 
     window.addEventListener('load', () => {
         const hash = window.location.hash.replace('#', '');
