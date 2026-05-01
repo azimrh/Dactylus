@@ -228,44 +228,41 @@
         const isInPersonal = button && button.classList.contains('btn-outline-primary');
 
         if (isInPersonal) {
-            // Удаляем из словаря
-            fetch('/api/v1/personal/by_lexeme_pair/?lexeme_pair={{ lexeme_pair_id }}', {
+            // Удаляем из словаря — сначала получаем список и ищем по lexeme_pair
+            fetch('/api/v1/personal/', {
                 method: 'GET',
                 headers: {
                     'X-CSRFToken': csrfToken,
                 },
                 credentials: 'same-origin'
             })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) throw new Error('Ошибка загрузки');
+                return response.json();
+            })
             .then(data => {
-                if (data.results && data.results.length > 0) {
-                    const entryId = data.results[0].id;
-                    return fetch(`/api/v1/personal/${entryId}/`, {
-                        method: 'DELETE',
-                        headers: {
-                            'X-CSRFToken': csrfToken,
-                        },
-                        credentials: 'same-origin'
-                    });
-                } else {
-                    throw new Error('Запись не найдена');
-                }
+                const results = Array.isArray(data) ? data : (data.results || []);
+                const entry = results.find(item => item.lexeme_pair === {{ lexeme_pair_id }});
+                if (!entry) throw new Error('Запись не найдена');
+                return fetch(`/api/v1/personal/${entry.id}/`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRFToken': csrfToken,
+                    },
+                    credentials: 'same-origin'
+                });
             })
             .then(response => {
-                if (response.ok) {
-                    if (button) {
-                        button.classList.remove('btn-outline-primary');
-                        button.classList.add('btn-primary');
-                        button.innerHTML = '<i class="bi bi-plus-lg me-2"></i> В мой словарь';
-                    }
-
-                    const badge = document.querySelector('.d-badge');
-                    if (badge) {
-                        badge.classList.remove('d-badge--verified');
-                        badge.innerHTML = '<i class="bi bi-plus-circle me-1"></i> Не в словаре';
-                    }
-                } else {
-                    throw new Error('Не удалось удалить');
+                if (!response.ok) throw new Error('Не удалось удалить');
+                if (button) {
+                    button.classList.remove('btn-outline-primary');
+                    button.classList.add('btn-primary');
+                    button.innerHTML = '<i class="bi bi-plus-lg me-2"></i> В мой словарь';
+                }
+                const badge = document.querySelector('.d-badge');
+                if (badge) {
+                    badge.classList.remove('d-badge--verified');
+                    badge.innerHTML = '<i class="bi bi-plus-circle me-1"></i> Не в словаре';
                 }
             })
             .catch(err => {
@@ -299,7 +296,6 @@
                     button.classList.add('btn-outline-primary');
                     button.innerHTML = '<i class="bi bi-check-lg me-1"></i> В словаре';
                 }
-
                 const badge = document.querySelector('.d-badge');
                 if (badge) {
                     badge.classList.add('d-badge--verified');
