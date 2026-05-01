@@ -219,8 +219,7 @@
     <script src="{% static 'js/components/video-player.js' %}?v=1.0.0"></script>
     <script src="{% static 'js/pages/word.js' %}?v=1.1.0"></script>
     <script>
-    function addToPersonal(lemmaType, lemmaId) {
-        // Используем CSRF из куки
+    function addToPersonal() {
         const csrfToken = document.cookie.split('; ')
             .find(row => row.startsWith('csrftoken='))
             ?.split('=')[1] || '';
@@ -231,7 +230,7 @@
                 'Content-Type': 'application/json',
                 'X-CSRFToken': csrfToken,
             },
-            credentials: 'same-origin',  // Отправляем куки
+            credentials: 'same-origin',
             body: JSON.stringify({
                 lexeme_pair: {{ lexeme_pair_id }},
                 status: 'new'
@@ -244,17 +243,18 @@
             return response.json();
         })
         .then(data => {
-            const button = document.querySelector('[data-word-id]');
+            const button = document.querySelector('.word-actions .btn');
             if (button) {
                 button.classList.remove('btn-primary');
                 button.classList.add('btn-outline-primary');
                 button.innerHTML = '<i class="bi bi-check-lg me-1"></i> В словаре';
+            }
 
-                const badge = document.querySelector('.d-badge');
-                if (badge) {
-                    badge.classList.add('d-badge--verified');
-                    badge.innerHTML = '<i class="bi bi-check-circle-fill me-1"></i> В вашем словаре';
-                }
+            const badge = document.querySelector('.d-badge');
+            if (badge) {
+                badge.classList.remove('d-badge--verified');
+                badge.classList.add('d-badge--verified');
+                badge.innerHTML = '<i class="bi bi-check-circle-fill me-1"></i> В вашем словаре';
             }
         })
         .catch(err => {
