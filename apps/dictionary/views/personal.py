@@ -1,3 +1,6 @@
+import json
+from datetime import timezone
+
 from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse
 from django.views import View
@@ -10,14 +13,14 @@ from ..models import Personal, TextLexeme, GestureLexeme, Meaning, LexemePair
 
 @login_required
 def page_personal(request):
-    """Основная страница личного словаря."""
     user = request.user
 
     entries = Personal.objects.filter(user=user).select_related(
         'lexeme_pair__text_lexeme',
         'lexeme_pair__gesture_lexeme'
     ).prefetch_related(
-        'lexeme_pair__text_lexeme__meanings'
+        'lexeme_pair__text_lexeme__meanings',
+        'lexeme_pair__gesture_lexeme__realizations'
     )
 
     text_entries = []
@@ -28,6 +31,7 @@ def page_personal(request):
             text_lexeme.personal_status = entry.status
             text_lexeme.personal_notes = entry.notes
             text_lexeme.personal_entry_id = entry.id
+            text_lexeme.gesture_lexeme = pair.gesture_lexeme
             text_entries.append(text_lexeme)
 
     stats = {
@@ -81,27 +85,26 @@ class PersonalAddView(LoginRequiredMixin, View):
 
 
 class PersonalRemoveView(LoginRequiredMixin, View):
-    """Удаление элемента из личного словаря (AJAX)."""
-
-    def post(self, request, entry_id):
+    def delete(self, request, entry_id):
         entry = get_object_or_404(Personal, id=entry_id, user=request.user)
         entry.delete()
         return JsonResponse({'success': True})
 
 
 class PersonalUpdateStatusView(LoginRequiredMixin, View):
-    """Обновление статуса изучения (AJAX)."""
-
-    def post(self, request, entry_id):
+    def patch(self, request, entry_id):
         entry = get_object_or_404(Personal, id=entry_id, user=request.user)
-        status = request.POST.get('status')
+        try:
+            data = json.loads(request.body)
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'Invalid JSON'}, status=400)
 
+        status = data.get('status')
         if status not in dict(Personal.STATUS_CHOICES):
             return JsonResponse({'error': 'Invalid status'}, status=400)
 
         entry.status = status
         if status == 'learned':
-            from django.utils import timezone
             entry.last_reviewed = timezone.now()
         entry.save()
 
@@ -109,16 +112,3 @@ class PersonalUpdateStatusView(LoginRequiredMixin, View):
             'success': True,
             'status': entry.status
         })
-
-
-class PersonalUpdateNotesView(LoginRequiredMixin, View):
-    """Обновление заметок (AJAX)."""
-
-    def post(self, request, entry_id):
-        entry = get_object_or_404(Personal, id=entry_id, user=request.user)
-        notes = request.POST.get('notes', '')
-
-        entry.notes = notes
-        entry.save()
-
-        return JsonResponse({'success': True})
