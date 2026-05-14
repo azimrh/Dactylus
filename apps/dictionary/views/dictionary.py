@@ -37,7 +37,7 @@ def page_dictionary(request):
             filter=Q(lexemepair__moderation_status='approved'),
             distinct=True
         ),
-    )
+    ).order_by('order', 'name')
 
     return render(request, 'dictionary/dictionary.html', {
         'categories': categories,
