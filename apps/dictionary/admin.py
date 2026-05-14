@@ -2,8 +2,8 @@ from django.contrib import admin
 
 from .models import (
     Category,
-    TextLexeme,  # TextLexemeCompose, TextComposeItem,
-    GestureLexeme,  # GestureLexemeCompose, GestureComposeItem,
+    TextLexeme,
+    GestureLexeme,
     LexemePair,
     GestureRealization,
     Meaning, LexemeMeaningMapping,
@@ -93,8 +93,8 @@ class PersonalAdmin(admin.ModelAdmin):
         'user__username',
         'user__email',
         'notes',
-        'lexeme_pair__word_from__text',
-        'lexeme_pair__word_to__text'
+        'lexeme_pair__text_lexeme__text',
+        'lexeme_pair__gesture_lexeme__text'
     )
     date_hierarchy = 'added_at'
     readonly_fields = ('added_at', 'last_reviewed')
@@ -124,8 +124,8 @@ class PersonalAdmin(admin.ModelAdmin):
         if search_term:
             from django.db.models import Q
             queryset |= self.model.objects.filter(
-                Q(lexeme_pair__word_from__text__icontains=search_term) |
-                Q(lexeme_pair__word_to__text__icontains=search_term) |
+                Q(lexeme_pair__text_lexeme__text__icontains=search_term) |
+                Q(lexeme_pair__gesture_lexeme__text__icontains=search_term) |
                 Q(lexeme_pair__id__icontains=search_term)
             )
         return queryset, use_distinct

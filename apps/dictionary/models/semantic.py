@@ -17,8 +17,6 @@ class Meaning(models.Model):
         default='pending'
     )
 
-    personal_entries = GenericRelation('Personal', related_query_name='personal_meaning')
-
     author = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Автор')
     created_at = models.DateTimeField(auto_now_add=True)
 
