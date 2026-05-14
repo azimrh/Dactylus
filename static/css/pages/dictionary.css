@@ -47,7 +47,6 @@
     overflow-x: auto;
     padding-bottom: 0.5rem;
     margin-bottom: 2rem;
-    scrollbar-width: thin;
 }
 
 .mini-categories::-webkit-scrollbar {
