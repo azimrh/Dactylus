@@ -146,6 +146,7 @@ class GestureRealization(models.Model):
 
     video = models.FileField(upload_to='videos/gestures/')
     gif = models.FileField(upload_to='gif/gestures/')
+    gif_mini = models.FileField(upload_to='gif/gestures/mini/')
     image = models.ImageField(upload_to='thumbnails/', blank=True, null=True)
     is_primary = models.BooleanField(default=False)
 

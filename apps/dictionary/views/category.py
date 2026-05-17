@@ -102,14 +102,15 @@ def page_category(request, slug):
     page = request.GET.get('page')
     text_lexemes = paginator.get_page(page)
 
-    # Добавляем primary_image каждому объекту на странице
     for lexeme in text_lexemes:
         gesture_id = text_to_gesture.get(lexeme.id)
         lexeme.primary_image = None
         if gesture_id:
             real = realizations_map.get(gesture_id)
             if real:
-                if real.gif:
+                if real.gif_mini:
+                    lexeme.primary_image = real.gif_mini.url
+                elif real.gif:
                     lexeme.primary_image = real.gif.url
                 elif real.image:
                     lexeme.primary_image = real.image.url
