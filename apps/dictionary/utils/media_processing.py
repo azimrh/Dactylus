@@ -5,16 +5,33 @@ import subprocess
 from PIL import Image
 from django.core.files.base import ContentFile
 
-GIF_FPS = 20
-VIDEO_SIZE = 720
 IMAGE_SIZE = 512
 
+GIF_FPS = 20
+VIDEO_SIZE = 512
+THUMBNAIL_SIZE = 256
 
-def process_image(image_file):
+
+def _get_bytes(file_input):
+    """Извлекает bytes из UploadedFile, ContentFile, BytesIO или bytes."""
+    if isinstance(file_input, bytes):
+        return file_input
+
+    if hasattr(file_input, 'seek'):
+        file_input.seek(0)
+
+    if hasattr(file_input, 'read'):
+        return file_input.read()
+
+    raise TypeError(f"Unsupported input type: {type(file_input)}")
+
+
+def process_image(image_file, size=IMAGE_SIZE):
     if not image_file:
         return None
 
-    img = Image.open(image_file)
+    img_bytes = _get_bytes(image_file)
+    img = Image.open(io.BytesIO(img_bytes))
 
     if img.mode in ('RGBA', 'LA', 'P'):
         background = Image.new('RGB', img.size, (255, 255, 255))
@@ -31,29 +48,34 @@ def process_image(image_file):
     top = (h - min_dim) // 2
 
     img = img.crop((left, top, left + min_dim, top + min_dim))
-    img = img.resize((IMAGE_SIZE, IMAGE_SIZE), Image.Resampling.LANCZOS)
+    img = img.resize((size, size), Image.Resampling.LANCZOS)
 
     buffer = io.BytesIO()
     img.save(buffer, format='JPEG', quality=90, optimize=True)
     buffer.seek(0)
 
-    filename = f"{os.path.splitext(image_file.name)[0]}.jpg"
-    return ContentFile(buffer.getvalue(), name=filename)
+    # Извлекаем имя файла, если доступно
+    filename = getattr(image_file, 'name', 'image')
+    name = f"{os.path.splitext(filename)[0]}.jpg"
+    return ContentFile(buffer.getvalue(), name=name)
 
 
-def process_video(video_file):
+def process_video(video_file, size=VIDEO_SIZE):
+    video_bytes = _get_bytes(video_file)
+
     with tempfile.NamedTemporaryFile(suffix=".mp4", delete=False) as tmp_in:
-        tmp_in.write(video_file.read())
+        tmp_in.write(video_bytes)
         tmp_input = tmp_in.name
 
     with tempfile.NamedTemporaryFile(suffix=".mp4", delete=False) as tmp_out:
         tmp_output = tmp_out.name
 
-    cmd = ["ffmpeg",
+    cmd = [
+        "ffmpeg",
         "-i", tmp_input,
         "-vf",
         "crop=min(iw\\,ih):min(iw\\,ih):(iw-min(iw\\,ih))/2:(ih-min(iw\\,ih))/2,"
-        f"scale={VIDEO_SIZE}:{VIDEO_SIZE}:flags=lanczos",
+        f"scale={size}:{size}:flags=lanczos",
         "-c:v", "libx264",
         "-crf", "18",
         "-preset", "slow",
@@ -62,51 +84,64 @@ def process_video(video_file):
         tmp_output
     ]
 
-    subprocess.run(cmd, check=True)
+    try:
+        result = subprocess.run(cmd, check=True, capture_output=True, text=True)
+    except subprocess.CalledProcessError as e:
+        # Логируем stderr ffmpeg для отладки
+        print(f"FFmpeg error: {e.stderr}")
+        raise
+    finally:
+        os.remove(tmp_input)
 
     with open(tmp_output, "rb") as f:
         content = ContentFile(f.read(), name=os.path.basename(tmp_output))
 
-    os.remove(tmp_input)
     os.remove(tmp_output)
 
     return content
 
 
 def video_to_gif(video_file):
+    video_bytes = _get_bytes(video_file)
+
     with tempfile.NamedTemporaryFile(suffix=".mp4", delete=False) as tmp_in:
-        tmp_in.write(video_file.read())
+        tmp_in.write(video_bytes)
         tmp_input = tmp_in.name
 
     palette_file = tempfile.NamedTemporaryFile(suffix=".png", delete=False).name
     gif_file = tempfile.NamedTemporaryFile(suffix=".gif", delete=False).name
 
-    # 1. генерация палитры
-    cmd_palette = [
-        "ffmpeg",
-        "-i", tmp_input,
-        "-vf", f"fps={GIF_FPS},palettegen=stats_mode=diff",
-        "-y",
-        palette_file
-    ]
-    subprocess.run(cmd_palette, check=True)
+    try:
+        # 1. генерация палитры
+        cmd_palette = [
+            "ffmpeg",
+            "-i", tmp_input,
+            "-vf", f"fps={GIF_FPS},palettegen=stats_mode=diff",
+            "-y",
+            palette_file
+        ]
+        subprocess.run(cmd_palette, check=True, capture_output=True, text=True)
 
-    # 2. применение палитры
-    cmd_gif = [
-        "ffmpeg",
-        "-i", tmp_input,
-        "-i", palette_file,
-        "-filter_complex", f"fps={GIF_FPS},paletteuse=dither=none",
-        "-y",
-        gif_file
-    ]
-    subprocess.run(cmd_gif, check=True)
+        # 2. применение палитры
+        cmd_gif = [
+            "ffmpeg",
+            "-i", tmp_input,
+            "-i", palette_file,
+            "-filter_complex", f"fps={GIF_FPS},paletteuse=dither=none",
+            "-y",
+            gif_file
+        ]
+        subprocess.run(cmd_gif, check=True, capture_output=True, text=True)
 
-    with open(gif_file, "rb") as f:
-        content = ContentFile(f.read(), name=os.path.basename(gif_file))
+        with open(gif_file, "rb") as f:
+            content = ContentFile(f.read(), name=os.path.basename(gif_file))
 
-    os.remove(tmp_input)
-    os.remove(palette_file)
-    os.remove(gif_file)
+    except subprocess.CalledProcessError as e:
+        print(f"FFmpeg GIF error: {e.stderr}")
+        raise
+    finally:
+        os.remove(tmp_input)
+        os.remove(palette_file)
+        os.remove(gif_file)
 
     return content

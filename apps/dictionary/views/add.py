@@ -1,4 +1,3 @@
-from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import F, Max
 from django.shortcuts import render, redirect
@@ -7,7 +6,7 @@ from django.contrib import messages
 from slugify import slugify
 
 from .base import group_required
-from ..models import GestureRealization, GestureLexeme, Meaning, LexemeMeaningMapping
+from ..models import GestureRealization, GestureLexeme, Meaning
 from ..models.lexical import Category, TextLexeme, LexemePair
 from ..utils.media_processing import process_image, video_to_gif, process_video
 
@@ -42,7 +41,6 @@ def page_add_category(request):
         if len(name) > 100:
             errors.append('Название не может быть длиннее 100 символов')
 
-        # ИСПРАВЛЕНО: проверка на существование категории
         if Category.objects.filter(name=name).exists():
             errors.append('Категория с таким именем уже существует!')
 
@@ -61,8 +59,7 @@ def page_add_category(request):
             counter += 1
 
         if errors:
-            return render(request,
-                'dictionary/add-category.html', {
+            return render(request, 'dictionary/add-category.html', {
                 'errors': errors,
                 'parent': parent,
                 'sibling_categories': sibling_categories,
@@ -92,7 +89,6 @@ def page_add_category(request):
                 )['max_order'] or -1
                 order = last_order + 1
 
-        # Создание категории с parent!
         category = Category(
             name=name,
             slug=slug,
@@ -109,13 +105,10 @@ def page_add_category(request):
         messages.success(request, f'Категория "{name}" успешно создана.')
         return redirect('category', slug=category.slug)
 
-    return render(request,
-        'dictionary/add-category.html',
-        {
-            'parent': parent,
-            'sibling_categories': sibling_categories,
-        }
-    )
+    return render(request, 'dictionary/add-category.html', {
+        'parent': parent,
+        'sibling_categories': sibling_categories,
+    })
 
 
 @login_required
@@ -133,61 +126,47 @@ def page_add_word(request):
         if not video:
             errors.append('Загрузите видео!')
         if errors:
-            return render(request,
-                'dictionary/add-word.html',
-                {
-                    "errors": errors
-                }
-            )
+            return render(request, 'dictionary/add-word.html', {"errors": errors})
 
         slug = slugify(word)
 
         # Meaning
         meaning, created = Meaning.objects.get_or_create(
-            description = word,
-            defaults={
-                'author': user
-            }
+            description=word,
+            defaults={'author': user}
         )
         print(f"Meaning: {meaning} / {created}")
 
         # TextLexeme
         text_lexeme, created = TextLexeme.objects.get_or_create(
             text=word,
-            defaults={
-                'slug': slug,
-                'author': user
-            }
+            defaults={'slug': slug, 'author': user}
         )
         print(f"Text lexeme: {text_lexeme} / {created}")
         if created:
             text_lexeme.meanings.add(meaning)
-        print(f"Text lexeme: {text_lexeme} / {created}")
 
         # GestureLexeme
         gesture_lexeme, created = GestureLexeme.objects.get_or_create(
             text=word,
-            defaults={
-                'slug': slug,
-                'author': user
-            }
+            defaults={'slug': slug, 'author': user}
         )
         print(f"Gesture lexeme: {gesture_lexeme} / {created}")
         if created:
             gesture_lexeme.meanings.add(meaning)
-        print(f"Gesture lexeme: {gesture_lexeme} / {created}")
 
-        # GestureRealization
-        processed_video = process_video(video)
+        processed_video = process_video(video, 512)
+        processed_mini = process_video(video, 256)
+
         gif = video_to_gif(processed_video)
+        gif_mini = video_to_gif(processed_mini)
 
         realization = GestureRealization.objects.create(
             gesture_lexeme=gesture_lexeme,
             video=processed_video,
             gif=gif,
-            author=user,
-            # is_primary=True,
-            # moderation_status='approved'
+            gif_mini=gif_mini,
+            author=user
         )
         print(realization)
 
@@ -199,7 +178,6 @@ def page_add_word(request):
         )
 
         messages.success(request, f'Слово "{word}" успешно добавлено!')
+        return redirect('dictionary')
 
-    return render(request,
-        'dictionary/add-word.html'
-    )
+    return render(request, 'dictionary/add-word.html')
