@@ -178,6 +178,6 @@ def page_add_word(request):
         )
 
         messages.success(request, f'Слово "{word}" успешно добавлено!')
-        return redirect('dictionary')
+        return redirect('add-word')
 
     return render(request, 'dictionary/add-word.html')
