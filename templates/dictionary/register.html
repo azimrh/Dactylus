@@ -83,6 +83,7 @@
                     <input type="password" class="form-control {% if form.password1.errors %}is-invalid{% endif %}"
                            id="id_password1" name="password1"
                            placeholder="Придумайте пароль"
+                           aria-describedby="pwd-descr"
                            autocomplete="off">
                     <button type="button" class="password-toggle" aria-label="Показать пароль"><i class="bi bi-eye"></i></button>
                 </div>
@@ -95,7 +96,7 @@
                 {% else %}
                 <div class="invalid-feedback">Пароль должен содержать минимум 8 символов</div>
                 {% endif %}
-                <div class="form-text text-muted">
+                <div class="form-text" id="pwd-descr">
                     Пароль должен содержать минимум 8 символов, не должен быть слишком простым и состоять только из цифр.
                 </div>
             </div>
