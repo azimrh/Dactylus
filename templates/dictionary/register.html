@@ -79,13 +79,13 @@
                     Пароль <span class="text-danger">*</span>
                 </label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                    <span class="input-group-text"><i class="bi bi-lock" aria-hidden="true"></i></span>
                     <input type="password" class="form-control {% if form.password1.errors %}is-invalid{% endif %}"
                            id="id_password1" name="password1"
                            placeholder="Придумайте пароль"
                            aria-describedby="pwd-descr"
                            autocomplete="off">
-                    <button type="button" class="password-toggle" aria-label="Показать пароль"><i class="bi bi-eye"></i></button>
+                    <button type="button" class="password-toggle" aria-label="Показать пароль"><i class="bi bi-eye" aria-hidden="true"></i></button>
                 </div>
                 {% if form.password1.errors %}
                 <div class="invalid-feedback d-block">
@@ -107,7 +107,7 @@
                     Повторите пароль <span class="text-danger">*</span>
                 </label>
                 <div class="input-group">
-                    <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                    <span class="input-group-text"><i class="bi bi-lock" aria-hidden="true"></i></span>
                     <input type="password" class="form-control {% if form.password2.errors %}is-invalid{% endif %}"
                            id="id_password2" name="password2"
                            placeholder="Повторите пароль"
@@ -133,7 +133,7 @@
                         <input type="radio" id="hearing" name="hearing_status" value="hearing"
                                {% if form.hearing_status.value == 'hearing' %}checked{% endif %}>
                         <label for="hearing">
-                            <span class="hearing-option__icon"><i class="bi bi-ear"></i></span>
+                            <span class="hearing-option__icon"><i class="bi bi-ear" aria-hidden="true"></i></span>
                             <span class="hearing-option__text">Слышащий</span>
                         </label>
                     </div>
@@ -141,7 +141,7 @@
                         <input type="radio" id="hard" name="hearing_status" value="hard"
                                {% if form.hearing_status.value == 'hard' %}checked{% endif %}>
                         <label for="hard">
-                            <span class="hearing-option__icon"><i class="bi bi-ear"></i></span>
+                            <span class="hearing-option__icon"><i class="bi bi-ear" aria-hidden="true"></i></span>
                             <span class="hearing-option__text">Слабослышащий</span>
                         </label>
                     </div>
@@ -149,7 +149,7 @@
                         <input type="radio" id="deaf" name="hearing_status" value="deaf"
                                {% if form.hearing_status.value == 'deaf' %}checked{% endif %}>
                         <label for="deaf">
-                            <span class="hearing-option__icon"><i class="bi bi-ear"></i></span>
+                            <span class="hearing-option__icon"><i class="bi bi-ear" aria-hidden="true"></i></span>
                             <span class="hearing-option__text">Глухой</span>
                         </label>
                     </div>

@@ -79,7 +79,7 @@
         {% for sub in subcategories %}
         <a href="{{ sub.get_absolute_url }}" class="category-card">
             <div class="category-card__header">
-                <div class="category-card__icon"><i class="bi bi-folder"></i></div>
+                <div class="category-card__icon"><i class="bi bi-folder" aria-hidden="true"></i></div>
                 <div>
                     <h3 class="category-card__title">{{ sub.name }}</h3>
                     <div class="category-card__count">
@@ -169,12 +169,12 @@
             {% if text_lexemes.has_previous %}
             <li class="page-item">
                 <a class="page-link" href="?page={{ text_lexemes.previous_page_number }}">
-                    <i class="bi bi-chevron-left"></i>
+                    <i class="bi bi-chevron-left" aria-hidden="true"></i>
                 </a>
             </li>
             {% else %}
             <li class="page-item disabled">
-                <a class="page-link" href="#"><i class="bi bi-chevron-left"></i></a>
+                <a class="page-link" href="#"><i class="bi bi-chevron-left" aria-hidden="true"></i></a>
             </li>
             {% endif %}
 
@@ -189,12 +189,12 @@
             {% if text_lexemes.has_next %}
             <li class="page-item">
                 <a class="page-link" href="?page={{ text_lexemes.next_page_number }}">
-                    <i class="bi bi-chevron-right"></i>
+                    <i class="bi bi-chevron-right" aria-hidden="true"></i>
                 </a>
             </li>
             {% else %}
             <li class="page-item disabled">
-                <a class="page-link" href="#"><i class="bi bi-chevron-right"></i></a>
+                <a class="page-link" href="#"><i class="bi bi-chevron-right" aria-hidden="true"></i></a>
             </li>
             {% endif %}
         </ul>
