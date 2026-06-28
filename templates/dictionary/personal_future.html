@@ -17,15 +17,15 @@
         <!-- Type Tabs -->
         <div class="d-tabs mb-4">
             <button class="d-tab d-tab--active" data-tab="words" onclick="switchTab('words')">
-                <i class="bi bi-fonts me-2"></i>Слова
+                <i class="bi bi-fonts me-2" aria-hidden="true"></i> Слова
                 <span class="d-badge d-badge--primary ms-2">{{ stats.words.total }}</span>
             </button>
             <button class="d-tab" data-tab="gestures" onclick="switchTab('gestures')">
-                <i class="bi bi-hand-index me-2"></i>Жесты
+                <i class="bi bi-hand-index me-2" aria-hidden="true"></i> Жесты
                 <span class="d-badge d-badge--primary ms-2">{{ stats.gestures.total }}</span>
             </button>
             <button class="d-tab" data-tab="meanings" onclick="switchTab('meanings')">
-                <i class="bi bi-lightbulb me-2"></i>Смыслы
+                <i class="bi bi-lightbulb me-2" aria-hidden="true"></i> Смыслы
                 <span class="d-badge d-badge--primary ms-2">{{ stats.meanings.total }}</span>
             </button>
         </div>
@@ -37,7 +37,7 @@
                     <h2 class="content-section__title">Сохранённые слова</h2>
                     <div class="content-section__actions">
                         <div class="search-box">
-                            <i class="bi bi-search"></i>
+                            <i class="bi bi-search" aria-hidden="true"></i>
                             <input type="text" placeholder="Поиск слов..." class="search-input" id="search-words">
                         </div>
                         <select class="form-select form-select-sm" id="filter-words" style="width: auto;">
@@ -57,7 +57,7 @@
                                 {% if entry.is_letter %}
                                     <span>{{ entry.letter_char }}</span>
                                 {% else %}
-                                    <i class="bi bi-fonts"></i>
+                                    <i class="bi bi-fonts" aria-hidden="true"></i>
                                 {% endif %}
                             </div>
                             <div class="word-item__content">
@@ -112,7 +112,7 @@
                     <h2 class="content-section__title">Сохранённые жесты</h2>
                     <div class="content-section__actions">
                         <div class="search-box">
-                            <i class="bi bi-search"></i>
+                            <i class="bi bi-search" aria-hidden="true"></i>
                             <input type="text" placeholder="Поиск жестов..." class="search-input" id="search-gestures">
                         </div>
                         <select class="form-select form-select-sm" style="width: auto;">

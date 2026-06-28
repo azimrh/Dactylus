@@ -41,18 +41,18 @@
             {% for word in pending_words %}
             <div class="mod-item">
                 <div class="mod-item__thumb" style="width: 60px; height: 60px;">
-                    <i class="bi bi-type"></i>
+                    <i class="bi bi-type" aria-hidden="true"></i>
                 </div>
                 <div class="mod-item__content">
                     <div class="mod-item__title">{{ word.text }}</div>
                     <div class="mod-item__meta">
-                        <span><i class="bi bi-person me-1"></i>{{ word.author.username }}</span>
-                        <span><i class="bi bi-clock me-1"></i>{{ word.created_at|timesince }} назад</span>
+                        <span><i class="bi bi-person me-1" aria-hidden="true"></i>{{ word.author.username }}</span>
+                        <span><i class="bi bi-clock me-1" aria-hidden="true"></i>{{ word.created_at|timesince }} назад</span>
                     </div>
                 </div>
                 <div class="mod-item__actions">
                     <a href="{% url 'moderation-text' word.id %}" class="btn btn-primary btn-sm">
-                        <i class="bi bi-pencil me-1"></i>Редактировать
+                        <i class="bi bi-pencil me-1" aria-hidden="true"></i> Редактировать
                     </a>
                 </div>
             </div>
@@ -79,13 +79,13 @@
                 <div class="mod-item__content">
                     <div class="mod-item__title">{{ gesture.text }}</div>
                     <div class="mod-item__meta">
-                        <span><i class="bi bi-person me-1"></i>{{ gesture.author.username }}</span>
-                        <span><i class="bi bi-clock me-1"></i>{{ gesture.created_at|timesince }} назад</span>
+                        <span><i class="bi bi-person me-1" aria-hidden="true"></i> {{ gesture.author.username }}</span>
+                        <span><i class="bi bi-clock me-1" aria-hidden="true"></i> {{ gesture.created_at|timesince }} назад</span>
                     </div>
                 </div>
                 <div class="mod-item__actions">
                     <a href="{% url 'moderation-gesture' gesture.id %}" class="btn btn-primary btn-sm">
-                        <i class="bi bi-pencil me-1"></i>Редактировать
+                        <i class="bi bi-pencil me-1" aria-hidden="true"></i> Редактировать
                     </a>
                 </div>
             </div>
@@ -103,18 +103,18 @@
             {% for meaning in pending_meanings %}
             <div class="mod-item">
                 <div class="mod-item__thumb" style="width: 60px; height: 60px;">
-                    <i class="bi bi-book"></i>
+                    <i class="bi bi-book" aria-hidden="true"></i>
                 </div>
                 <div class="mod-item__content">
                     <div class="mod-item__title">{{ meaning.description|truncatechars:60 }}</div>
                     <div class="mod-item__meta">
-                        <span><i class="bi bi-person me-1"></i>{{ meaning.author.username }}</span>
-                        <span><i class="bi bi-clock me-1"></i>{{ meaning.created_at|timesince }} назад</span>
+                        <span><i class="bi bi-person me-1" aria-hidden="true"></i> {{ meaning.author.username }}</span>
+                        <span><i class="bi bi-clock me-1" aria-hidden="true"></i> {{ meaning.created_at|timesince }} назад</span>
                     </div>
                 </div>
                 <div class="mod-item__actions">
                     <a href="{% url 'moderation-meaning' meaning.id %}" class="btn btn-primary btn-sm">
-                        <i class="bi bi-pencil me-1"></i>Редактировать
+                        <i class="bi bi-pencil me-1" aria-hidden="true"></i> Редактировать
                     </a>
                 </div>
             </div>
@@ -135,19 +135,19 @@
                     {% if pair.gesture_lexeme.realizations.first.gif %}
                         <img src="{{ pair.gesture_lexeme.realizations.first.gif.url }}" alt="Жест">
                     {% else %}
-                        <i class="bi bi-hand-index"></i>
+                        <i class="bi bi-hand-index" aria-hidden="true"></i>
                     {% endif %}
                 </div>
                 <div class="mod-item__content">
                     <div class="mod-item__title">{{ pair.text_lexeme.text }}</div>
                     <div class="mod-item__meta">
-                        <span><i class="bi bi-person me-1"></i>{{ pair.created_by.username }}</span>
-                        <span><i class="bi bi-clock me-1"></i>{{ pair.created_at|timesince }} назад</span>
+                        <span><i class="bi bi-person me-1" aria-hidden="true"></i> {{ pair.created_by.username }}</span>
+                        <span><i class="bi bi-clock me-1" aria-hidden="true"></i> {{ pair.created_at|timesince }} назад</span>
                     </div>
                 </div>
                 <div class="mod-item__actions">
                     <a href="{% url 'moderation-pair' pair.id %}" class="btn btn-primary btn-sm">
-                        <i class="bi bi-pencil me-1"></i>Редактировать
+                        <i class="bi bi-pencil me-1" aria-hidden="true"></i> Редактировать
                     </a>
                 </div>
             </div>
@@ -188,14 +188,14 @@
                     {% if video.gif %}
                         <img src="{{ video.gif.url }}" alt="Превью" style="border-radius: var(--d-radius);">
                     {% else %}
-                        <i class="bi bi-camera-video"></i>
+                        <i class="bi bi-camera-video" aria-hidden="true"></i>
                     {% endif %}
                 </div>
                 <div class="mod-item__content">
                     <div class="mod-item__title">{{ video.gesture_lexeme.text }}</div>
                     <div class="mod-item__meta">
-                        <span><i class="bi bi-person me-1"></i>{{ video.author.username }}</span>
-                        <span><i class="bi bi-clock me-1"></i>{{ video.created_at|timesince }} назад</span>
+                        <span><i class="bi bi-person me-1" aria-hidden="true"></i> {{ video.author.username }}</span>
+                        <span><i class="bi bi-clock me-1" aria-hidden="true"></i> {{ video.created_at|timesince }} назад</span>
                         {% if video.is_primary %}
                         <span class="d-badge d-badge--success">Основное</span>
                         {% endif %}
@@ -203,7 +203,7 @@
                 </div>
                 <div class="mod-item__actions">
                     <a href="{% url 'moderation-video' video.id %}" class="btn btn-primary btn-sm">
-                        <i class="bi bi-pencil me-1"></i>Редактировать
+                        <i class="bi bi-pencil me-1" aria-hidden="true"></i> Редактировать
                     </a>
                 </div>
             </div>

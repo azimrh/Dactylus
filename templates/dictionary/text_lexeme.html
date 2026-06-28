@@ -87,7 +87,7 @@
                         <div class="tab-panel" id="tab-synonyms">
                             <div class="info-card">
                                 <div class="info-card__header">
-                                    <div class="info-card__icon"><i class="bi bi-diagram-2"></i></div>
+                                    <div class="info-card__icon"><i class="bi bi-diagram-2" aria-hidden="true"></i></div>
                                     <h2 class="info-card__title">Синонимы</h2>
                                 </div>
                                 {% for meaning, words in synonyms_by_meaning.items %}
@@ -109,7 +109,7 @@
                         <div class="tab-panel" id="tab-info">
                             <div class="info-card">
                                 <div class="info-card__header">
-                                    <div class="info-card__icon"><i class="bi bi-info-circle"></i></div>
+                                    <div class="info-card__icon"><i class="bi bi-info-circle" aria-hidden="true"></i></div>
                                     <h2 class="info-card__title">Информация</h2>
                                 </div>
                                 <dl class="info-list">
@@ -148,9 +148,9 @@
                     <button class="btn {% if in_personal %}btn-outline-primary{% else %}btn-primary{% endif %}"
                             onclick="addToPersonal()">
                         {% if in_personal %}
-                        <i class="bi bi-check-lg me-1"></i> В словаре
+                        <i class="bi bi-check-lg me-1" aria-hidden="true"></i> В словаре
                         {% else %}
-                        <i class="bi bi-plus-lg me-2"></i> В мой словарь
+                        <i class="bi bi-plus-lg me-2" aria-hidden="true"></i> В мой словарь
                         {% endif %}
                     </button>
                     {% endif %}
@@ -257,12 +257,12 @@
                 if (button) {
                     button.classList.remove('btn-outline-primary');
                     button.classList.add('btn-primary');
-                    button.innerHTML = '<i class="bi bi-plus-lg me-2"></i> В мой словарь';
+                    button.innerHTML = '<i class="bi bi-plus-lg me-2" aria-hidden="true"></i> В мой словарь';
                 }
                 const badge = document.querySelector('.d-badge');
                 if (badge) {
                     badge.classList.remove('d-badge--verified');
-                    badge.innerHTML = '<i class="bi bi-plus-circle me-1"></i> Не в словаре';
+                    badge.innerHTML = '<i class="bi bi-plus-circle me-1" aria-hidden="true"></i> Не в словаре';
                 }
             })
             .catch(err => {
@@ -294,12 +294,12 @@
                 if (button) {
                     button.classList.remove('btn-primary');
                     button.classList.add('btn-outline-primary');
-                    button.innerHTML = '<i class="bi bi-check-lg me-1"></i> В словаре';
+                    button.innerHTML = '<i class="bi bi-check-lg me-1" aria-hidden="true"></i> В словаре';
                 }
                 const badge = document.querySelector('.d-badge');
                 if (badge) {
                     badge.classList.add('d-badge--verified');
-                    badge.innerHTML = '<i class="bi bi-check-circle-fill me-1"></i> В вашем словаре';
+                    badge.innerHTML = '<i class="bi bi-check-circle-fill me-1" aria-hidden="true"></i> В вашем словаре';
                 }
             })
             .catch(err => {
