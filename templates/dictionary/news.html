@@ -1,0 +1,216 @@
+{% extends 'dictionary/base.html' %}
+{% load static %}
+
+{% block page_css %}
+    <link rel="stylesheet" href="{% static 'css/pages/news.css' %}?v=1.2.0">
+{% endblock %}
+
+{% block title %}
+    {% if detail %}{{ detail.title }} | Новости{% else %}Новости | Dactylus{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="d-container">
+
+    <!-- ==================== DETAIL VIEW ==================== -->
+    {% if detail %}
+
+    <article class="news-detail">
+        <!-- Back -->
+        <a href="{% url 'news' %}" class="news-detail__back">
+            <i class="bi bi-arrow-left"></i>
+            Все новости
+        </a>
+
+        <!-- Header -->
+        <header class="news-detail__header">
+            <div class="news-detail__meta">
+                <span class="news-detail__category">Новости проекта</span>
+                <span class="news-detail__date">
+                    <i class="bi bi-calendar3 me-1"></i>
+                    {{ detail.published_at|date:"d.m.Y" }}
+                </span>
+            </div>
+            <h1 class="news-detail__title">{{ detail.title }}</h1>
+            <div class="news-detail__author">
+                <div class="news-detail__author-avatar">
+                    {{ detail.author.username|first|upper }}
+                </div>
+                <div class="news-detail__author-info">
+                    <span class="news-detail__author-name">{{ detail.author.username }}</span>
+                    <span class="news-detail__author-role">Автор</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Cover -->
+        {% if detail.image %}
+        <div class="news-detail__cover">
+            <img src="{{ detail.image.url }}" alt="{{ detail.title }}">
+        </div>
+        {% endif %}
+
+        <!-- Content -->
+        <div class="news-detail__content">
+            {{ detail.content|linebreaks }}
+        </div>
+
+        <!-- Actions -->
+        <div class="news-detail__actions">
+            <button class="btn btn-outline-primary" onclick="shareNews()">
+                <i class="bi bi-share"></i>
+                Поделиться
+            </button>
+            <a href="{% url 'news' %}" class="btn btn-ghost">
+                <i class="bi bi-arrow-left"></i>
+                К списку новостей
+            </a>
+        </div>
+
+        <!-- Related -->
+        {% if related %}
+        <section class="news-related">
+            <h2 class="news-related__title">Другие новости</h2>
+            <div class="news-grid--list">
+                {% for item in related %}
+                <a href="?id={{ item.id }}" class="news-card">
+                    <div class="news-card__image">
+                        {% if item.image %}
+                            <img src="{{ item.image.url }}" alt="{{ item.title }}">
+                        {% else %}
+                            <div class="news-card__image-placeholder">
+                                <i class="bi bi-newspaper"></i>
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="news-card__body">
+                        <div class="news-card__meta">
+                            <span><i class="bi bi-calendar3"></i> {{ item.published_at|date:"d.m.Y" }}</span>
+                        </div>
+                        <h3 class="news-card__title">{{ item.title }}</h3>
+                        <p class="news-card__excerpt">{{ item.content|truncatewords:20 }}</p>
+                        <div class="news-card__footer">
+                            <span class="news-card__author">
+                                <span class="news-card__author-avatar">{{ item.author.username|first|upper }}</span>
+                                {{ item.author.username }}
+                            </span>
+                        </div>
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+        </section>
+        {% endif %}
+    </article>
+
+    <!-- ==================== LIST VIEW ==================== -->
+    {% else %}
+
+    <!-- Hero -->
+    <div class="news-hero">
+        <h1 class="news-hero__title">Новости проекта</h1>
+        <p class="news-hero__subtitle">
+            Следите за развитием Dactylus — новые функции, обновления словаря и события сообщества
+        </p>
+    </div>
+
+    <!-- Grid -->
+    {% if news_list %}
+    <div class="news-grid--list">
+        {% for item in news_list %}
+        <a href="?id={{ item.id }}" class="news-card {% if forloop.first and not page_obj.has_previous %}news-card--featured{% endif %}">
+            <div class="news-card__image">
+                {% if item.image %}
+                    <img src="{{ item.image.url }}" alt="{{ item.title }}">
+                {% else %}
+                    <div class="news-card__image-placeholder">
+                        <i class="bi bi-newspaper"></i>
+                    </div>
+                {% endif %}
+                {% if not item.is_published %}
+                    <span class="d-badge d-badge--pending news-card__badge">Черновик</span>
+                {% endif %}
+            </div>
+            <div class="news-card__body">
+                <div class="news-card__meta">
+                    <span>
+                        <i class="bi bi-calendar3"></i> {{ item.published_at|date:"d.m.Y" }}
+                    </span>
+                </div>
+                <h3 class="news-card__title">{{ item.title }}</h3>
+                <p class="news-card__excerpt">{{ item.content|truncatewords:30 }}</p>
+                <div class="news-card__footer">
+                    <span class="news-card__author">
+                        <span class="news-card__author-avatar">{{ item.author.username|first|upper }}</span>
+                        {{ item.author.username }}
+                    </span>
+                </div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if page_obj.has_other_pages %}
+    <nav class="news-pagination" aria-label="Навигация по новостям">
+        {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}" class="news-pagination__link">
+                <i class="bi bi-chevron-left"></i>
+            </a>
+        {% else %}
+            <span class="news-pagination__link news-pagination__link--disabled">
+                <i class="bi bi-chevron-left"></i>
+            </span>
+        {% endif %}
+
+        {% for num in page_obj.paginator.page_range %}
+            {% if num == page_obj.number %}
+                <span class="news-pagination__link news-pagination__link--active">{{ num }}</span>
+            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                <a href="?page={{ num }}" class="news-pagination__link">{{ num }}</a>
+            {% endif %}
+        {% endfor %}
+
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}" class="news-pagination__link">
+                <i class="bi bi-chevron-right"></i>
+            </a>
+        {% else %}
+            <span class="news-pagination__link news-pagination__link--disabled">
+                <i class="bi bi-chevron-right"></i>
+            </span>
+        {% endif %}
+    </nav>
+    {% endif %}
+
+    {% else %}
+    <!-- Empty -->
+    <div class="news-empty">
+        <i class="bi bi-inbox"></i>
+        <h3>Новостей пока нет</h3>
+        <p>Возвращайтесь позже — мы готовим интересные материалы</p>
+    </div>
+    {% endif %}
+
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block page_js %}
+<script>
+function shareNews() {
+    if (navigator.share) {
+        navigator.share({
+            title: document.querySelector('.news-detail__title')?.textContent || '',
+            url: window.location.href
+        });
+    } else {
+        navigator.clipboard.writeText(window.location.href);
+        const btn = document.querySelector('.news-detail__actions .btn');
+        const original = btn.innerHTML;
+        btn.innerHTML = '<i class="bi bi-check"></i> Скопировано';
+        setTimeout(() => btn.innerHTML = original, 2000);
+    }
+}
+</script>
+{% endblock %}

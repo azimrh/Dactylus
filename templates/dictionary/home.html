@@ -2,7 +2,9 @@
 {% load static %}
 
 {% block page_css %}
-    <link rel="stylesheet" href="{% static 'css/pages/home.css' %}?v=1.0.0">
+    <link rel="stylesheet" href="{% static 'css/pages/home.css' %}?v=1.0.1">
+    <link rel="stylesheet" href="{% static 'css/pages/news.css' %}?v=1.2.0
+">
 {% endblock %}
 
 {% block title %}Dactylus — Словарь русского жестового языка{% endblock %}
@@ -115,22 +117,27 @@
     <div class="d-container">
         <div class="d-flex justify-content-between align-items-center mb-5">
             <h2 class="h2 mb-0">Новости проекта</h2>
-            <a href="#" class="btn btn-ghost">
+            <a href="{% url 'news' %}" class="btn btn-ghost">
                 Все новости <i class="bi bi-arrow-right ms-2" aria-hidden="true"></i>
             </a>
         </div>
-        <div class="news-grid">
+        <div class="news-grid--list news-grid--home">
             {% for item in news %}
-            <article class="news-card">
-                {% if item.image %}
-                <div class="news-card__placeholder"><i class="bi bi-image"><img src="{{ item.image }}"/></i></div>
-                {% endif %}
+            <a href="{% url 'news' %}?id={{ item.id }}" class="news-card news-card--no-image">
                 <div class="news-card__body">
-                    <div class="news-card__date">{{ item.published_at|date:"d.m.Y" }}</div>
+                    <div class="news-card__meta">
+                        <span><i class="bi bi-calendar3"></i> {{ item.published_at|date:"d.m.Y" }}</span>
+                    </div>
                     <h3 class="news-card__title">{{ item.title }}</h3>
                     <p class="news-card__excerpt">{{ item.content|truncatewords:40 }}</p>
+                    <div class="news-card__footer">
+                        <span class="news-card__author">
+                            <span class="news-card__author-avatar">{{ item.author.username|first|upper }}</span>
+                            {{ item.author.username }}
+                        </span>
+                    </div>
                 </div>
-            </article>
+            </a>
             {% empty %}
             <p>Новостей пока нет</p>
             {% endfor %}

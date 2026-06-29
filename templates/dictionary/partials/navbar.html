@@ -11,6 +11,7 @@
         <!-- Unified Navigation -->
         <nav class="d-nav" id="mainNav">
             <a href="{% url 'dictionary' %}" class="d-nav__link">Словарь</a>
+            <a href="{% url 'news' %}" class="d-nav__link">Новости</a>
             {% if user.is_authenticated %}
             <a href="{% url 'personal' %}" class="d-nav__link">Мой словарь</a>
             {% endif %}

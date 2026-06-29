@@ -150,19 +150,11 @@
     opacity: 0.9;
 }
 
-/* News Grid */
-.news-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1.25rem;
-}
-
 /* Responsive */
 @media (max-width: 991px) {
     .hero__title { font-size: 2.5rem; }
     .stat__value { font-size: 2rem; }
     .stats-grid { grid-template-columns: repeat(2, 1fr); }
-    .news-grid { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 767px) {
