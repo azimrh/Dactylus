@@ -6,8 +6,11 @@ from django.contrib import messages
 from slugify import slugify
 
 from ._base import group_required
-from ..models import GestureRealization, GestureLexeme, Meaning
-from ..models.lexical import Category, TextLexeme, LexemePair
+from ..models import (
+    Category,
+    TextLexeme, LexemePair, GestureLexeme, GestureRealization,
+    Meaning
+)
 from ..utils.media_processing import process_image, video_to_gif, process_video
 
 

@@ -1,5 +1,7 @@
 from django.db import models
 from django.urls import reverse
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
 
 from apps.users.models import User
 
@@ -41,7 +43,8 @@ class BaseLexeme(models.Model):
             ('approved', 'Одобрено'),
             ('rejected', 'Отклонено')
         ],
-        default='pending'
+        default='pending',
+        db_index=True
     )
 
     author = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Автор')
@@ -118,7 +121,8 @@ class LexemePair(models.Model):
             ('approved', 'Одобрено'),
             ('rejected', 'Отклонено')
         ],
-        default='pending'
+        default='pending',
+        db_index=True
     )
 
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -157,7 +161,8 @@ class GestureRealization(models.Model):
             ('approved', 'Одобрено'),
             ('rejected', 'Отклонено')
         ],
-        default='pending'
+        default='pending',
+        db_index=True
     )
     moderated_by = models.ForeignKey(
         User,
@@ -181,3 +186,50 @@ class GestureRealization(models.Model):
 
     def __str__(self):
         return f"{self.gesture_lexeme.text} - {self.author.username}"
+
+
+class Meaning(models.Model):
+    description = models.TextField(verbose_name='Описание значения', null=True)
+
+    moderation_status = models.CharField(
+        max_length=20,
+        choices=[
+            ('pending', 'На проверке'),
+            ('approved', 'Одобрено'),
+            ('rejected', 'Отклонено')
+        ],
+        default='pending',
+        db_index=True
+    )
+
+    author = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Автор')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = 'Значение (денотат)'
+        verbose_name_plural = 'Значение (денотаты)'
+        app_label = 'dictionary'
+
+    def __str__(self):
+        return self.description[:50]
+
+
+class LexemeMeaningMapping(models.Model):
+    lexeme_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    lexeme_id = models.PositiveIntegerField()
+    lexeme = GenericForeignKey('lexeme_type', 'lexeme_id')
+
+    is_auto_meaning = models.BooleanField(default=True, verbose_name='Создано автоматически')
+
+    meaning = models.ForeignKey(Meaning, on_delete=models.CASCADE)
+    is_primary = models.BooleanField(default=False, verbose_name='Основное значение')
+
+
+    class Meta:
+        unique_together = ['lexeme_type', 'lexeme_id', 'meaning']
+        verbose_name = 'Связь лемма-значение'
+        verbose_name_plural = 'Связи лемма-значение'
+        app_label = 'dictionary'
+        indexes = [
+            models.Index(fields=['lexeme_type', 'lexeme_id']),
+        ]
