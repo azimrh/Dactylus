@@ -4,7 +4,7 @@ from django.contrib import messages
 from django.urls import reverse
 
 from apps.dictionary.models import LexemePair
-from ..base import group_required
+from .._base import group_required
 
 @login_required
 @group_required('moderator')

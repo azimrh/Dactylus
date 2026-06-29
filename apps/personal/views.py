@@ -1,14 +1,15 @@
 import json
-from datetime import timezone
+from datetime import datetime
 
 from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse
 from django.views import View
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.contenttypes.models import ContentType
+from django.utils import timezone  # ← правильный импорт
 
-from ..models import Personal, TextLexeme, GestureLexeme, Meaning, LexemePair
+from apps.personal.models import Personal
+from apps.dictionary.models import LexemePair
 
 
 @login_required
@@ -50,35 +51,52 @@ def page_personal(request):
 
 
 class PersonalAddView(LoginRequiredMixin, View):
-    """Добавление элемента в личный словарь (AJAX)."""
+    """Добавление пары лексем в личный словарь (AJAX)."""
 
     def post(self, request):
-        content_type_id = request.POST.get('content_type')
-        object_id = request.POST.get('object_id')
+        lexeme_pair_id = request.POST.get('lexeme_pair_id')
 
-        if not content_type_id or not object_id:
-            return JsonResponse({'error': 'Missing parameters'}, status=400)
+        if not lexeme_pair_id:
+            return JsonResponse(
+                {'error': 'Missing lexeme_pair_id parameter'},
+                status=400
+            )
 
         try:
-            ct = ContentType.objects.get(id=content_type_id)
-            # Проверяем существование объекта
-            obj = ct.model_class().objects.get(id=object_id)
-        except (ContentType.DoesNotExist, AttributeError):
-            return JsonResponse({'error': 'Invalid content type'}, status=400)
-        except ct.model_class().DoesNotExist:
-            return JsonResponse({'error': 'Object not found'}, status=404)
+            lexeme_pair = LexemePair.objects.get(
+                id=lexeme_pair_id,
+                moderation_status='approved'  # ← только одобренные пары
+            )
+        except LexemePair.DoesNotExist:
+            return JsonResponse(
+                {'error': 'Lexeme pair not found or not approved'},
+                status=404
+            )
 
-        # Создаем или получаем существующую запись
-        entry, created = Personal.objects.get_or_create(
+        existing = Personal.objects.filter(
             user=request.user,
-            content_type=ct,
-            object_id=object_id,
-            defaults={'status': 'new'}
+            lexeme_pair=lexeme_pair
+        ).first()
+
+        if existing:
+            return JsonResponse({
+                'success': True,
+                'created': False,
+                'id': existing.id,
+                'status': existing.status,
+                'message': 'Already in personal dictionary'
+            })
+
+        entry = Personal.objects.create(
+            user=request.user,
+            lexeme_pair=lexeme_pair,
+            status='new',
+            last_reviewed=timezone.now()
         )
 
         return JsonResponse({
             'success': True,
-            'created': created,
+            'created': True,
             'id': entry.id,
             'status': entry.status
         })
@@ -94,21 +112,31 @@ class PersonalRemoveView(LoginRequiredMixin, View):
 class PersonalUpdateStatusView(LoginRequiredMixin, View):
     def patch(self, request, entry_id):
         entry = get_object_or_404(Personal, id=entry_id, user=request.user)
+
         try:
             data = json.loads(request.body)
         except json.JSONDecodeError:
             return JsonResponse({'error': 'Invalid JSON'}, status=400)
 
         status = data.get('status')
-        if status not in dict(Personal.STATUS_CHOICES):
-            return JsonResponse({'error': 'Invalid status'}, status=400)
+        valid_statuses = dict(Personal.STATUS_CHOICES) if hasattr(Personal, 'STATUS_CHOICES') else {
+            'new': 'Новое',
+            'learning': 'Изучаю',
+            'learned': 'Выучено'
+        }
+
+        if status not in valid_statuses:
+            return JsonResponse(
+                {'error': f'Invalid status. Valid: {list(valid_statuses.keys())}'},
+                status=400
+            )
 
         entry.status = status
-        if status == 'learned':
-            entry.last_reviewed = timezone.now()
+        entry.last_reviewed = timezone.now()
         entry.save()
 
         return JsonResponse({
             'success': True,
-            'status': entry.status
+            'status': entry.status,
+            'last_reviewed': entry.last_reviewed.isoformat()
         })

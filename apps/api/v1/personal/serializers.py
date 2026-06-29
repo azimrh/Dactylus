@@ -1,5 +1,6 @@
 from rest_framework import serializers
-from apps.dictionary.models import Personal, LexemePair
+
+from apps.personal.models import Personal
 
 
 class PersonalListSerializer(serializers.ModelSerializer):

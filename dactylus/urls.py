@@ -11,6 +11,8 @@ urlpatterns = [
 
     path('api/v1/', include('apps.api.urls')),
     path('', include('apps.dictionary.urls')),
+    path('', include('apps.personal.urls')),
+    path('', include('apps.news.urls')),
 ]
 
 if settings.DEBUG:

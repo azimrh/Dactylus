@@ -5,7 +5,7 @@ from django.urls import reverse
 from django.utils.text import slugify
 
 from apps.dictionary.models import TextLexeme
-from ..base import group_required
+from .._base import group_required
 
 
 @login_required

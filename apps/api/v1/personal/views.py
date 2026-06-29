@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from django.db.models import Count, Q, Case, When, IntegerField
 from django.utils import timezone
 
-from apps.dictionary.models import Personal
+from apps.personal.models import Personal
 from .serializers import (
     PersonalListSerializer,
     PersonalDetailSerializer,

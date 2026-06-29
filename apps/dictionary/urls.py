@@ -23,8 +23,6 @@ urlpatterns = [
     path('moderation/pair/<int:pk>/', views.moderation_lexeme_pair, name='moderation-pair'),
     path('moderation/video/<int:pk>/', views.moderation_gesture_realization, name='moderation-video'),
 
-    path('personal/', views.page_personal, name='personal'),
-
     path('translator/', views.page_home, name='translator'),
     path('search/', views.page_home, name='search'),
 ]

@@ -1,12 +1,13 @@
 from django.shortcuts import render
 
+from apps.users.models import User
 from apps.dictionary.models import (
-    News, User,
     Category,
     TextLexeme,
     GestureLexeme,
     GestureRealization
 )
+from apps.news.models import News
 
 
 def page_home(request):

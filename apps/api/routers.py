@@ -11,7 +11,6 @@ router = DefaultRouter()
 router.register(r'users', UserViewSet, basename='user')
 
 # Dictionary
-router = DefaultRouter()
 router.register(r'categories', CategoryViewSet, basename='category')
 router.register(r'text-lexemes', TextLexemeViewSet, basename='text_lexeme')
 router.register(r'meanings', MeaningViewSet, basename='meaning')

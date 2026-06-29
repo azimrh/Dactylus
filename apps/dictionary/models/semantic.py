@@ -1,7 +1,8 @@
 from django.db import models
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
-from .news import User
+
+from apps.users.models import User
 
 
 class Meaning(models.Model):

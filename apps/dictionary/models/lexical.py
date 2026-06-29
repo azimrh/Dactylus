@@ -1,7 +1,7 @@
 from django.db import models
 from django.urls import reverse
-from django.contrib.contenttypes.fields import GenericRelation
-from .news import User
+
+from apps.users.models import User
 
 
 class Category(models.Model):

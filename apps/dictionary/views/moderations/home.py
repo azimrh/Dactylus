@@ -7,7 +7,7 @@ from apps.dictionary.models import (
     TextLexeme, GestureLexeme,
     LexemePair, GestureRealization
 )
-from ..base import group_required
+from .._base import group_required
 
 
 @login_required

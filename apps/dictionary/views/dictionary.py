@@ -7,10 +7,10 @@ from django.urls import reverse
 
 from apps.dictionary.models import (
     Category,
-    TextLexeme, LexemePair, GestureRealization,
-    Personal
+    TextLexeme, LexemePair, GestureRealization
 )
-from .base import group_required
+from apps.personal.models import Personal
+from ._base import group_required
 
 
 def page_dictionary(request):

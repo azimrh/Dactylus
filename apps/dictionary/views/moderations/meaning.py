@@ -4,7 +4,7 @@ from django.contrib import messages
 from django.urls import reverse
 
 from apps.dictionary.models import Meaning
-from ..base import group_required
+from .._base import group_required
 
 
 @login_required

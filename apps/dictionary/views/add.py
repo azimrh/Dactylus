@@ -5,7 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from slugify import slugify
 
-from .base import group_required
+from ._base import group_required
 from ..models import GestureRealization, GestureLexeme, Meaning
 from ..models.lexical import Category, TextLexeme, LexemePair
 from ..utils.media_processing import process_image, video_to_gif, process_video
@@ -140,7 +140,8 @@ def page_add_word(request):
         # TextLexeme
         text_lexeme, created = TextLexeme.objects.get_or_create(
             text=word,
-            defaults={'slug': slug, 'author': user}
+            author=user,
+            defaults={'slug': f"t-{slug}", 'author': user}
         )
         print(f"Text lexeme: {text_lexeme} / {created}")
         if created:
@@ -149,7 +150,8 @@ def page_add_word(request):
         # GestureLexeme
         gesture_lexeme, created = GestureLexeme.objects.get_or_create(
             text=word,
-            defaults={'slug': slug, 'author': user}
+            author=user,
+            defaults={'slug': f"g-{slug}", 'author': user}
         )
         print(f"Gesture lexeme: {gesture_lexeme} / {created}")
         if created:
