@@ -1,7 +1,5 @@
-/* main.css — убраны специфичные для главной страницы стили */
 /* ============================================
- *  DACTYLUS DESIGN SYSTEM
- *  Bootstrap 5.3 + Custom Components
+ *  DACTYLUS DESIGN SYSTEM - CORE
  *  ============================================ */
 
 :root {
@@ -92,7 +90,7 @@ body {
 }
 
 /* ============================================
- *  LAYOUT
+ *  LAYOUT UTILS
  *  ============================================ */
 .d-page {
   min-height: 100vh;
@@ -121,7 +119,7 @@ body {
 }
 
 /* ============================================
- *  BOOTSTRAP OVERRIDES — Базовые компоненты
+ *  BOOTSTRAP OVERRIDES
  *  ============================================ */
 
 /* Buttons */
@@ -167,7 +165,7 @@ body {
   justify-content: center;
 }
 
-/* Cards Base */
+/* Cards Base Override */
 .card {
   --bs-card-bg: var(--d-bg-card);
   --bs-card-border-color: var(--d-border);
@@ -176,7 +174,7 @@ body {
   border: none;
 }
 
-/* Forms Base */
+/* Forms Base Override */
 .form-control,
 .form-select {
   --bs-body-bg: var(--d-bg-input);
@@ -278,9 +276,7 @@ body {
   color: var(--d-success);
 }
 
-/* ============================================
- *  BADGES & STATUS — Базовые
- *  ============================================ */
+/* Badges Base */
 .d-badge {
   display: inline-flex;
   align-items: center;
@@ -295,81 +291,10 @@ body {
 .d-badge--success { background: rgba(74, 222, 128, 0.15); color: var(--d-success); }
 .d-badge--verified { background: rgba(74, 222, 128, 0.15); color: var(--d-success); }
 .d-badge--pending { background: rgba(148, 163, 184, 0.15); color: var(--d-text-muted); }
+.d-badge--warning { background: rgba(250, 204, 21, 0.15); color: var(--d-warning); }
+.d-badge--secondary { background: var(--d-bg-elevated); color: var(--d-text-secondary); }
 
-/* ============================================
- *  FOOTER
- *  ============================================ */
-.d-footer {
-  background: var(--d-bg-card);
-  border-top: 1px solid var(--d-border);
-  padding: 2rem 0 1.5rem;
-  margin-top: auto;
-}
-
-.d-footer__grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 2rem;
-  margin-bottom: 1.5rem;
-}
-
-.d-footer__title {
-  font-size: 0.875rem;
-  font-weight: 600;
-  margin-bottom: 0.75rem;
-  color: var(--d-text-primary);
-}
-
-.d-footer__links {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.d-footer__links li { margin-bottom: 0.375rem; }
-
-.d-footer__links a {
-  color: var(--d-text-muted);
-  font-size: 0.8125rem;
-  text-decoration: none;
-  transition: color var(--d-transition);
-}
-
-.d-footer__links a:hover { color: var(--d-primary); }
-
-.d-footer__bottom {
-  text-align: center;
-  padding-top: 1.5rem;
-  border-top: 1px solid var(--d-border);
-  color: var(--d-text-muted);
-  font-size: 0.8125rem;
-}
-
-/* ============================================
- *  GRID LAYOUTS — Базовые сетки (общего назначения)
- *  ============================================ */
-.category-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 1.25rem;
-}
-
-.word-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 1.5rem;
-}
-
-/* ============================================
- *  UTILITIES
- *  ============================================ */
-.d-gradient-text {
-  background: linear-gradient(135deg, var(--d-primary), var(--d-primary-light));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-/* Breadcrumbs */
+/* Breadcrumbs Base */
 .d-breadcrumb {
   display: flex;
   align-items: center;
@@ -383,9 +308,7 @@ body {
 .d-breadcrumb a:hover { color: var(--d-primary); }
 .d-breadcrumb__current { color: var(--d-text-primary); font-weight: 500; }
 
-/* ============================================
- *  RESPONSIVE — Базовые breakpoints
- *  ============================================ */
+/* Responsive Utils */
 @media (max-width: 991px) {
   .d-main { padding: 2rem 0; }
   .d-section { padding: 3rem 0; }
@@ -394,17 +317,4 @@ body {
 @media (max-width: 767px) {
   .d-container { padding: 0 1rem; }
   .d-section { padding: 2rem 0; }
-
-  .category-grid,
-  .word-grid { grid-template-columns: 1fr; }
-
-  .d-footer__grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1.5rem;
-    margin-bottom: 1rem;
-  }
-
-  .d-footer__grid > div:first-child {
-    grid-column: 1 / -1;
-  }
 }
