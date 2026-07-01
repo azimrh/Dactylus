@@ -47,7 +47,7 @@ def page_personal(request):
         'text_entries': text_entries,
         'stats': stats,
     }
-    return render(request, 'dictionary/personal.html', context)
+    return render(request, 'personal/home.html', context)
 
 
 class PersonalAddView(LoginRequiredMixin, View):

@@ -7,7 +7,7 @@ from apps.dictionary.models import (
     TextLexeme, GestureLexeme,
     LexemePair, GestureRealization
 )
-from .._base import group_required
+from apps.dictionary.views._base import group_required
 
 
 @login_required
@@ -103,4 +103,4 @@ def moderation_home(request):
         'pending_videos': pending_videos,
     }
 
-    return render(request, 'dictionary/moderation/home.html', context)
+    return render(request, 'moderation/home.html', context)

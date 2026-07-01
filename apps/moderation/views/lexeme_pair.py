@@ -4,7 +4,7 @@ from django.contrib import messages
 from django.urls import reverse
 
 from apps.dictionary.models import LexemePair
-from .._base import group_required
+from apps.dictionary.views._base import group_required
 
 @login_required
 @group_required('moderator')
@@ -52,4 +52,4 @@ def moderation_lexeme_pair(request, pk):
         'current_categories': list(pair.categories.values('id', 'name')),
     }
 
-    return render(request, 'dictionary/moderation/pair.html', context)
+    return render(request, 'moderation/pair.html', context)

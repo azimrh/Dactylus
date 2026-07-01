@@ -4,7 +4,7 @@ from django.contrib import messages
 from django.urls import reverse
 
 from apps.dictionary.models import GestureRealization
-from .._base import group_required
+from apps.dictionary.views._base import group_required
 
 
 @login_required
@@ -33,6 +33,6 @@ def moderation_gesture_realization(request, pk):
             messages.success(request, f'Видео отклонено: {reason}')
             return redirect(reverse('moderation') + '#video')
 
-    return render(request, 'dictionary/moderation/video.html', {
+    return render(request, 'moderation/video.html', {
         'video': video,
     })
