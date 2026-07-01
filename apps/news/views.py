@@ -22,7 +22,7 @@ def page_news(request):
             id=detail.id
         ).select_related('author').order_by('-published_at')[:3]
 
-        return render(request, 'dictionary/news.html', {
+        return render(request, 'news/home.html', {
             'detail': detail,
             'related': related,
         })
@@ -46,7 +46,7 @@ def page_news(request):
     page_number = request.GET.get('page', 1)
     page_obj = paginator.get_page(page_number)
 
-    return render(request, 'dictionary/news.html', {
+    return render(request, 'news/home.html', {
         'news_list': page_obj,
         'page_obj': page_obj,
         'filter_status': status,

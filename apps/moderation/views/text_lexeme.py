@@ -2,15 +2,17 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from django.urls import reverse
+from django.utils.text import slugify
 
-from apps.dictionary.models import GestureLexeme
-from .._base import group_required
+from apps.dictionary.models import TextLexeme
+from apps.dictionary.views._base import group_required
+
 
 @login_required
 @group_required('moderator')
-def moderation_gesture_lexeme(request, pk):
-    """Модерация жестовой леммы"""
-    lexeme = get_object_or_404(GestureLexeme, pk=pk)
+def moderation_text_lexeme(request, pk):
+    """Модерация текстовой леммы"""
+    lexeme = get_object_or_404(TextLexeme, pk=pk)
 
     if request.method == 'POST':
         action = request.POST.get('action')
@@ -21,13 +23,12 @@ def moderation_gesture_lexeme(request, pk):
 
             # Проверка на дубликат при изменении текста
             if new_text and new_text != lexeme.text:
-                from django.utils.text import slugify
                 new_slug = slugify(new_text)
 
-                # Проверяем, не существует ли уже жеста с таким slug
-                if GestureLexeme.objects.filter(slug=new_slug).exclude(pk=lexeme.pk).exists():
-                    messages.error(request, f'Жест "{new_text}" уже существует в словаре')
-                    return redirect('moderation-gesture', pk=pk)
+                # Проверяем, не существует ли уже слова с таким slug
+                if TextLexeme.objects.filter(slug=new_slug).exclude(pk=lexeme.pk).exists():
+                    messages.error(request, f'Слово "{new_text}" уже существует в словаре')
+                    return redirect('moderation-text', pk=pk)
 
                 lexeme.text = new_text
                 lexeme.slug = new_slug
@@ -38,18 +39,18 @@ def moderation_gesture_lexeme(request, pk):
 
             lexeme.moderation_status = 'approved'
             lexeme.save()
-            messages.success(request, f'Жест "{lexeme.text}" одобрен')
-            return redirect(reverse('moderation') + '#gestures')
+            messages.success(request, f'Слово "{lexeme.text}" одобрено')
+            return redirect(reverse('moderation') + '#words')
 
         elif action == 'reject':
             reason = request.POST.get('reason', '')
             lexeme.moderation_status = 'rejected'
             lexeme.save()
-            messages.success(request, f'Жест "{lexeme.text}" отклонен: {reason}')
-            return redirect(reverse('moderation') + '#gestures')
+            messages.success(request, f'Слово "{lexeme.text}" отклонено: {reason}')
+            return redirect(reverse('moderation') + '#words')
 
     context = {
         'lexeme': lexeme,
         'current_meanings': list(lexeme.meanings.values('id', 'description')),
     }
-    return render(request, 'dictionary/moderation/gesture_lexeme.html', context)
+    return render(request, 'moderation/text_lexeme.html', context)

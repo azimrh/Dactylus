@@ -4,7 +4,7 @@ from django.contrib import messages
 from django.urls import reverse
 
 from apps.dictionary.models import Meaning
-from .._base import group_required
+from apps.dictionary.views._base import group_required
 
 
 @login_required
@@ -34,6 +34,6 @@ def moderation_meaning(request, pk):
             messages.success(request, f'Смысл отклонен: {reason}')
             return redirect(reverse('moderation') + '#meanings')
 
-    return render(request, 'dictionary/moderation/meaning.html', {
+    return render(request, 'moderation/meaning.html', {
         'meaning': meaning,
     })

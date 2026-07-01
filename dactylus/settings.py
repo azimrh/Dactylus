@@ -41,6 +41,7 @@ INSTALLED_APPS = [
 
     "apps.users",
     "apps.dictionary",
+    "apps.moderation",
     "apps.news",
     "apps.personal",
 

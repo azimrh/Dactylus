@@ -1,18 +1,21 @@
+# urls.py (корневой)
 from django.contrib import admin
-from django.contrib.auth import views as auth_views
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('login/', auth_views.LoginView.as_view(template_name='dictionary/login.html'), name='login'),
-    path('logout/', auth_views.LogoutView.as_view(next_page='home'), name='logout'),
 
+    # API
     path('api/v1/', include('apps.api.urls')),
+
+    path('auth/', include('apps.users.urls')),
+
     path('', include('apps.dictionary.urls')),
-    path('', include('apps.personal.urls')),
-    path('', include('apps.news.urls')),
+    path('personal/', include('apps.personal.urls')),
+    path('news/', include('apps.news.urls')),
+    path('moderation/', include('apps.moderation.urls')),
 ]
 
 if settings.DEBUG:
