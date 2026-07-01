@@ -9,7 +9,7 @@
     <div class="d-container" style="max-width: 800px;">
         <div class="mb-3">
             <a href="{% url 'moderation' %}#video" class="btn btn-ghost btn-sm">
-                <i class="bi bi-arrow-left me-1"></i>Назад к списку
+                <i class="bi bi-arrow-left me-1" aria-hidden="true"></i> Назад к списку
             </a>
         </div>
 
@@ -70,10 +70,10 @@
 
                 <div class="d-flex gap-2">
                     <button type="submit" name="action" value="approve" class="btn btn-success btn-lg flex-fill">
-                        <i class="bi bi-check-lg me-2"></i>Одобрить
+                        <i class="bi bi-check-lg me-2" aria-hidden="true"></i> Одобрить
                     </button>
                     <button type="button" class="btn btn-danger btn-lg flex-fill" data-bs-toggle="modal" data-bs-target="#rejectModal">
-                        <i class="bi bi-x-lg me-2"></i>Отклонить
+                        <i class="bi bi-x-lg me-2" aria-hidden="true"></i> Отклонить
                     </button>
                 </div>
             </form>

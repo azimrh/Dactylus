@@ -85,19 +85,19 @@ class DactylusPlayer {
     onPlay() {
         this.container.classList.remove('paused');
         this.container.classList.add('playing');
-        if (this.playBtn) this.playBtn.innerHTML = '<i class="bi bi-pause-fill"></i>';
+        if (this.playBtn) this.playBtn.innerHTML = '<i class="bi bi-pause-fill" aria-hidden="true"></i>';
     }
 
     onPause() {
         this.container.classList.add('paused');
         this.container.classList.remove('playing');
-        if (this.playBtn) this.playBtn.innerHTML = '<i class="bi bi-play-fill"></i>';
+        if (this.playBtn) this.playBtn.innerHTML = '<i class="bi bi-play-fill" aria-hidden="true"></i>';
     }
 
     onEnded() {
         this.container.classList.add('paused');
         this.container.classList.remove('playing');
-        if (this.playBtn) this.playBtn.innerHTML = '<i class="bi bi-play-fill"></i>';
+        if (this.playBtn) this.playBtn.innerHTML = '<i class="bi bi-play-fill" aria-hidden="true"></i>';
         this.video.currentTime = 0;
     }
 

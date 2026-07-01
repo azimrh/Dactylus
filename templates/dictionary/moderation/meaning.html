@@ -9,7 +9,7 @@
     <div class="d-container" style="max-width: 800px;">
         <div class="mb-3">
             <a href="{% url 'moderation' %}#meanings" class="btn btn-ghost btn-sm">
-                <i class="bi bi-arrow-left me-1"></i>Назад к списку
+                <i class="bi bi-arrow-left me-1" aria-hidden="true"></i> Назад к списку
             </a>
         </div>
 
@@ -31,7 +31,7 @@
                 <div class="mb-4">
                     <label class="form-label fw-bold">Описание смысла <span class="text-danger">*</span></label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="bi bi-book"></i></span>
+                        <span class="input-group-text"><i class="bi bi-book" aria-hidden="true"></i></span>
                         <textarea class="form-control" name="description" rows="4" required>{{ meaning.description }}</textarea>
                     </div>
                 </div>
@@ -47,10 +47,10 @@
                 <!-- Actions - side by side -->
                 <div class="d-flex gap-2">
                     <button type="submit" name="action" value="approve" class="btn btn-success btn-lg flex-fill">
-                        <i class="bi bi-check-lg me-2"></i>Одобрить
+                        <i class="bi bi-check-lg me-2" aria-hidden="true"></i> Одобрить
                     </button>
                     <button type="button" class="btn btn-danger btn-lg flex-fill" data-bs-toggle="modal" data-bs-target="#rejectModal">
-                        <i class="bi bi-x-lg me-2"></i>Отклонить
+                        <i class="bi bi-x-lg me-2" aria-hidden="true"></i> Отклонить
                     </button>
                 </div>
             </form>
@@ -74,7 +74,7 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Отмена</button>
-                        <button type="submit" name="action" value="reject" class="btn btn-danger">Отклонить</button>
+                        <button type="submit" class="btn btn-danger" name="action" value="reject">Отклонить</button>
                     </div>
                 </form>
             </div>

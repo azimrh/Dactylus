@@ -16,7 +16,7 @@
 
         <div class="d-tabs mb-4">
             <button class="d-tab d-tab--active" data-tab="words" onclick="switchTab('words')">
-                <i class="bi bi-fonts me-2"></i>Слова
+                <i class="bi bi-fonts me-2" aria-hidden="true"></i> Слова
                 <span class="d-badge d-badge--primary ms-2">{{ stats.words.total }}</span>
             </button>
         </div>
@@ -27,7 +27,7 @@
                     <h2 class="content-section__title">Сохранённые слова</h2>
                     <div class="content-section__actions">
                         <div class="search-box">
-                            <i class="bi bi-search"></i>
+                            <i class="bi bi-search" aria-hidden="true"></i>
                             <input type="text" placeholder="Поиск слов..." class="search-input" id="search-words">
                         </div>
                         <select class="form-select form-select-sm" id="filter-words" style="width: auto;">
@@ -48,7 +48,7 @@
                                     {% if gesture and gesture.gif %}
                                         <img src="{{ gesture.gif.url }}" alt="Жест" class="gesture-gif">
                                     {% else %}
-                                        <i class="bi bi-hand-index"></i>
+                                        <i class="bi bi-hand-index" aria-hidden="true"></i>
                                     {% endif %}
                                 {% endwith %}
                             </div>
