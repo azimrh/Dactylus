@@ -5,15 +5,10 @@
     <link rel="stylesheet" href="{% static 'css/pages/news.css' %}?v=2">
 {% endblock %}
 
-{% block title %}
-    {% if detail %}{{ detail.title }} | Новости{% else %}Новости | Dactylus{% endif %}
-{% endblock %}
+{% block title %}{{ detail.title }} | Новости{% endblock %}
 
 {% block content %}
 <div class="d-container">
-
-    <!-- ==================== DETAIL VIEW ==================== -->
-    {% if detail %}
 
     <article class="news-detail">
         <!-- Back -->
@@ -61,6 +56,14 @@
                 <i class="bi bi-share"></i>
                 Поделиться
             </button>
+            
+            {% if perms.news.delete_news %}
+            <button class="btn btn-outline-danger" onclick="confirmDelete({{ detail.id }}, '{{ detail.title|escapejs }}')">
+                <i class="bi bi-trash"></i>
+                Удалить новость
+            </button>
+            {% endif %}
+
             <a href="{% url 'news' %}" class="btn btn-ghost">
                 <i class="bi bi-arrow-left"></i>
                 К списку новостей
@@ -73,7 +76,7 @@
             <h2 class="news-related__title">Другие новости</h2>
             <div class="news-grid--list">
                 {% for item in related %}
-                <a href="?id={{ item.id }}" class="news-card">
+                <a href="{% url 'news_detail' item.id %}" class="news-card">
                     <div class="news-card__image">
                         {% if item.image %}
                             <img src="{{ item.image.url }}" alt="{{ item.title }}">
@@ -103,96 +106,32 @@
         {% endif %}
     </article>
 
-    <!-- ==================== LIST VIEW ==================== -->
-    {% else %}
+</div>
 
-    <!-- Hero -->
-    <div class="news-hero">
-        <h1 class="news-hero__title">Новости проекта</h1>
-        <p class="news-hero__subtitle">
-            Следите за развитием Dactylus — новые функции, обновления словаря и события сообщества
-        </p>
-    </div>
-
-    <!-- Grid -->
-    {% if news_list %}
-    <div class="news-grid--list">
-        {% for item in news_list %}
-        <a href="?id={{ item.id }}" class="news-card {% if forloop.first and not page_obj.has_previous %}news-card--featured{% endif %}">
-            <div class="news-card__image">
-                {% if item.image %}
-                    <img src="{{ item.image.url }}" alt="{{ item.title }}">
-                {% else %}
-                    <div class="news-card__image-placeholder">
-                        <i class="bi bi-newspaper"></i>
-                    </div>
-                {% endif %}
-                {% if not item.is_published %}
-                    <span class="d-badge d-badge--pending news-card__badge">Черновик</span>
-                {% endif %}
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title" id="deleteModalLabel">Подтверждение удаления</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="news-card__body">
-                <div class="news-card__meta">
-                    <span>
-                        <i class="bi bi-calendar3"></i> {{ item.published_at|date:"d.m.Y" }}
-                    </span>
-                </div>
-                <h3 class="news-card__title">{{ item.title }}</h3>
-                <p class="news-card__excerpt">{{ item.content|truncatewords:30 }}</p>
-                <div class="news-card__footer">
-                    <span class="news-card__author">
-                        <span class="news-card__author-avatar">{{ item.author.username|first|upper }}</span>
-                        {{ item.author.username }}
-                    </span>
-                </div>
+            <div class="modal-body">
+                <p>Вы действительно хотите удалить новость <strong id="deleteNewsTitle"></strong>?</p>
+                <p class="text-muted small mb-0">Это действие нельзя отменить.</p>
             </div>
-        </a>
-        {% endfor %}
+            <div class="modal-footer border-0 pt-0">
+                <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Отмена</button>
+                <form id="deleteForm" method="POST" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-trash"></i>
+                        Удалить
+                    </button>
+                </form>
+            </div>
+        </div>
     </div>
-
-    <!-- Pagination -->
-    {% if page_obj.has_other_pages %}
-    <nav class="news-pagination" aria-label="Навигация по новостям">
-        {% if page_obj.has_previous %}
-            <a href="?page={{ page_obj.previous_page_number }}" class="news-pagination__link">
-                <i class="bi bi-chevron-left"></i>
-            </a>
-        {% else %}
-            <span class="news-pagination__link news-pagination__link--disabled">
-                <i class="bi bi-chevron-left"></i>
-            </span>
-        {% endif %}
-
-        {% for num in page_obj.paginator.page_range %}
-            {% if num == page_obj.number %}
-                <span class="news-pagination__link news-pagination__link--active">{{ num }}</span>
-            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
-                <a href="?page={{ num }}" class="news-pagination__link">{{ num }}</a>
-            {% endif %}
-        {% endfor %}
-
-        {% if page_obj.has_next %}
-            <a href="?page={{ page_obj.next_page_number }}" class="news-pagination__link">
-                <i class="bi bi-chevron-right"></i>
-            </a>
-        {% else %}
-            <span class="news-pagination__link news-pagination__link--disabled">
-                <i class="bi bi-chevron-right"></i>
-            </span>
-        {% endif %}
-    </nav>
-    {% endif %}
-
-    {% else %}
-    <!-- Empty State -->
-    <div class="news-empty">
-        <i class="bi bi-inbox"></i>
-        <h3>Новостей пока нет</h3>
-        <p>Возвращайтесь позже — мы готовим интересные материалы</p>
-    </div>
-    {% endif %}
-
-    {% endif %}
 </div>
 {% endblock %}
 
@@ -211,6 +150,24 @@ function shareNews() {
         btn.innerHTML = '<i class="bi bi-check"></i> Скопировано';
         setTimeout(() => btn.innerHTML = original, 2000);
     }
+}
+
+function confirmDelete(newsId, newsTitle) {
+    // Проверяем права через Django template variable
+    const canDelete = {{ perms.news.delete_news|yesno:"true,false" }};
+
+    if (!canDelete) {
+        alert('У вас нет прав для удаления этой новости');
+        return;
+    }
+    
+    // Обновляем модальное окно
+    document.getElementById('deleteNewsTitle').textContent = newsTitle;
+    document.getElementById('deleteForm').action = `/news/${newsId}/delete/`;
+    
+    // Показываем модальное окно Bootstrap
+    const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+    deleteModal.show();
 }
 </script>
 {% endblock %}

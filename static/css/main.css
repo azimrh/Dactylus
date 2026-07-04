@@ -318,3 +318,45 @@ body {
   .d-container { padding: 0 1rem; }
   .d-section { padding: 2rem 0; }
 }
+
+/* ============================================
+ *  BOOTSTRAP TEXT UTILITIES OVERRIDE
+ *  ============================================ */
+
+.text-muted {
+  color: var(--d-text-muted) !important;
+}
+
+.text-secondary {
+  color: var(--d-text-secondary) !important;
+}
+
+.text-primary {
+  color: var(--d-primary) !important;
+}
+
+.text-success {
+  color: var(--d-success) !important;
+}
+
+.text-warning {
+  color: var(--d-warning) !important;
+}
+
+.text-danger {
+  color: var(--d-danger) !important;
+}
+
+.text-info {
+  color: var(--d-info) !important;
+}
+
+/* Light text variants for dark backgrounds */
+.text-light {
+  color: var(--d-text-primary) !important;
+}
+
+/* Body text */
+.text-body {
+  color: var(--d-text-primary) !important;
+}

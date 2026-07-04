@@ -1,9 +1,10 @@
-from django.contrib.auth import views as auth_views
 from django.urls import path
-
-from .views import page_news
+from . import views
 
 
 urlpatterns = [
-    path('news/', page_news, name='news')
+    path('', views.page_news, name='news'),
+    path('<int:pk>/', views.news_detail, name='news_detail'),
+    path('create/', views.news_create, name='news_create'),
+    path('<int:pk>/delete/', views.news_delete, name='news_delete'),
 ]

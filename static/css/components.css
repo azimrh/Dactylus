@@ -747,6 +747,84 @@
 }
 
 /* ============================================
+ *  MODAL OVERRIDES FOR DACTYLUS DESIGN SYSTEM
+ *  ============================================ */
+
+.modal-content {
+  background: var(--d-bg-card);
+  border: 1px solid var(--d-border);
+  box-shadow: var(--d-shadow-xl);
+  color: var(--d-text-primary);
+}
+
+.modal-header {
+  border-bottom: 1px solid var(--d-border);
+  padding: 1.25rem;
+}
+
+.modal-title {
+  color: var(--d-text-primary);
+  font-weight: 600;
+}
+
+.modal-body {
+  padding: 1.25rem;
+  color: var(--d-text-secondary);
+}
+
+.modal-footer {
+  border-top: 1px solid var(--d-border);
+  padding: 1.25rem;
+}
+
+/* Close button theming */
+.btn-close {
+  opacity: 0.7;
+  filter: invert(1) grayscale(100%) brightness(200%);
+  transition: opacity var(--d-transition);
+}
+
+.btn-close:hover {
+  opacity: 1;
+}
+
+[data-theme="light"] .btn-close {
+  filter: none;
+  opacity: 0.5;
+}
+
+[data-theme="light"] .btn-close:hover {
+  opacity: 0.75;
+}
+
+/* Modal backdrop */
+.modal-backdrop {
+  background-color: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+}
+
+/* Modal dialog centering fix */
+.modal-dialog-centered {
+  display: flex;
+  align-items: center;
+  min-height: calc(100% - 1rem);
+}
+
+/* Responsive adjustments */
+@media (max-width: 576px) {
+  .modal-content {
+    margin: 0.5rem;
+    border-radius: var(--d-radius-lg);
+  }
+
+  .modal-header,
+  .modal-body,
+  .modal-footer {
+    padding: 1rem;
+  }
+}
+
+/* ============================================
  *  4. VIDEO PLAYER
  *  ============================================ */
 

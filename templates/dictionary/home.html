@@ -123,7 +123,7 @@
         </div>
         <div class="news-grid--list news-grid--home">
             {% for item in news %}
-            <a href="{% url 'news' %}?id={{ item.id }}" class="news-card news-card--no-image">
+            <a href="{% url 'news' %}{{ item.id }}" class="news-card news-card--no-image">
                 <div class="news-card__body">
                     <div class="news-card__meta">
                         <span><i class="bi bi-calendar3"></i> {{ item.published_at|date:"d.m.Y" }}</span>
