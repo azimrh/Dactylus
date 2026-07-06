@@ -1,14 +1,8 @@
 from django.contrib import admin
-
 from .models import (
-    Category,
-    TextLexeme,
-    GestureLexeme,
-    LexemePair,
-    GestureRealization,
-    Meaning, LexemeMeaningMapping
+    Category, TextLexeme, GestureLexeme, LexemeTriplet,
+    GestureRealization, Meaning
 )
-
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
@@ -17,68 +11,48 @@ class CategoryAdmin(admin.ModelAdmin):
     list_filter = ['parent']
     search_fields = ['name']
 
-
-# -----------------------
-# Значения и их связи с лексемами
-# -----------------------
-
-@admin.register(LexemeMeaningMapping)
-class LexemeMeaningMappingAdmin(admin.ModelAdmin):
-    list_display = ('lexeme', 'meaning', 'is_primary')
-    list_filter = ('is_primary', 'lexeme_type')
-    search_fields = ('meaning__description',)
-
-
 @admin.register(Meaning)
 class MeaningAdmin(admin.ModelAdmin):
-    list_display = ('description', 'created_at')
+    list_display = ('description', 'author', 'moderation_status', 'created_at')
     search_fields = ('description',)
-
-
-# -----------------------
-# Текстовые леммы
-# -----------------------
+    list_filter = ('moderation_status',)
 
 @admin.register(TextLexeme)
 class TextLexemeAdmin(admin.ModelAdmin):
-    list_display = ('text', 'author', 'is_letter', 'created_at', 'moderation_status')
+    list_display = ('text', 'slug', 'author', 'is_letter', 'moderation_status', 'created_at')
     search_fields = ('text',)
     list_filter = ('is_letter', 'moderation_status')
-
-# -----------------------
-# Жестовые леммы
-# -----------------------
+    prepopulated_fields = {'slug': ('text',)}
 
 @admin.register(GestureLexeme)
 class GestureLexemeAdmin(admin.ModelAdmin):
-    list_display = ('text', 'author', 'is_letter', 'created_at', 'moderation_status')
-    search_fields = ('text',)
+    list_display = ('id', 'author', 'is_letter', 'moderation_status', 'created_at')
     list_filter = ('is_letter', 'moderation_status')
+    # Поиск по ID автора или другим полям, так как текста нет
+    search_fields = ('author__username',)
 
+@admin.register(LexemeTriplet)
+class LexemeTripletAdmin(admin.ModelAdmin):
+    list_display = ('get_text', 'get_meaning', 'get_gesture', 'moderation_status', 'created_by')
+    list_filter = ['moderation_status', 'categories']
+    search_fields = ('text_lexeme__text', 'meaning__description')
+    autocomplete_fields = ['text_lexeme', 'meaning', 'gesture_lexeme']
+
+    @admin.display(description='Текст')
+    def get_text(self, obj):
+        return str(obj.text_lexeme)
+
+    @admin.display(description='Значение')
+    def get_meaning(self, obj):
+        return str(obj.meaning)[:30]
+
+    @admin.display(description='Жест ID')
+    def get_gesture(self, obj):
+        return obj.gesture_lexeme_id
 
 @admin.register(GestureRealization)
 class GestureRealizationAdmin(admin.ModelAdmin):
     list_display = ['gesture_lexeme', 'author', 'is_primary', 'moderation_status', 'created_at']
     list_filter = ['is_primary', 'moderation_status', 'created_at']
-    search_fields = ['gesture_lexeme__text', 'author__username']
+    search_fields = ['gesture_lexeme__id', 'author__username']
     readonly_fields = ['created_at']
-
-
-# -----------------------
-# Связи текст <-> жест
-# -----------------------
-@admin.register(LexemePair)
-class LexemePairAdmin(admin.ModelAdmin):
-    list_display = ('get_text_lexeme', 'get_gesture_lexeme', 'moderation_status', 'created_by', 'created_at')
-    search_fields = ('text_lexeme__text', 'gesture_lexeme__text')
-    list_filter = ['moderation_status', 'categories']
-
-    def get_text_lexeme(self, obj):
-        return str(obj.text_lexeme) if obj.text_lexeme else '-'
-
-    get_text_lexeme.short_description = 'Текстовая лемма'
-
-    def get_gesture_lexeme(self, obj):
-        return str(obj.gesture_lexeme) if obj.gesture_lexeme else '-'
-
-    get_gesture_lexeme.short_description = 'Жестовая лемма'

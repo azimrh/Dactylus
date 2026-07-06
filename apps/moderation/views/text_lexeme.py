@@ -33,10 +33,6 @@ def moderation_text_lexeme(request, pk):
                 lexeme.text = new_text
                 lexeme.slug = new_slug
 
-            # Обновляем значения
-            if meaning_ids:
-                lexeme.meanings.set(meaning_ids)
-
             lexeme.moderation_status = 'approved'
             lexeme.save()
             messages.success(request, f'Слово "{lexeme.text}" одобрено')
@@ -51,6 +47,5 @@ def moderation_text_lexeme(request, pk):
 
     context = {
         'lexeme': lexeme,
-        'current_meanings': list(lexeme.meanings.values('id', 'description')),
     }
     return render(request, 'moderation/text_lexeme.html', context)

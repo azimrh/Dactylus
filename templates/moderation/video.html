@@ -3,7 +3,7 @@
 
 {% block page_css %}{% endblock %}
 
-{% block title %}Модерация видео | {{ video.gesture_lexeme.text }}{% endblock %}
+{% block title %}Модерация видео | #{{ video.gesture_lexeme.id }}{% endblock %}
 
 {% block content %}
     <div class="d-container" style="max-width: 800px;">
@@ -38,13 +38,13 @@
                         </div>
                     {% endif %}
                 </div>
-                <h2 class="mt-3 mb-1">{{ video.gesture_lexeme.text }}</h2>
+                <h2 class="mt-3 mb-1">#{{ video.gesture_lexeme.id }}</h2>
                 <p>Видео реализация жеста</p>
             </div>
 
                         <div class="mb-4 info-box-inverted">
                 <small>
-                    <div>Жест: {{ video.gesture_lexeme.text }}</div>
+                    <div>Жест: #{{ video.gesture_lexeme.id }}</div>
                     <div>Автор: {{ video.author.username }}</div>
                     <div>Создано: {{ video.created_at|date:"d.m.Y H:i" }}</div>
                 </small>

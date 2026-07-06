@@ -3,7 +3,7 @@
 
 {% block page_css %}{% endblock %}
 
-{% block title %}Редактирование пары | Модерация{% endblock %}
+{% block title %}Редактирование триплета | Модерация{% endblock %}
 
 {% block content %}
     <div class="d-container" style="max-width: 800px;">
@@ -13,7 +13,7 @@
             </a>
         </div>
 
-        <h1 class="page-header__title mb-4">Модерация пары</h1>
+        <h1 class="page-header__title mb-4">Модерация триплета</h1>
 
         {% if messages %}
             {% for message in messages %}
@@ -27,15 +27,15 @@
             <!-- Gesture Preview -->
             <div class="text-center mb-4">
                 <div style="width: 300px; height: 300px; margin: 0 auto; border-radius: 50%; overflow: hidden; border: 4px solid var(--d-border);">
-                    {% if pair.gesture_lexeme.realizations.first.gif %}
-                        <img src="{{ pair.gesture_lexeme.realizations.first.gif.url }}" alt="Жест" style="width: 100%; height: 100%; object-fit: cover;">
+                    {% if triplet.gesture_lexeme.realizations.first.gif %}
+                        <img src="{{ triplet.gesture_lexeme.realizations.first.gif.url }}" alt="Жест" style="width: 100%; height: 100%; object-fit: cover;">
                     {% else %}
                         <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: var(--d-bg-elevated);">
                             <i class="bi bi-hand-index" style="font-size: 3rem; color: var(--d-text-muted);"></i>
                         </div>
                     {% endif %}
                 </div>
-                <p class="text-muted mt-2 mb-0">Жест: {{ pair.gesture_lexeme.text }}</p>
+                <p class="text-muted mt-2 mb-0">Жест ID: {{ triplet.gesture_lexeme.id }}</p>
             </div>
 
             <form method="post" id="moderationForm">
@@ -48,13 +48,41 @@
                         <div class="input-group">
                             <span class="input-group-text"><i class="bi bi-type"></i></span>
                             <input type="text" class="form-control" name="word" id="wordInput"
-                                   value="{{ pair.text_lexeme.text }}"
-                                   data-lexeme-id="{{ pair.text_lexeme_id }}"
+                                   value="{{ triplet.text_lexeme.text }}"
+                                   data-lexeme-id="{{ triplet.text_lexeme_id }}"
                                    required autocomplete="off">
                         </div>
                         <div class="search-select__dropdown"></div>
                     </div>
-                    <input type="hidden" name="word_id" id="wordIdInput" value="{{ pair.text_lexeme_id }}">
+                    <input type="hidden" name="word_id" id="wordIdInput" value="{{ triplet.text_lexeme_id }}">
+                </div>
+
+                <!-- Meaning -->
+                <div class="mb-4">
+                    <label class="form-label fw-bold">Значение <span class="text-danger">*</span></label>
+
+                    <!-- Selected Meaning Tag (Стиль полностью как у Категорий) -->
+                    <div id="selectedMeaning" class="mb-2" style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                        {% if triplet.meaning %}
+                        <span class="d-badge d-badge--primary" data-meaning-id="{{ triplet.meaning.id }}">
+                            {{ triplet.meaning.description }}
+                            <i class="bi bi-x-lg" style="cursor: pointer; margin-left: 0.25rem;" onclick="removeMeaning()"></i>
+                        </span>
+                        {% endif %}
+                    </div>
+
+                    <div class="search-select" data-type="meaning">
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-chat-square-text"></i></span>
+                            <!-- Убран required -->
+                            <input type="text" class="form-control" name="meaning" id="meaningInput"
+                                   placeholder="Начните вводить значение..."
+                                   autocomplete="off">
+                        </div>
+                        <div class="search-select__dropdown"></div>
+                    </div>
+                    <!-- Добавлен required сюда -->
+                    <input type="hidden" name="meaning_id" id="meaningIdInput" value="{{ triplet.meaning_id }}" required>
                 </div>
 
                 <!-- Categories -->
@@ -92,8 +120,8 @@
                 <!-- Meta info -->
                 <div class="mb-4 p-3 info-box-inverted">
                     <small class="text-muted">
-                        <div>Автор: {{ pair.created_by.username }}</div>
-                        <div>Создано: {{ pair.created_at|date:"d.m.Y H:i" }}</div>
+                        <div>Автор: {{ triplet.created_by.username }}</div>
+                        <div>Создано: {{ triplet.created_at|date:"d.m.Y H:i" }}</div>
                     </small>
                 </div>
 
@@ -114,7 +142,7 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Отклонить пару</h5>
+                    <h5 class="modal-title">Отклонить триплет</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <form method="post">
@@ -139,7 +167,7 @@
     <script src="{% static 'js/components/ajax_search.js' %}"></script>
     <script>
     document.addEventListener('DOMContentLoaded', () => {
-        // Word search
+        // --- Word search ---
         new AjaxSearch({
             root: '[data-type="word"]',
             input: '#wordInput',
@@ -158,7 +186,76 @@
             }
         });
 
-        // Category search with multi-select
+        // --- Meaning search ---
+        let currentMeaningId = null;
+
+        // Инициализация текущего значения из скрытого поля
+        const initialMeaningId = document.getElementById('meaningIdInput').value;
+        if (initialMeaningId) {
+            currentMeaningId = initialMeaningId;
+        }
+
+        new AjaxSearch({
+            root: '[data-type="meaning"]',
+            input: '#meaningInput',
+            dropdown: '.search-select__dropdown',
+            url: '/api/v1/meanings/?search=',
+            minLength: 2,
+            mapResults: (data) => data.results || [],
+            renderItem: (item) => {
+                const isSelected = item.id == currentMeaningId;
+                return `
+                    <div class="search-select__item ${isSelected ? 'text-muted' : ''}"
+                         data-id="${item.id}"
+                         data-text="${item.description}"
+                         style="${isSelected ? 'opacity: 0.5; pointer-events: none;' : ''}">
+                        <strong>${item.description}</strong>
+                        ${isSelected ? '<small><i class="bi bi-check-circle"></i> выбрано</small>' : ''}
+                    </div>
+                `;
+            },
+            onSelect: ({ id, text }) => {
+                addMeaning(id, text);
+                document.getElementById('meaningInput').value = '';
+            }
+        });
+
+        // Функция добавления значения (Стиль как у категорий)
+        window.addMeaning = function(id, description) {
+            // Удаляем предыдущее выбранное значение
+            removeMeaning(false);
+
+            currentMeaningId = id;
+            document.getElementById('meaningIdInput').value = id;
+
+            const container = document.getElementById('selectedMeaning');
+
+            // Создаем тег с классом d-badge--primary (как у категорий)
+            const tag = document.createElement('span');
+            tag.className = 'd-badge d-badge--primary';
+            tag.setAttribute('data-meaning-id', id);
+            tag.innerHTML = `
+                ${description}
+                <i class="bi bi-x-lg" style="cursor: pointer; margin-left: 0.25rem;" onclick="removeMeaning()"></i>
+            `;
+            container.appendChild(tag);
+        };
+
+        // Функция удаления значения
+        window.removeMeaning = function(clearInput = true) {
+            currentMeaningId = null;
+            document.getElementById('meaningIdInput').value = '';
+
+            const container = document.getElementById('selectedMeaning');
+            container.innerHTML = '';
+
+            if (clearInput) {
+                document.getElementById('meaningInput').value = '';
+            }
+        };
+
+
+        // --- Category search with multi-select ---
         const selectedCategories = new Set();
 
         // Initialize with existing categories

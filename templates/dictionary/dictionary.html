@@ -52,7 +52,9 @@
             <p class="category-header__meta">
                 {{ category.words_count }} слов
                 • {{ category.gestures_count }} жестов
+                {% if subcategories %}
                 • {{ subcategories|length }} подкатегорий
+                {% endif %}
             </p>
         </div>
     </div>
@@ -88,8 +90,9 @@
                 </div>
             </div>
             <div class="category-card__examples">
-                {% for pair in sub.lexemepair_set.all|slice:":4" %}
-                <span class="category-card__tag">{{ pair.text_lexeme.text }}</span>
+                {# Исправлено: используем lexemetriplet_set #}
+                {% for triplet in sub.lexemetriplet_set.all|slice:":4" %}
+                <span class="category-card__tag">{{ triplet.text_lexeme.text }}</span>
                 {% empty %}
                 <span class="category-card__tag">Нет слов</span>
                 {% endfor %}
@@ -123,8 +126,9 @@
                 </div>
             </div>
             <div class="category-card__examples">
-                {% for pair in cat.lexemepair_set.all|slice:":4" %}
-                <span class="category-card__tag">{{ pair.text_lexeme.text }}</span>
+                {# Исправлено: используем prefetched данные lexemetriplet_set #}
+                {% for triplet in cat.lexemetriplet_set.all|slice:":4" %}
+                <span class="category-card__tag">{{ triplet.text_lexeme.text }}</span>
                 {% empty %}
                 <span class="category-card__tag category-card__tag--empty">Нет слов</span>
                 {% endfor %}
@@ -145,8 +149,9 @@
             <div class="word-card__body">
                 <h3 class="word-card__title">{{ lemma.text }}</h3>
                 <div class="word-card__meta">
-                    {% if lemma.meanings.all %}
-                    <span class="word-card__tag">{{ lemma.meanings.first.description }}</span>
+                    {# Исправлено: используем preview_meaning из view #}
+                    {% if lemma.preview_meaning %}
+                    <span class="word-card__tag">{{ lemma.preview_meaning.description }}</span>
                     {% endif %}
                 </div>
             </div>

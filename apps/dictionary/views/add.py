@@ -4,12 +4,10 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from slugify import slugify
-
 from ._base import group_required
 from ..models import (
-    Category,
-    TextLexeme, LexemePair, GestureLexeme, GestureRealization,
-    Meaning
+    Category, TextLexeme, LexemeTriplet, GestureLexeme,
+    GestureRealization, Meaning
 )
 from ..utils.media_processing import process_image, video_to_gif, process_video
 
@@ -120,49 +118,45 @@ def page_add_word(request):
         word = request.POST.get('word', '').strip()
         video = request.FILES.get('video')
         user = request.user
-
         errors = []
+
         if not word:
             errors.append('Введите слово')
         if len(word) > 50:
             errors.append('Слово не может быть длиннее 50 символов')
         if not video:
             errors.append('Загрузите видео!')
+
         if errors:
             return render(request, 'dictionary/add-word.html', {"errors": errors})
 
-        slug = slugify(word)
+        base_slug = slugify(word)
+        slug = base_slug
+        counter = 1
+        while TextLexeme.objects.filter(slug=slug).exists():
+            slug = f"{base_slug}-{counter}"
+            counter += 1
 
-        # Meaning
-        meaning, created = Meaning.objects.get_or_create(
+        # 1. Создаем или получаем Значение
+        meaning, _ = Meaning.objects.get_or_create(
             description=word,
-            defaults={'author': user}
+            defaults={'author': user, 'moderation_status': 'pending'}
         )
-        print(f"Meaning: {meaning} / {created}")
 
-        # TextLexeme
-        text_lexeme, created = TextLexeme.objects.get_or_create(
+        # 2. Создаем Текстовую лексему
+        text_lexeme, t_created = TextLexeme.objects.get_or_create(
             text=word,
-            author=user,
-            defaults={'slug': f"t-{slug}", 'author': user}
+            defaults={'slug': slug, 'author': user, 'moderation_status': 'pending'}
         )
-        print(f"Text lexeme: {text_lexeme} / {created}")
-        if created:
-            text_lexeme.meanings.add(meaning)
 
-        # GestureLexeme
-        gesture_lexeme, created = GestureLexeme.objects.get_or_create(
-            text=word,
+        gesture_lexeme = GestureLexeme.objects.create(
             author=user,
-            defaults={'slug': f"g-{slug}", 'author': user}
+            moderation_status='approved'
         )
-        print(f"Gesture lexeme: {gesture_lexeme} / {created}")
-        if created:
-            gesture_lexeme.meanings.add(meaning)
 
+        # 4. Обработка медиа
         processed_video = process_video(video, 512)
         processed_mini = process_video(video, 256)
-
         gif = video_to_gif(processed_video)
         gif_mini = video_to_gif(processed_mini)
 
@@ -171,15 +165,17 @@ def page_add_word(request):
             video=processed_video,
             gif=gif,
             gif_mini=gif_mini,
-            author=user
+            author=user,
+            moderation_status='pending',
+            is_primary=True
         )
-        print(realization)
 
-        # Связь через LexemePair
-        LexemePair.objects.get_or_create(
+        # 5. Создаем Триплет
+        triplet, trip_created = LexemeTriplet.objects.get_or_create(
             text_lexeme=text_lexeme,
+            meaning=meaning,
             gesture_lexeme=gesture_lexeme,
-            defaults={'created_by': user}
+            defaults={'created_by': user, 'moderation_status': 'pending'}
         )
 
         messages.success(request, f'Слово "{word}" успешно добавлено!')

@@ -1,9 +1,10 @@
 from rest_framework import serializers
-from apps.dictionary.models import Category, TextLexeme, Meaning
+from apps.dictionary.models import Category, TextLexeme, Meaning, LexemeTriplet, GestureLexeme
 
 
 class CategoryListSerializer(serializers.ModelSerializer):
     """Короткий сериализатор категорий"""
+    # Поля words_count и gestures_count теперь считаются через lexemetriplet
     words_count = serializers.IntegerField(read_only=True)
     gestures_count = serializers.IntegerField(read_only=True)
 
@@ -55,12 +56,14 @@ class CategoryTreeSerializer(serializers.ModelSerializer):
 
 class TextLexemeSerializer(serializers.ModelSerializer):
     """Основной сериализатор текстовых лексем"""
-    categories = serializers.StringRelatedField(many=True, read_only=True)
-    meanings = serializers.StringRelatedField(many=True, read_only=True)
+
+    # Убрана связь categories и meanings, так как они теперь опосредованы через Triplet
+    # Если нужно показать категории, придется делать SerializerMethodField или prefetch через triplets
 
     class Meta:
         model = TextLexeme
-        fields = ['id', 'text', 'slug', 'categories', 'meanings']
+        fields = ['id', 'text', 'slug']  # Убраны categories и meanings
+
 
 class TextLexemeListSerializer(serializers.ModelSerializer):
     """Короткий сериализатор текстовых лексем"""
@@ -93,15 +96,18 @@ class MeaningDetailSerializer(serializers.ModelSerializer):
                   'text_lexemes', 'gesture_lexemes']
 
     def get_text_lexemes(self, obj):
-        """Получить связанные текстовые леммы"""
+        """Получить связанные текстовые леммы через триплеты"""
+        # Используем related_name 'triplets' из модели LexemeTriplet
+        triplets = obj.triplets.filter(moderation_status='approved').select_related('text_lexeme')
         return [
-            {'id': lexeme.id, 'text': lexeme.text, 'slug': lexeme.slug}
-            for lexeme in obj.textlexeme_set.filter(moderation_status='approved')
+            {'id': t.text_lexeme.id, 'text': t.text_lexeme.text, 'slug': t.text_lexeme.slug}
+            for t in triplets
         ]
 
     def get_gesture_lexemes(self, obj):
-        """Получить связанные жестовые леммы"""
+        """Получить связанные жестовые леммы через триплеты"""
+        triplets = obj.triplets.filter(moderation_status='approved').select_related('gesture_lexeme')
         return [
-            {'id': lexeme.id, 'text': lexeme.text, 'slug': lexeme.slug}
-            for lexeme in obj.gesturelexeme_set.filter(moderation_status='approved')
+            {'id': t.gesture_lexeme.id, 'label': f"Gesture #{t.gesture_lexeme.id}"}  # У жеста больше нет текста
+            for t in triplets
         ]

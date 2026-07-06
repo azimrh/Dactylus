@@ -14,14 +14,15 @@ class Personal(models.Model):
         on_delete=models.CASCADE,
         related_name='personal_items'
     )
-    lexeme_pair = models.ForeignKey(
-        'dictionary.LexemePair',
-        on_delete=models.CASCADE
+    # Изменено: ссылка на триплет вместо пары
+    lexeme_triplet = models.ForeignKey(
+        'dictionary.LexemeTriplet',
+        on_delete=models.CASCADE,
+        related_name='personal_entries'
     )
-
     status = models.CharField(
         max_length=20,
-        choices=STATUS_CHOICES,  # ← использовать константу
+        choices=STATUS_CHOICES,
         default='new'
     )
     notes = models.TextField(blank=True)
@@ -29,5 +30,10 @@ class Personal(models.Model):
     last_reviewed = models.DateTimeField(null=True, blank=True)
 
     class Meta:
-        unique_together = ['user', 'lexeme_pair']
+        unique_together = ['user', 'lexeme_triplet']
         ordering = ['-added_at']
+        verbose_name = 'Элемент личного словаря'
+        verbose_name_plural = 'Личный словарь'
+
+    def __str__(self):
+        return f"{self.user.username} - {self.lexeme_triplet.text_lexeme}"

@@ -1,8 +1,5 @@
 from django.db import models
 from django.urls import reverse
-from django.contrib.contenttypes.fields import GenericForeignKey
-from django.contrib.contenttypes.models import ContentType
-
 from apps.users.models import User
 
 
@@ -33,9 +30,6 @@ class Category(models.Model):
 
 
 class BaseLexeme(models.Model):
-    text = models.CharField(max_length=200, verbose_name='Текст / Жест')
-    slug = models.SlugField(unique=True)
-
     moderation_status = models.CharField(
         max_length=20,
         choices=[
@@ -48,19 +42,15 @@ class BaseLexeme(models.Model):
     )
 
     author = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Автор')
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата публикации')
-
-    meanings = models.ManyToManyField(
-        'Meaning',
-        related_name='%(class)s_set',
-        verbose_name='Значения'
-    )
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
 
     class Meta:
         abstract = True
 
 
 class TextLexeme(BaseLexeme):
+    text = models.CharField(max_length=200, verbose_name='Текст')
+    slug = models.SlugField(unique=True)
     is_letter = models.BooleanField(default=False, verbose_name='Буква / Жест буквы')
     letter_char = models.CharField(max_length=1, blank=True, verbose_name='Символ буквы')
 
@@ -83,36 +73,55 @@ class GestureLexeme(BaseLexeme):
     class Meta:
         verbose_name = 'Жестовая лемма'
         verbose_name_plural = 'Жестовые леммы'
-        ordering = ['text']
+        ordering = ['-id']
 
     def __str__(self):
-        return self.text
+        return f"Gesture #{self.id}"
 
     def get_absolute_url(self):
-        return reverse('text_lexeme', kwargs={'slug': self.slug})
+        return reverse('gesture_lexeme_detail', kwargs={'pk': self.pk})
 
 
-class LexemePair(models.Model):
-    """Связь текстовой и жестовой леммы."""
+class Meaning(models.Model):
+    description = models.TextField(verbose_name='Описание значения', null=True)
+    moderation_status = models.CharField(
+        max_length=20,
+        choices=[
+            ('pending', 'На проверке'),
+            ('approved', 'Одобрено'),
+            ('rejected', 'Отклонено')
+        ],
+        default='pending',
+        db_index=True
+    )
+    author = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Автор')
+    created_at = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        verbose_name = 'Значение (денотат)'
+        verbose_name_plural = 'Значения (денотаты)'
+        app_label = 'dictionary'
+
+    def __str__(self):
+        return self.description[:50] if self.description else "Meaning"
+
+
+class LexemeTriplet(models.Model):
+    """Связка: Текст + Значение + Жест."""
     text_lexeme = models.ForeignKey(
-        TextLexeme,
-        on_delete=models.CASCADE,
-        related_name='pairs',
-        verbose_name='Текстовая лемма'
+        TextLexeme, on_delete=models.CASCADE,
+        related_name='triplets', verbose_name='Текстовая лемма'
     )
-
+    meaning = models.ForeignKey(
+        Meaning, on_delete=models.SET_NULL,
+        null=True,
+        related_name='triplets', verbose_name='Значение'
+    )
     gesture_lexeme = models.ForeignKey(
-        GestureLexeme,
-        on_delete=models.CASCADE,
-        related_name='pairs',
-        verbose_name='Жестовая лемма'
+        GestureLexeme, on_delete=models.CASCADE,
+        related_name='triplets', verbose_name='Жестовая лемма'
     )
-
-    categories = models.ManyToManyField(
-        Category,
-        verbose_name='Категории'
-    )
+    categories = models.ManyToManyField(Category, verbose_name='Категории', blank=True)
 
     moderation_status = models.CharField(
         max_length=20,
@@ -124,60 +133,44 @@ class LexemePair(models.Model):
         default='pending',
         db_index=True
     )
-
-    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='created_triplets')
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        verbose_name = 'Связь текст<-->жест'
-        verbose_name_plural = 'Связи текст<-->жест'
-        unique_together = ['text_lexeme', 'gesture_lexeme']
+        verbose_name = 'Триплет (текст-значение-жест)'
+        verbose_name_plural = 'Триплеты'
+        unique_together = ['text_lexeme', 'meaning', 'gesture_lexeme']
         indexes = [
             models.Index(fields=['text_lexeme']),
             models.Index(fields=['gesture_lexeme']),
+            models.Index(fields=['meaning']),
         ]
+
+    def __str__(self):
+        return f"{self.text_lexeme} - {self.meaning} - {self.gesture_lexeme}"
 
 
 class GestureRealization(models.Model):
-    """Реализация жеста."""
-
     gesture_lexeme = models.ForeignKey(
-        GestureLexeme,
-        on_delete=models.CASCADE,
-        related_name='realizations',
-        verbose_name='Жестовая лемма'
+        GestureLexeme, on_delete=models.CASCADE,
+        related_name='realizations', verbose_name='Жестовая лемма'
     )
-
     video = models.FileField(upload_to='videos/gestures/')
     gif = models.FileField(upload_to='gif/gestures/')
     gif_mini = models.FileField(upload_to='gif/gestures/mini/')
     image = models.ImageField(upload_to='thumbnails/', blank=True, null=True)
     is_primary = models.BooleanField(default=False)
-
     moderation_status = models.CharField(
         max_length=20,
-        choices=[
-            ('pending', 'На проверке'),
-            ('approved', 'Одобрено'),
-            ('rejected', 'Отклонено')
-        ],
-        default='pending',
-        db_index=True
+        choices=[('pending', 'На проверке'), ('approved', 'Одобрено'), ('rejected', 'Отклонено')],
+        default='pending', db_index=True
     )
     moderated_by = models.ForeignKey(
-        User,
-        null=True,
-        blank=True,
-        on_delete=models.SET_NULL,
+        User, null=True, blank=True, on_delete=models.SET_NULL,
         related_name='moderated_realizations'
     )
     moderation_comment = models.TextField(blank=True)
-
-    author = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        related_name='created_realizations'
-    )
+    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='created_realizations')
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -185,51 +178,4 @@ class GestureRealization(models.Model):
         verbose_name_plural = 'Реализации жестов'
 
     def __str__(self):
-        return f"{self.gesture_lexeme.text} - {self.author.username}"
-
-
-class Meaning(models.Model):
-    description = models.TextField(verbose_name='Описание значения', null=True)
-
-    moderation_status = models.CharField(
-        max_length=20,
-        choices=[
-            ('pending', 'На проверке'),
-            ('approved', 'Одобрено'),
-            ('rejected', 'Отклонено')
-        ],
-        default='pending',
-        db_index=True
-    )
-
-    author = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Автор')
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        verbose_name = 'Значение (денотат)'
-        verbose_name_plural = 'Значение (денотаты)'
-        app_label = 'dictionary'
-
-    def __str__(self):
-        return self.description[:50]
-
-
-class LexemeMeaningMapping(models.Model):
-    lexeme_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
-    lexeme_id = models.PositiveIntegerField()
-    lexeme = GenericForeignKey('lexeme_type', 'lexeme_id')
-
-    is_auto_meaning = models.BooleanField(default=True, verbose_name='Создано автоматически')
-
-    meaning = models.ForeignKey(Meaning, on_delete=models.CASCADE)
-    is_primary = models.BooleanField(default=False, verbose_name='Основное значение')
-
-
-    class Meta:
-        unique_together = ['lexeme_type', 'lexeme_id', 'meaning']
-        verbose_name = 'Связь лемма-значение'
-        verbose_name_plural = 'Связи лемма-значение'
-        app_label = 'dictionary'
-        indexes = [
-            models.Index(fields=['lexeme_type', 'lexeme_id']),
-        ]
+        return f"Realization of {self.gesture_lexeme_id} by {self.author.username}"
