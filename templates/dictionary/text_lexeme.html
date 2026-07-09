@@ -144,7 +144,7 @@
             <div class="word-video-column">
                 <!-- Action buttons row -->
                 <div class="word-actions">
-                    {% if lexeme_pair_id %}
+                    {% if triplet_id %}
                     <button class="btn {% if in_personal %}btn-outline-primary{% else %}btn-primary{% endif %}"
                             onclick="addToPersonal()">
                         {% if in_personal %}
@@ -154,8 +154,8 @@
                         {% endif %}
                     </button>
                     {% endif %}
-                    {% if perms.dictionary.change_textlexeme %}
-                    <a href="{% url 'moderation-text' lemma.id %}"
+                    {% if perms.dictionary.change_triplet %}
+                    <a href="{% url 'moderation-triplet' lemma.id %}"
                        class="btn btn-outline-secondary">
                         <i class="bi bi-pencil me-1" aria-hidden="true"></i> Изменить
                     </a>

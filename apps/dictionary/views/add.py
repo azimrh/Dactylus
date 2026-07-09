@@ -140,13 +140,20 @@ def page_add_word(request):
         # 1. Создаем или получаем Значение
         meaning, _ = Meaning.objects.get_or_create(
             description=word,
-            defaults={'author': user, 'moderation_status': 'pending'}
+            defaults={
+                'author': user,
+                'moderation_status': 'pending'
+            }
         )
 
-        # 2. Создаем Текстовую лексему
+        # 2. Создаем или получаем Текстовую лексему
         text_lexeme, t_created = TextLexeme.objects.get_or_create(
             text=word,
-            defaults={'slug': slug, 'author': user, 'moderation_status': 'pending'}
+            defaults={
+                'slug': slug,
+                'author': user,
+                'moderation_status': 'pending'
+            }
         )
 
         gesture_lexeme = GestureLexeme.objects.create(
@@ -175,7 +182,10 @@ def page_add_word(request):
             text_lexeme=text_lexeme,
             meaning=meaning,
             gesture_lexeme=gesture_lexeme,
-            defaults={'created_by': user, 'moderation_status': 'pending'}
+            defaults={
+                'created_by': user,
+                'moderation_status': 'pending'
+            }
         )
 
         messages.success(request, f'Слово "{word}" успешно добавлено!')
