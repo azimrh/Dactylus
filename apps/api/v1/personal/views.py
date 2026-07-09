@@ -1,7 +1,7 @@
 from rest_framework import viewsets, permissions, status, filters
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from django.db.models import Count, Q, Case, When, IntegerField
+from django.db.models import Count, Q
 from django.utils import timezone
 
 from apps.personal.models import Personal
@@ -24,8 +24,8 @@ class PersonalViewSet(viewsets.ModelViewSet):
     ordering_fields = ['added_at', 'last_reviewed', 'status']
     ordering = ['-added_at']
     search_fields = [
-        'lexeme_pair__text_lexeme__text',
-        'lexeme_pair__gesture_lexeme__text',
+        'lexeme_triplet__text_lexeme__text',
+        'lexeme_triplet__gesture_lexeme__text',
         'notes'
     ]
 
@@ -44,10 +44,10 @@ class PersonalViewSet(viewsets.ModelViewSet):
         return Personal.objects.filter(
             user=self.request.user
         ).select_related(
-            'lexeme_pair__text_lexeme',
-            'lexeme_pair__gesture_lexeme'
+            'lexeme_triplet__text_lexeme',
+            'lexeme_triplet__gesture_lexeme'
         ).prefetch_related(
-            'lexeme_pair__gesture_lexeme__realizations'
+            'lexeme_triplet__gesture_lexeme__realizations'
         )
 
     def perform_create(self, serializer):
@@ -72,11 +72,8 @@ class PersonalViewSet(viewsets.ModelViewSet):
             learned=Count('id', filter=Q(status='learned'))
         )
 
-        # Вычисляем процент прогресса
         total = stats['total']
         progress = (stats['learned'] / total * 100) if total > 0 else 0
-
-        # Последняя активность
         last_entry = queryset.order_by('-last_reviewed').first()
 
         data = {
@@ -102,8 +99,6 @@ class PersonalViewSet(viewsets.ModelViewSet):
             )
 
         queryset = self.get_queryset().filter(status=status_filter)
-
-        # Пагинация
         page = self.paginate_queryset(queryset)
         if page is not None:
             serializer = self.get_serializer(page, many=True)

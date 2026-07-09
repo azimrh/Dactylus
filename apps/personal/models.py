@@ -14,7 +14,6 @@ class Personal(models.Model):
         on_delete=models.CASCADE,
         related_name='personal_items'
     )
-    # Изменено: ссылка на триплет вместо пары
     lexeme_triplet = models.ForeignKey(
         'dictionary.LexemeTriplet',
         on_delete=models.CASCADE,

@@ -2,13 +2,14 @@
 {% load static %}
 
 {% block page_css %}
-    <link rel="stylesheet" href="{% static 'css/pages/word.css' %}?v=2.0">
+    <link rel="stylesheet" href="{% static 'css/pages/word.css' %}?v=3.2">
 {% endblock %}
 
 {% block title %}{{ lemma.text }} | Dactylus{% endblock %}
 
 {% block content %}
 <div class="d-container">
+    <!-- Хлебные крошки -->
     <nav class="d-breadcrumb" id="categoryBreadcrumb">
         <i class="bi bi-chevron-right" aria-hidden="true"></i>
         <a href="{% url 'dictionary' %}">Категории</a>
@@ -21,193 +22,213 @@
     </nav>
 
     <div class="word-layout">
-        <!-- Main content row: header+tabs left, video right -->
-        <div class="word-content-row">
-            <!-- Left column: header + tabs + content -->
-            <div class="word-left-column">
-                <!-- Header with title -->
-                <div class="word-header">
-                    <div class="word-header__title-group">
-                        <h1 class="word-header__title">{{ lemma.text }}</h1>
-                        <span class="d-badge {% if in_personal %}d-badge--verified{% endif %}">
-                            {% if in_personal %}
-                            <i class="bi bi-check-circle-fill me-1" aria-hidden="true"></i> В вашем словаре
-                            {% else %}
-                            <i class="bi bi-plus-circle me-1" aria-hidden="true"></i> Не в словаре
-                            {% endif %}
-                        </span>
-                    </div>
-                </div>
-
-                <!-- Tabs Navigation -->
-                <div class="content-tabs__nav">
-                    <button class="content-tabs__btn content-tabs__btn--active" data-tab="meanings">Значения</button>
-                    {% if synonyms_by_meaning %}
-                    <button class="content-tabs__btn" data-tab="synonyms">Синонимы</button>
+        <!-- Заголовок -->
+        <div class="word-header">
+            <div class="word-header__title-group">
+                <h1 class="word-header__title">{{ lemma.text }}</h1>
+                <span class="d-badge {% if in_personal %}d-badge--verified{% endif %}">
+                    {% if in_personal %}
+                    <i class="bi bi-check-circle-fill me-1" aria-hidden="true"></i> В вашем словаре
+                    {% else %}
+                    <i class="bi bi-plus-circle me-1" aria-hidden="true"></i> Не в словаре
                     {% endif %}
-                    {% if antonyms.exists %}
-                    <button class="content-tabs__btn" data-tab="antonyms">Антонимы</button>
-                    {% endif %}
-                    <button class="content-tabs__btn" data-tab="info">Информация</button>
-                </div>
+                </span>
+            </div>
+        </div>
 
-                <!-- Tab Panels -->
-                <div class="content-tabs__viewport">
-                    <div class="content-tabs__track" id="tabsTrack">
-                        <!-- Tab: Значения -->
-                        <div class="tab-panel active" id="tab-meanings">
-                            <div class="info-card">
-                                <div class="info-card__header">
-                                    <div class="info-card__icon"><i class="bi bi-book" aria-hidden="true"></i></div>
-                                    <h2 class="info-card__title">Значения слова</h2>
-                                </div>
-                                <div class="meanings-list">
-                                    {% for mapping in meanings %}
-                                    <div class="meaning-item">
-                                        <div class="meaning-item__number">{{ forloop.counter }}</div>
-                                        <div class="meaning-item__content">
-                                            {% if mapping.description %}
-                                            <p class="meaning-item__desc">{{ mapping.description }}</p>
-                                            {% else %}
-                                            <p class="meaning-item__desc">Описание отсутствует</p>
-                                            {% endif %}
-                                        </div>
-                                    </div>
-                                    {% empty %}
-                                    <div class="meaning-empty">
-                                        <i class="bi bi-inbox" aria-hidden="true"></i>
-                                        <p>Значения не найдены</p>
-                                    </div>
-                                    {% endfor %}
-                                </div>
-                            </div>
-                        </div>
+        <!-- Tabs: на каждое meaning своя вкладка -->
+        <div class="meanings-tabs-wrapper">
+            <div class="content-tabs__nav">
+                {% for meaning, data in meanings_data.items %}
+                <button class="content-tabs__btn {% if forloop.first %}content-tabs__btn--active{% endif %}"
+                        data-tab="meaning-{{ meaning.id }}"
+                        data-meaning-id="{{ meaning.id }}">
+                    {{ meaning.description|default:"Значение"|truncatechars:30 }}
+                </button>
+                {% empty %}
+                <button class="content-tabs__btn content-tabs__btn--active" data-tab="meaning-empty">
+                    Значения
+                </button>
+                {% endfor %}
+            </div>
 
-                        {% if synonyms_by_meaning %}
-                        <div class="tab-panel" id="tab-synonyms">
-                            <div class="info-card">
-                                <div class="info-card__header">
-                                    <div class="info-card__icon"><i class="bi bi-diagram-2" aria-hidden="true"></i></div>
-                                    <h2 class="info-card__title">Синонимы</h2>
+            <!-- Tab Panels -->
+            <div class="content-tabs__viewport">
+                <div class="content-tabs__track" id="tabsTrack">
+                    {% for meaning, data in meanings_data.items %}
+                    <div class="tab-panel {% if forloop.first %}active{% endif %}"
+                         id="tab-meaning-{{ meaning.id }}"
+                         data-meaning-id="{{ meaning.id }}">
+
+                        <!-- Двухколоночный layout: слева контент, справа видео -->
+                        <div class="meaning-layout">
+                            <!-- Левая колонка: описание, синонимы, антонимы, инфо -->
+                            <div class="meaning-content-column">
+                                <!-- Описание значения -->
+                                <div class="info-card meaning-desc-card">
+                                    <div class="info-card__header">
+                                        <div class="info-card__icon"><i class="bi bi-book" aria-hidden="true"></i></div>
+                                        <h2 class="info-card__title">Значение</h2>
+                                    </div>
+                                    <p class="meaning-desc-text">
+                                        {% if meaning.description %}
+                                            {{ meaning.description }}
+                                        {% else %}
+                                            <span class="text-muted">Описание отсутствует</span>
+                                        {% endif %}
+                                    </p>
                                 </div>
-                                {% for meaning, words in synonyms_by_meaning.items %}
-                                <div class="connection-group">
-                                    <div class="connection-group__title">По значению «{{ meaning.description }}»</div>
+
+                                <!-- Синонимы -->
+                                {% if data.synonyms %}
+                                <div class="info-card synonyms-card">
+                                    <div class="info-card__header">
+                                        <div class="info-card__icon"><i class="bi bi-diagram-2" aria-hidden="true"></i></div>
+                                        <h2 class="info-card__title">Синонимы</h2>
+                                    </div>
                                     <div class="connection-list">
-                                        {% for word in words %}
-                                        <a href="{% url 'text_lexeme' word.slug %}" class="connection-item">
-                                            <span class="connection-item__name">{{ word.text }}</span>
+                                        {% for synonym in data.synonyms %}
+                                        <a href="{% url 'text_lexeme' synonym.slug %}" class="connection-item">
+                                            <span class="connection-item__name">{{ synonym.text }}</span>
                                         </a>
                                         {% endfor %}
                                     </div>
                                 </div>
-                                {% endfor %}
-                            </div>
-                        </div>
-                        {% endif %}
+                                {% endif %}
 
-                        <div class="tab-panel" id="tab-info">
-                            <div class="info-card">
-                                <div class="info-card__header">
-                                    <div class="info-card__icon"><i class="bi bi-info-circle" aria-hidden="true"></i></div>
-                                    <h2 class="info-card__title">Информация</h2>
-                                </div>
-                                <dl class="info-list">
-                                    <dt>Категории:</dt>
-                                    <dd>
-                                        {% for cat in categories %}
-                                        <a href="{% url 'category' cat.slug %}" class="meaning-tag">{{ cat.name }}</a>
-                                        {% empty %}
-                                        <span class="text-muted">Нет категорий</span>
+                                <!-- Антонимы -->
+                                {% if antonyms %}
+                                <div class="info-card antonyms-card">
+                                    <div class="info-card__header">
+                                        <div class="info-card__icon"><i class="bi bi-arrow-left-right" aria-hidden="true"></i></div>
+                                        <h2 class="info-card__title">Антонимы</h2>
+                                    </div>
+                                    <div class="connection-list">
+                                        {% for antonym in antonyms %}
+                                        <a href="{% url 'text_lexeme' antonym.slug %}" class="connection-item">
+                                            <span class="connection-item__name">{{ antonym.text }}</span>
+                                        </a>
                                         {% endfor %}
-                                    </dd>
-                                    {% if lemma.situation %}
-                                    <dt>Ситуация:</dt>
-                                    <dd>{{ lemma.situation }}</dd>
+                                    </div>
+                                </div>
+                                {% endif %}
+
+                                <!-- Информация -->
+                                <div class="info-card meaning-info-card">
+                                    <div class="info-card__header">
+                                        <div class="info-card__icon"><i class="bi bi-info-circle" aria-hidden="true"></i></div>
+                                        <h2 class="info-card__title">Информация</h2>
+                                    </div>
+                                    <dl class="info-list">
+                                        <dt>Категории:</dt>
+                                        <dd>
+                                            {% for cat in categories %}
+                                            <a href="{% url 'category' cat.slug %}" class="meaning-tag">{{ cat.name }}</a>
+                                            {% empty %}
+                                            <span class="text-muted">Нет категорий</span>
+                                            {% endfor %}
+                                        </dd>
+                                        {% if lemma.situation %}
+                                        <dt>Ситуация:</dt>
+                                        <dd>{{ lemma.situation }}</dd>
+                                        {% endif %}
+                                        {% if lemma.emotional_coloring %}
+                                        <dt>Эмоциональная окраска:</dt>
+                                        <dd>{{ lemma.emotional_coloring }}</dd>
+                                        {% endif %}
+                                        {% if lemma.region %}
+                                        <dt>Регион:</dt>
+                                        <dd>{{ lemma.region }}</dd>
+                                        {% endif %}
+                                    </dl>
+                                </div>
+                            </div>
+
+                            <!-- Правая колонка: кнопки + видео -->
+                            <div class="meaning-video-column">
+                                <!-- Кнопки действий — над видео -->
+                                <div class="word-actions word-actions--in-tab">
+                                    {% if triplet_id %}
+                                    <button class="btn {% if in_personal %}btn-outline-primary{% else %}btn-primary{% endif %}"
+                                            id="personalBtn"
+                                            data-triplet-id="{{ triplet_id }}"
+                                            onclick="togglePersonal()">
+                                        {% if in_personal %}
+                                        <i class="bi bi-check-lg me-1" aria-hidden="true"></i> В словаре
+                                        {% else %}
+                                        <i class="bi bi-plus-lg me-2" aria-hidden="true"></i> В мой словарь
+                                        {% endif %}
+                                    </button>
                                     {% endif %}
-                                    {% if lemma.emotional_coloring %}
-                                    <dt>Эмоциональная окраска:</dt>
-                                    <dd>{{ lemma.emotional_coloring }}</dd>
+                                    {% if perms.dictionary.change_textlexeme %}
+                                    <a href="{% url 'moderation-text' lemma.id %}"
+                                       class="btn btn-outline-secondary">
+                                        <i class="bi bi-pencil me-1" aria-hidden="true"></i> Изменить
+                                    </a>
                                     {% endif %}
-                                    {% if lemma.region %}
-                                    <dt>Регион:</dt>
-                                    <dd>{{ lemma.region }}</dd>
+                                </div>
+
+                                <div class="video-sidebar">
+                                    {% with main_gesture=data.gestures.0 %}
+                                    {% if main_gesture %}
+                                    <div class="d-video-player" id="player-{{ meaning.id }}" data-gesture-id="{{ main_gesture.id }}">
+                                        <video loop playsinline {% if main_gesture.image %}poster="{{ main_gesture.image.url }}"{% endif %}>
+                                            <source src="{{ main_gesture.video.url }}" type="video/mp4">
+                                        </video>
+                                        <div class="d-video-player__overlay">
+                                            <button class="d-video-player__play">
+                                                <i class="bi bi-play-fill" aria-hidden="true"></i>
+                                            </button>
+                                        </div>
+                                        <div class="d-video-controls">
+                                            <div class="video-progress">
+                                                <div class="video-progress__bar"></div>
+                                            </div>
+                                            <span class="video-time">0:00 / 0:00</span>
+                                        </div>
+                                    </div>
+                                    {% else %}
+                                    <div class="d-video-player no-video">
+                                        <div class="no-video__placeholder">
+                                            <i class="bi bi-camera-video-off" aria-hidden="true"></i>
+                                            <p>Нет видео для этого жеста</p>
+                                        </div>
+                                    </div>
                                     {% endif %}
-                                </dl>
+                                    {% endwith %}
+
+                                    {% if data.gestures|length > 1 %}
+                                    <div class="gesture-switcher">
+                                        {% for gesture in data.gestures %}
+                                        <button class="gesture-switcher__btn {% if forloop.first %}gesture-switcher__btn--active{% endif %}"
+                                                data-gesture-id="{{ gesture.id }}"
+                                                data-video-url="{{ gesture.video.url }}"
+                                                {% if gesture.image %}data-poster="{{ gesture.image.url }}"{% endif %}>
+                                            Жест {{ forloop.counter }}
+                                        </button>
+                                        {% endfor %}
+                                    </div>
+                                    {% endif %}
+
+                                    <div class="speed-control">
+                                        <i class="bi bi-speedometer2" aria-hidden="true"></i>
+                                        <input type="range" min="0.25" max="1.5" step="0.25" value="1" class="speed-slider">
+                                        <span class="speed-control__value">1x</span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
-
-            <!-- Right column: actions + video -->
-            <div class="word-video-column">
-                <!-- Action buttons row -->
-                <div class="word-actions">
-                    {% if triplet_id %}
-                    <button class="btn {% if in_personal %}btn-outline-primary{% else %}btn-primary{% endif %}"
-                            onclick="addToPersonal()">
-                        {% if in_personal %}
-                        <i class="bi bi-check-lg me-1" aria-hidden="true"></i> В словаре
-                        {% else %}
-                        <i class="bi bi-plus-lg me-2" aria-hidden="true"></i> В мой словарь
-                        {% endif %}
-                    </button>
-                    {% endif %}
-                    {% if perms.dictionary.change_triplet %}
-                    <a href="{% url 'moderation-triplet' lemma.id %}"
-                       class="btn btn-outline-secondary">
-                        <i class="bi bi-pencil me-1" aria-hidden="true"></i> Изменить
-                    </a>
-                    {% endif %}
-                </div>
-
-                <!-- Video player -->
-                <div class="video-sidebar">
-                    {% if main_gesture %}
-                    <div class="d-video-player" id="mainPlayer" data-gesture-id="{{ main_gesture.id }}">
-                        <video loop playsinline {% if main_gesture.image %}poster="{{ main_gesture.image.url }}"{% endif %}>
-                            <source src="{{ main_gesture.video.url }}" type="video/mp4">
-                        </video>
-                        <div class="d-video-player__overlay">
-                            <button class="d-video-player__play">
-                                <i class="bi bi-play-fill" aria-hidden="true"></i>
-                            </button>
-                        </div>
-                        <div class="d-video-controls">
-                            <div class="video-progress">
-                                <div class="video-progress__bar"></div>
+                    {% empty %}
+                    <div class="tab-panel active" id="tab-meaning-empty">
+                        <div class="info-card">
+                            <div class="meaning-empty">
+                                <i class="bi bi-inbox" aria-hidden="true"></i>
+                                <p>Значения не найдены</p>
                             </div>
-                            <span class="video-time">0:00 / 0:00</span>
                         </div>
                     </div>
-                    {% else %}
-                    <div class="d-video-player no-video">
-                        <div class="no-video__placeholder">
-                            <i class="bi bi-camera-video-off" aria-hidden="true"></i>
-                            <p>Нет видео для этого жеста</p>
-                        </div>
-                    </div>
-                    {% endif %}
-
-                    {% if gesture_realizations|length > 1 %}
-                    <div class="gesture-switcher">
-                        {% for gesture in gesture_realizations %}
-                        <button class="gesture-switcher__btn {% if gesture.id == main_gesture.id %}gesture-switcher__btn--active{% endif %}"
-                                data-gesture-id="{{ gesture.id }}"
-                                data-video-url="{{ gesture.video.url }}"
-                                {% if gesture.image %}data-poster="{{ gesture.image.url }}"{% endif %}>
-                            Жест {{ forloop.counter }}
-                        </button>
-                        {% endfor %}
-                    </div>
-                    {% endif %}
-
-                    <div class="speed-control">
-                        <i class="bi bi-speedometer2" aria-hidden="true"></i>
-                        <input type="range" min="0.25" max="1.5" step="0.25" value="1" class="speed-slider">
-                        <span class="speed-control__value">1x</span>
-                    </div>
+                    {% endfor %}
                 </div>
             </div>
         </div>
@@ -217,96 +238,109 @@
 
 {% block page_js %}
     <script src="{% static 'js/components/video-player.js' %}?v=1.0.0"></script>
-    <script src="{% static 'js/pages/word.js' %}?v=1.1.0"></script>
+    <script src="{% static 'js/pages/word.js' %}?v=2.2.0"></script>
     <script>
-    function addToPersonal() {
-        const csrfToken = document.cookie.split('; ')
-            .find(row => row.startsWith('csrftoken='))
-            ?.split('=')[1] || '';
+    (function() {
+        window.tripletId = {{ triplet_id|default:"null" }};
 
-        const button = document.querySelector('.word-actions .btn');
-        const isInPersonal = button && button.classList.contains('btn-outline-primary');
+        window.getCsrfToken = function() {
+            return document.cookie.split('; ')
+                .find(row => row.startsWith('csrftoken='))
+                ?.split('=')[1] || '';
+        };
 
-        if (isInPersonal) {
-            // Удаляем из словаря — сначала получаем список и ищем по lexeme_pair
-            fetch('/api/v1/personal/', {
-                method: 'GET',
-                headers: {
-                    'X-CSRFToken': csrfToken,
-                },
-                credentials: 'same-origin'
-            })
-            .then(response => {
-                if (!response.ok) throw new Error('Ошибка загрузки');
-                return response.json();
-            })
-            .then(data => {
-                const results = Array.isArray(data) ? data : (data.results || []);
-                const entry = results.find(item => item.lexeme_pair === {{ lexeme_pair_id }});
-                if (!entry) throw new Error('Запись не найдена');
-                return fetch(`/api/v1/personal/${entry.id}/`, {
-                    method: 'DELETE',
-                    headers: {
-                        'X-CSRFToken': csrfToken,
-                    },
+        window.togglePersonal = function() {
+            const button = document.getElementById('personalBtn');
+            if (!button || !window.tripletId) {
+                console.error('Button or tripletId not found', button, window.tripletId);
+                return;
+            }
+
+            const csrfToken = window.getCsrfToken();
+            const isInPersonal = button.classList.contains('btn-outline-primary');
+
+            if (isInPersonal) {
+                // Удаляем из словаря
+                fetch('/api/v1/personal/', {
+                    method: 'GET',
+                    headers: { 'X-CSRFToken': csrfToken },
                     credentials: 'same-origin'
-                });
-            })
-            .then(response => {
-                if (!response.ok) throw new Error('Не удалось удалить');
-                if (button) {
+                })
+                .then(r => {
+                    if (!r.ok) throw new Error('Ошибка загрузки');
+                    return r.json();
+                })
+                .then(data => {
+                    const results = Array.isArray(data) ? data : (data.results || []);
+                    const entry = results.find(item => item.lexeme_triplet === window.tripletId);
+                    if (!entry) throw new Error('Запись не найдена');
+                    return fetch(`/api/v1/personal/${entry.id}/`, {
+                        method: 'DELETE',
+                        headers: { 'X-CSRFToken': csrfToken },
+                        credentials: 'same-origin'
+                    });
+                })
+                .then(r => {
+                    if (!r.ok) throw new Error('Не удалось удалить');
                     button.classList.remove('btn-outline-primary');
                     button.classList.add('btn-primary');
                     button.innerHTML = '<i class="bi bi-plus-lg me-2" aria-hidden="true"></i> В мой словарь';
-                }
-                const badge = document.querySelector('.d-badge');
-                if (badge) {
-                    badge.classList.remove('d-badge--verified');
-                    badge.innerHTML = '<i class="bi bi-plus-circle me-1" aria-hidden="true"></i> Не в словаре';
-                }
-            })
-            .catch(err => {
-                console.error('Error:', err);
-                alert(err.message || 'Не удалось удалить из словаря');
-            });
 
-        } else {
-            // Добавляем в словарь
-            fetch('/api/v1/personal/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': csrfToken,
-                },
-                credentials: 'same-origin',
-                body: JSON.stringify({
-                    lexeme_pair: {{ lexeme_pair_id }},
-                    status: 'new'
+                    const badge = document.querySelector('.word-header .d-badge');
+                    if (badge) {
+                        badge.classList.remove('d-badge--verified');
+                        badge.innerHTML = '<i class="bi bi-plus-circle me-1" aria-hidden="true"></i> Не в словаре';
+                    }
                 })
-            })
-            .then(response => {
-                if (!response.ok) {
-                    return response.json().then(err => Promise.reject(err));
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (button) {
+                .catch(err => {
+                    console.error('Error:', err);
+                    alert(err.message || 'Не удалось удалить из словаря');
+                });
+
+            } else {
+                // Добавляем в словарь
+                fetch('/api/v1/personal/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrfToken,
+                    },
+                    credentials: 'same-origin',
+                    body: JSON.stringify({
+                        lexeme_triplet: window.tripletId,
+                        status: 'new'
+                    })
+                })
+                .then(r => {
+                    if (!r.ok) {
+                        return r.text().then(text => {
+                            try {
+                                const err = JSON.parse(text);
+                                return Promise.reject(err);
+                            } catch {
+                                return Promise.reject(new Error(text || 'Ошибка сервера'));
+                            }
+                        });
+                    }
+                    return r.json();
+                })
+                .then(data => {
                     button.classList.remove('btn-primary');
                     button.classList.add('btn-outline-primary');
                     button.innerHTML = '<i class="bi bi-check-lg me-1" aria-hidden="true"></i> В словаре';
-                }
-                const badge = document.querySelector('.d-badge');
-                if (badge) {
-                    badge.classList.add('d-badge--verified');
-                    badge.innerHTML = '<i class="bi bi-check-circle-fill me-1" aria-hidden="true"></i> В вашем словаре';
-                }
-            })
-            .catch(err => {
-                console.error('Error:', err);
-                alert(err.detail || 'Не удалось добавить в словарь');
-            });
-        }
-    }
+
+                    const badge = document.querySelector('.word-header .d-badge');
+                    if (badge) {
+                        badge.classList.add('d-badge--verified');
+                        badge.innerHTML = '<i class="bi bi-check-circle-fill me-1" aria-hidden="true"></i> В вашем словаре';
+                    }
+                })
+                .catch(err => {
+                    console.error('Error:', err);
+                    alert(err.detail || err.message || JSON.stringify(err) || 'Не удалось добавить в словарь');
+                });
+            }
+        };
+    })();
     </script>
 {% endblock %}
