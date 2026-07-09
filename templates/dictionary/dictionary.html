@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block page_css %}
-    <link rel="stylesheet" href="{% static 'css/pages/dictionary.css' %}?v=2.0">
+    <link rel="stylesheet" href="{% static 'css/pages/dictionary.css' %}?v=2.1">
 {% endblock %}
 
 {% block title %}
@@ -16,17 +16,35 @@
     <div class="mb-4">
         <div class="d-search mx-auto" style="max-width: 600px;">
             <i class="bi bi-search d-search__icon" aria-hidden="true"></i>
-            <input type="text" class="d-search__input" placeholder="Поиск по словарю...">
+            <input type="text" class="d-search__input" id="searchInput" placeholder="Поиск по словарю..." autocomplete="off">
+            <button class="d-search__clear" id="searchClear" style="display: none;" aria-label="Очистить поиск">
+                <i class="bi bi-x-lg" aria-hidden="true"></i>
+            </button>
         </div>
-    </div>
 
-    <!-- Мини-категории (только на главной) -->
-    <div class="mini-categories" id="miniCategories">
-        {% for cat in categories %}
-        <a href="{{ cat.get_absolute_url }}" class="mini-category">
-            {{ cat.name }}
-        </a>
-        {% endfor %}
+        <!-- Search Results (появляются под поиском) -->
+        <div class="d-search-results-wrapper mx-auto" style="max-width: 600px; display: none;" id="searchResultsWrapper">
+            <div class="d-search-results">
+                <div class="d-search-results__header">
+                    <span class="d-search-results__count" id="searchCount"></span>
+                    <button class="d-search-results__close" id="searchClose" aria-label="Закрыть результаты">
+                        <i class="bi bi-x-lg" aria-hidden="true"></i>
+                    </button>
+                </div>
+                <div class="d-search-results__list" id="searchResultsList">
+                    <!-- Результаты будут загружены здесь -->
+                </div>
+                <div class="d-search-results__loading" id="searchLoading" style="display: none;">
+                    <div class="spinner-border spinner-border-sm" role="status">
+                        <span class="visually-hidden">Загрузка...</span>
+                    </div>
+                    <span>Поиск...</span>
+                </div>
+                <div class="d-search-results__empty" id="searchEmpty" style="display: none;">
+                    Ничего не найдено
+                </div>
+            </div>
+        </div>
     </div>
     {% endif %}
 
@@ -90,7 +108,6 @@
                 </div>
             </div>
             <div class="category-card__examples">
-                {# Исправлено: используем lexemetriplet_set #}
                 {% for triplet in sub.lexemetriplet_set.all|slice:":4" %}
                 <span class="category-card__tag">{{ triplet.text_lexeme.text }}</span>
                 {% empty %}
@@ -126,7 +143,6 @@
                 </div>
             </div>
             <div class="category-card__examples">
-                {# Исправлено: используем prefetched данные lexemetriplet_set #}
                 {% for triplet in cat.lexemetriplet_set.all|slice:":4" %}
                 <span class="category-card__tag">{{ triplet.text_lexeme.text }}</span>
                 {% empty %}
@@ -149,7 +165,6 @@
             <div class="word-card__body">
                 <h3 class="word-card__title">{{ lemma.text }}</h3>
                 <div class="word-card__meta">
-                    {# Исправлено: используем preview_meaning из view #}
                     {% if lemma.preview_meaning %}
                     <span class="word-card__tag">{{ lemma.preview_meaning.description }}</span>
                     {% endif %}
@@ -221,4 +236,6 @@
 </div>
 {% endblock %}
 
-{% block page_js %}{% endblock %}
+{% block page_js %}
+<script src="{% static 'js/pages/dictionary.js' %}"></script>
+{% endblock %}

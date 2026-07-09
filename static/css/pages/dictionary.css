@@ -21,7 +21,7 @@
 
 .d-search__input {
     width: 100%;
-    padding: 0.875rem 1rem 0.875rem 2.75rem;
+    padding: 0.875rem 3rem 0.875rem 2.75rem;
     background: var(--d-bg-card);
     border: 2px solid var(--d-border);
     border-radius: var(--d-radius-full);
@@ -40,54 +40,132 @@
     color: var(--d-text-muted);
 }
 
-/* Mini Categories (top chips) */
-.mini-categories {
+.d-search__clear {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: var(--d-text-muted);
+    cursor: pointer;
+    padding: 0.25rem;
     display: flex;
-    gap: 0.75rem;
-    overflow-x: auto;
-    padding-bottom: 0.5rem;
-    margin-bottom: 2rem;
-}
-
-.mini-categories::-webkit-scrollbar {
-    height: 4px;
-}
-
-.mini-categories::-webkit-scrollbar-track {
-    background: var(--d-border);
-    border-radius: var(--d-radius-full);
-}
-
-.mini-categories::-webkit-scrollbar-thumb {
-    background: var(--d-primary);
-    border-radius: var(--d-radius-full);
-}
-
-.mini-category {
-    display: inline-flex;
     align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem 1.25rem;
+    justify-content: center;
+    transition: color var(--d-transition);
+}
+
+.d-search__clear:hover {
+    color: var(--d-text-primary);
+}
+
+/* Search Results Wrapper (контейнер под поиском) */
+.d-search-results-wrapper {
+    margin-top: 1rem;
+    animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Search Results */
+.d-search-results {
     background: var(--d-bg-card);
     border: 1px solid var(--d-border);
-    border-radius: var(--d-radius-full);
-    color: var(--d-text-secondary);
-    text-decoration: none;
+    border-radius: var(--d-radius-lg);
+    box-shadow: var(--d-shadow);
+    overflow: hidden;
+}
+
+.d-search-results__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--d-border);
+    background: var(--d-bg-elevated);
+}
+
+.d-search-results__count {
     font-size: 0.875rem;
+    color: var(--d-text-secondary);
     font-weight: 500;
-    white-space: nowrap;
-    transition: all var(--d-transition);
-    flex-shrink: 0;
 }
 
-.mini-category:hover {
-    border-color: var(--d-primary);
-    color: var(--d-primary);
+.d-search-results__close {
+    background: none;
+    border: none;
+    color: var(--d-text-muted);
+    cursor: pointer;
+    padding: 0.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color var(--d-transition);
+}
+
+.d-search-results__close:hover {
+    color: var(--d-text-primary);
+}
+
+.d-search-results__list {
+    padding: 0.5rem 0;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.d-search-result-item {
+    display: block;
+    padding: 0.75rem 1rem;
+    text-decoration: none;
+    color: var(--d-text-primary);
+    transition: background-color var(--d-transition);
+    border-bottom: 1px solid var(--d-border-light);
+}
+
+.d-search-result-item:last-child {
+    border-bottom: none;
+}
+
+.d-search-result-item:hover {
     background: var(--d-primary-soft);
-    transform: translateY(-2px);
 }
 
-.mini-category i {
+.d-search-result-item__text {
+    font-weight: 600;
+    font-size: 0.9375rem;
+    margin-bottom: 0.25rem;
+}
+
+.d-search-result-item__desc {
+    font-size: 0.8125rem;
+    color: var(--d-text-secondary);
+    line-height: 1.4;
+}
+
+.d-search-results__loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 1.5rem;
+    color: var(--d-text-secondary);
+    font-size: 0.875rem;
+}
+
+.d-search-results__empty {
+    padding: 2rem 1rem;
+    text-align: center;
+    color: var(--d-text-muted);
     font-size: 0.875rem;
 }
 
@@ -432,10 +510,6 @@
     .category-card {
         padding: 1rem;
     }
-
-    .mini-categories {
-        margin-bottom: 1.5rem;
-    }
 }
 
 /* Для очень маленьких телефонов (менее 400px) — 1 колонка */
@@ -454,5 +528,9 @@
 
     .category-header__title {
         font-size: 1.25rem;
+    }
+
+    .d-search-results__list {
+        max-height: 300px;
     }
 }
