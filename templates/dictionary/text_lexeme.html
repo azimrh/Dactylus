@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block page_css %}
-    <link rel="stylesheet" href="{% static 'css/pages/word.css' %}?v=3.2">
+    <link rel="stylesheet" href="{% static 'css/pages/word.css' %}?v=3.4">
 {% endblock %}
 
 {% block title %}{{ lemma.text }} | Dactylus{% endblock %}
@@ -22,18 +22,9 @@
     </nav>
 
     <div class="word-layout">
-        <!-- Заголовок -->
+        <!-- Заголовок — без бейджа -->
         <div class="word-header">
-            <div class="word-header__title-group">
-                <h1 class="word-header__title">{{ lemma.text }}</h1>
-                <span class="d-badge {% if in_personal %}d-badge--verified{% endif %}">
-                    {% if in_personal %}
-                    <i class="bi bi-check-circle-fill me-1" aria-hidden="true"></i> В вашем словаре
-                    {% else %}
-                    <i class="bi bi-plus-circle me-1" aria-hidden="true"></i> Не в словаре
-                    {% endif %}
-                </span>
-            </div>
+            <h1 class="word-header__title">{{ lemma.text }}</h1>
         </div>
 
         <!-- Tabs: на каждое meaning своя вкладка -->
@@ -144,16 +135,17 @@
                                 </div>
                             </div>
 
-                            <!-- Правая колонка: кнопки + видео -->
+                            <!-- Правая колонка: кнопки + видео + бейдж -->
                             <div class="meaning-video-column">
-                                <!-- Кнопки действий — над видео -->
+                                <!-- Кнопки действий — уникальные на каждую вкладку -->
                                 <div class="word-actions word-actions--in-tab">
-                                    {% if triplet_id %}
-                                    <button class="btn {% if in_personal %}btn-outline-primary{% else %}btn-primary{% endif %}"
-                                            id="personalBtn"
-                                            data-triplet-id="{{ triplet_id }}"
-                                            onclick="togglePersonal()">
-                                        {% if in_personal %}
+                                    {% if data.triplet_id %}
+                                    <button class="btn {% if data.in_personal %}btn-outline-primary{% else %}btn-primary{% endif %}"
+                                            id="personalBtn-{{ meaning.id }}"
+                                            data-triplet-id="{{ data.triplet_id }}"
+                                            data-meaning-id="{{ meaning.id }}"
+                                            onclick="togglePersonal({{ meaning.id }}, {{ data.triplet_id }})">
+                                        {% if data.in_personal %}
                                         <i class="bi bi-check-lg me-1" aria-hidden="true"></i> В словаре
                                         {% else %}
                                         <i class="bi bi-plus-lg me-2" aria-hidden="true"></i> В мой словарь
@@ -215,6 +207,17 @@
                                         <input type="range" min="0.25" max="1.5" step="0.25" value="1" class="speed-slider">
                                         <span class="speed-control__value">1x</span>
                                     </div>
+
+                                    <!-- Бейдж "В вашем словаре" — внизу video-sidebar -->
+                                    <div class="video-sidebar__badge">
+                                        <span class="d-badge {% if data.in_personal %}d-badge--verified{% endif %}" id="badge-{{ meaning.id }}">
+                                            {% if data.in_personal %}
+                                            <i class="bi bi-check-circle-fill me-1" aria-hidden="true"></i> В вашем словаре
+                                            {% else %}
+                                            <i class="bi bi-plus-circle me-1" aria-hidden="true"></i> Не в словаре
+                                            {% endif %}
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -238,21 +241,19 @@
 
 {% block page_js %}
     <script src="{% static 'js/components/video-player.js' %}?v=1.0.0"></script>
-    <script src="{% static 'js/pages/word.js' %}?v=2.2.0"></script>
+    <script src="{% static 'js/pages/word.js' %}?v=2.4.0"></script>
     <script>
     (function() {
-        window.tripletId = {{ triplet_id|default:"null" }};
-
         window.getCsrfToken = function() {
             return document.cookie.split('; ')
                 .find(row => row.startsWith('csrftoken='))
                 ?.split('=')[1] || '';
         };
 
-        window.togglePersonal = function() {
-            const button = document.getElementById('personalBtn');
-            if (!button || !window.tripletId) {
-                console.error('Button or tripletId not found', button, window.tripletId);
+        window.togglePersonal = function(meaningId, tripletId) {
+            const button = document.getElementById('personalBtn-' + meaningId);
+            if (!button || !tripletId) {
+                console.error('Button or tripletId not found', button, tripletId);
                 return;
             }
 
@@ -272,7 +273,7 @@
                 })
                 .then(data => {
                     const results = Array.isArray(data) ? data : (data.results || []);
-                    const entry = results.find(item => item.lexeme_triplet === window.tripletId);
+                    const entry = results.find(item => item.lexeme_triplet === tripletId);
                     if (!entry) throw new Error('Запись не найдена');
                     return fetch(`/api/v1/personal/${entry.id}/`, {
                         method: 'DELETE',
@@ -286,7 +287,7 @@
                     button.classList.add('btn-primary');
                     button.innerHTML = '<i class="bi bi-plus-lg me-2" aria-hidden="true"></i> В мой словарь';
 
-                    const badge = document.querySelector('.word-header .d-badge');
+                    const badge = document.getElementById('badge-' + meaningId);
                     if (badge) {
                         badge.classList.remove('d-badge--verified');
                         badge.innerHTML = '<i class="bi bi-plus-circle me-1" aria-hidden="true"></i> Не в словаре';
@@ -307,7 +308,7 @@
                     },
                     credentials: 'same-origin',
                     body: JSON.stringify({
-                        lexeme_triplet: window.tripletId,
+                        lexeme_triplet: tripletId,
                         status: 'new'
                     })
                 })
@@ -329,7 +330,7 @@
                     button.classList.add('btn-outline-primary');
                     button.innerHTML = '<i class="bi bi-check-lg me-1" aria-hidden="true"></i> В словаре';
 
-                    const badge = document.querySelector('.word-header .d-badge');
+                    const badge = document.getElementById('badge-' + meaningId);
                     if (badge) {
                         badge.classList.add('d-badge--verified');
                         badge.innerHTML = '<i class="bi bi-check-circle-fill me-1" aria-hidden="true"></i> В вашем словаре';

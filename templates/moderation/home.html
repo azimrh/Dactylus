@@ -80,11 +80,6 @@
                         <span><i class="bi bi-clock me-1" aria-hidden="true"></i> {{ gesture.created_at|timesince }} назад</span>
                     </div>
                 </div>
-                <div class="mod-item__actions">
-                    <a href="{% url 'moderation-gesture' gesture.id %}" class="btn btn-primary btn-sm">
-                        <i class="bi bi-pencil me-1" aria-hidden="true"></i> Редактировать
-                    </a>
-                </div>
             </div>
             {% empty %}
             <div class="info-card text-center py-4">

@@ -20,6 +20,7 @@ def page_text_lexeme(request, slug):
     for t in triplets:
         if t.meaning not in meanings_data:
             meanings_data[t.meaning] = {
+                'triplet': t,  # ← первый triplet для этого meaning
                 'triplets': [],
                 'gestures': [],
                 'synonyms': [],
@@ -35,7 +36,7 @@ def page_text_lexeme(request, slug):
                 moderation_status='approved'
             ).select_related('author', 'gesture_lexeme'))
 
-        # Синонимы: другие text_lexemes с тем же meaning
+        # Синонимы
         synonym_triplets = LexemeTriplet.objects.filter(
             meaning=meaning,
             moderation_status='approved'
@@ -47,6 +48,15 @@ def page_text_lexeme(request, slug):
             if t.text_lexeme_id not in seen_ids:
                 seen_ids.add(t.text_lexeme_id)
                 data['synonyms'].append(t.text_lexeme)
+
+        # Проверка в личном словаре — для КАЖДОГО triplet отдельно
+        data['in_personal'] = False
+        data['triplet_id'] = data['triplet'].id
+        if request.user.is_authenticated:
+            data['in_personal'] = Personal.objects.filter(
+                user=request.user,
+                lexeme_triplet_id=data['triplet'].id
+            ).exists()
 
     # Категории
     categories = Category.objects.filter(
@@ -64,22 +74,9 @@ def page_text_lexeme(request, slug):
             })
             current = current.parent
 
-    # Проверка в личном словаре — по первому triplet
-    first_triplet = triplets.first()
-    triplet_id = first_triplet.id if first_triplet else None
-
-    in_personal = False
-    if request.user.is_authenticated and triplet_id:
-        in_personal = Personal.objects.filter(
-            user=request.user,
-            lexeme_triplet_id=triplet_id
-        ).exists()
-
     return render(request, 'dictionary/text_lexeme.html', {
         'lemma': lemma,
         'meanings_data': meanings_data,
         'categories': categories,
         'navigation': navigation,
-        'triplet_id': triplet_id,
-        'in_personal': in_personal,
     })

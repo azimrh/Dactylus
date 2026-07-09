@@ -24,7 +24,7 @@ class PersonalListSerializer(serializers.ModelSerializer):
         return {
             'id': triplet.id,
             'text': triplet.text_lexeme.text,
-            'gesture': triplet.gesture_lexeme.text
+            'gesture': getattr(triplet.gesture_lexeme, 'text', triplet.gesture_lexeme.__str__())
         }
 
     def get_text_lexeme(self, obj):
@@ -37,10 +37,11 @@ class PersonalListSerializer(serializers.ModelSerializer):
 
     def get_gesture_lexeme(self, obj):
         """Жестовая лемма"""
+        gesture = obj.lexeme_triplet.gesture_lexeme
         return {
-            'id': obj.lexeme_triplet.gesture_lexeme.id,
-            'text': obj.lexeme_triplet.gesture_lexeme.text,
-            'slug': obj.lexeme_triplet.gesture_lexeme.slug
+            'id': gesture.id,
+            'text': getattr(gesture, 'text', str(gesture)),
+            'slug': getattr(gesture, 'slug', None)
         }
 
 
@@ -75,8 +76,8 @@ class PersonalDetailSerializer(serializers.ModelSerializer):
             },
             'gesture_lexeme': {
                 'id': triplet.gesture_lexeme.id,
-                'text': triplet.gesture_lexeme.text,
-                'slug': triplet.gesture_lexeme.slug
+                'text': getattr(triplet.gesture_lexeme, 'text', str(triplet.gesture_lexeme)),
+                'slug': getattr(triplet.gesture_lexeme, 'slug', None)
             },
             'created_at': triplet.created_at
         }
@@ -97,8 +98,8 @@ class PersonalDetailSerializer(serializers.ModelSerializer):
         realizations = lexeme.realizations.filter(moderation_status='approved')
         return {
             'id': lexeme.id,
-            'text': lexeme.text,
-            'slug': lexeme.slug,
+            'text': getattr(lexeme, 'text', str(lexeme)),
+            'slug': getattr(lexeme, 'slug', None),
             'realizations_count': realizations.count(),
             'has_primary': realizations.filter(is_primary=True).exists()
         }
