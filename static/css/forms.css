@@ -125,7 +125,8 @@
   transition: all var(--d-transition);
 }
 
-.upload-area:hover {
+.upload-area:hover,
+.upload-area:focus-visible {
   border-color: var(--d-primary);
 }
 
